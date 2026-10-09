@@ -33,6 +33,14 @@
     mic: false,
     banner: null,
     keepScroll: false,
+    rt: 0,                   // numer bieżącego widoku (do ignorowania spóźnionych odpowiedzi)
+    v2: true,                // baza ma już kolumny z schema-v2.sql (odpowiedzi, edycja)
+    reply: null,             // { id, author, text }: na co odpowiadam
+    edit: null,              // { id }: którą wiadomość edytuję
+    role: 'member',          // member | moderator | admin
+    fq: '',                  // wyszukiwarka fandomów
+    fsort: 'popular',
+    fmine: false,
     filters: load('filters', { lang: 'all', level: 'all', topic: 'all', age: 'all' })
   };
   (function readCheckoutResult() {
@@ -86,6 +94,7 @@
     for (var i = 0; i < list.length; i++) { if (list[i].id === id) return list[i]; }
     return null;
   }
+  function isStaff() { return ui.role === 'moderator' || ui.role === 'admin'; }
   function isPremium() { return !!CFG.devForcePremium; }
   function toast(msg) {
     toastEl.textContent = msg;
@@ -118,7 +127,16 @@
     plus: '<path d="M12 5v14M5 12h14"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     close: '<path d="M6 6l12 12M18 6L6 18"/>',
-    send: '<path d="M4 12l16-8-6 16-3-7z"/>'
+    send: '<path d="M4 12l16-8-6 16-3-7z"/>',
+    home: '<path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/>',
+    book: '<path d="M12 6.5C10 5 7 4.6 4 5v13c3-.4 6 0 8 1.5 2-1.5 5-1.9 8-1.5V5c-3-.4-6 0-8 1.5z"/><path d="M12 6.5v13"/>',
+    cafe: '<path d="M4 10h11v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M15 11h1.4a2.4 2.4 0 0 1 0 4.8H15"/><path d="M7.5 3.5v3M11.5 3.5v3"/><path d="M19.5 2.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor" stroke-width="1"/>',
+    chat: '<path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-6l-4 4v-4H7a3 3 0 0 1-3-3z"/><path d="M12 7.2l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z" fill="currentColor" stroke-width="1"/>',
+    more: '<circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="19" cy="12" r="1.2" fill="currentColor"/>',
+    reply: '<path d="M10 7L4 12l6 5"/><path d="M4 12h10a6 6 0 0 1 6 6"/>',
+    edit: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+    trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+    users: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4.5 2 4.5 4.5"/>'
   };
   function ico(name, size) {
     size = size || 24;
@@ -190,8 +208,10 @@
   };
 
   /* ---------- czat na żywo (Supabase): historia z bazy + nowe wiadomości od razu ---------- */
-  var Live = { token: 0, ids: {}, channel: null };
-  var MSG_COLS = 'id,user_id,author,text,created_at';
+  var Live = { token: 0, rows: {}, order: [], channel: null };
+  var MSG_BASE = 'id,user_id,author,text,created_at';
+  var MSG_V2 = MSG_BASE + ',reply_to,edited_at,deleted_at';
+  function msgCols() { return ui.v2 ? MSG_V2 : MSG_BASE; }
 
   function msgTime(iso) {
     var d = new Date(iso);
@@ -201,25 +221,71 @@
     if (d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate()) return hm;
     return (lang === 'ko' ? (d.getMonth() + 1) + '/' + d.getDate() : pad(d.getDate()) + '.' + pad(d.getMonth() + 1)) + ' ' + hm;
   }
-  function rowToMsg(row) {
-    return { mine: !!(ui.user && row.user_id === ui.user.id), author: row.author, time: msgTime(row.created_at), text: row.text };
+  function initial(name) { return (String(name || '?').trim().charAt(0) || '?').toUpperCase(); }
+  function snip(text) { text = String(text); return text.length > 80 ? text.slice(0, 80) + '…' : text; }
+  // Jedna wiadomość z bazy: dymek, awatar, cytat odpowiedzi, znacznik "edytowano" i menu akcji.
+  function cmsgHtml(row) {
+    var mine = !!(ui.user && row.user_id === ui.user.id);
+    var id = row.id;
+    var av = mine ? '' : '<span class="avatar avatar-sm" aria-hidden="true">' + esc(initial(row.author)) + '</span>';
+    if (row.deleted_at) {
+      return '<div class="msg' + (mine ? ' msg-out' : '') + '" data-mid="' + id + '">' + av +
+        '<div class="msg-col"><div class="bubble bubble-gone"><span class="txt">' + esc(t('msg.deleted')) + '</span></div></div></div>';
+    }
+    var quote = '';
+    if (row.reply_to) {
+      var p = Live.rows[row.reply_to];
+      quote = '<div class="quote"><strong>' + esc(p ? p.author : '') + '</strong><span>' +
+        esc(!p ? t('msg.quoteMissing') : (p.deleted_at ? t('msg.deleted') : snip(p.text))) + '</span></div>';
+    }
+    var meta = (mine ? esc(t('room.you')) : esc(row.author)) + ' · ' + esc(msgTime(row.created_at)) +
+      (row.edited_at ? ' · <span class="edited">' + esc(t('msg.edited')) + '</span>' : '');
+    var more = '', actions = '';
+    if (ui.v2) {
+      var canDel = mine || isStaff();
+      more = '<button type="button" class="msg-more" data-action="msgmenu" data-id="' + id + '" aria-expanded="false" aria-label="' + esc(t('msg.more')) + '">' + ico('more', 18) + '</button>';
+      actions = '<div class="msg-actions" hidden>' +
+        '<button type="button" class="act" data-action="reply" data-id="' + id + '">' + ico('reply', 16) + esc(t('msg.reply')) + '</button>' +
+        (mine ? '<button type="button" class="act" data-action="edit" data-id="' + id + '">' + ico('edit', 16) + esc(t('msg.edit')) + '</button>' : '') +
+        (canDel ? '<button type="button" class="act act-del" data-action="del" data-id="' + id + '">' + ico('trash', 16) + esc(t('msg.del')) + '</button>' : '') +
+        '</div>';
+    }
+    return '<div class="msg' + (mine ? ' msg-out' : '') + '" data-mid="' + id + '">' + av +
+      '<div class="msg-col"><div class="bubble ' + (mine ? 'bubble-out' : 'bubble-in') + '">' +
+      '<div class="bubble-head"><span class="meta">' + meta + '</span>' + more + '</div>' + quote +
+      '<span class="txt">' + esc(row.text) + '</span></div>' + actions + '</div></div>';
   }
   Live.detach = function () {
     Live.token++;
     if (Live.channel) { try { SB.client.removeChannel(Live.channel); } catch (e) { /* ignore */ } }
     Live.channel = null;
-    Live.ids = {};
+    Live.rows = {};
+    Live.order = [];
   };
-  Live.add = function (row, force) {
-    if (!row || Live.ids[row.id]) return;
+  Live.emptyNote = function () { return '<p class="day-sep" data-empty>' + esc(t('chat.empty')) + ' <span lang="ko">반가워요!</span></p>'; };
+  Live.redraw = function () {
     var box = document.getElementById('messages');
     if (!box) return;
-    Live.ids[row.id] = true;
+    box.innerHTML = Live.order.length ? Live.order.map(function (id) { return cmsgHtml(Live.rows[id]); }).join('') : Live.emptyNote();
+  };
+  Live.add = function (row, force) {
+    if (!row || Live.rows[row.id]) return;
+    var box = document.getElementById('messages');
+    if (!box) return;
+    Live.rows[row.id] = row;
+    Live.order.push(row.id);
     var near = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight) < 160;
     var empty = box.querySelector('[data-empty]');
     if (empty) empty.parentNode.removeChild(empty);
-    box.insertAdjacentHTML('beforeend', msgHtml(rowToMsg(row)));
+    box.insertAdjacentHTML('beforeend', cmsgHtml(row));
     if (force || near) window.scrollTo(0, document.body.scrollHeight);
+  };
+  // Edycja lub usunięcie: podmień wiadomość i odśwież cytaty, które się do niej odwołują.
+  Live.upd = function (row) {
+    if (!row) return;
+    if (!Live.rows[row.id]) return Live.add(row);
+    Live.rows[row.id] = row;
+    Live.redraw();
   };
   Live.attach = function (key) {
     Live.detach();
@@ -229,32 +295,57 @@
     var loaded = false;
     var pending = [];
     function fail() { if (token === Live.token) box.innerHTML = '<p class="day-sep">' + esc(t('chat.loadError')) + '</p>'; }
+    function fetchRows() {
+      return SB.client.from('messages').select(msgCols()).eq('channel', key).order('created_at', { ascending: false }).limit(100)
+        .then(function (r) {
+          if (r.error && ui.v2) { ui.v2 = false; return fetchRows(); }   // baza jeszcze bez schema-v2.sql
+          return r;
+        });
+    }
     // najpierw nasłuch, potem pobranie historii, żeby żadna wiadomość nie przepadła pomiędzy
     Live.channel = SB.client.channel('msgs:' + key)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'channel=eq.' + key }, function (p) {
         if (token !== Live.token) return;
         if (loaded) Live.add(p['new']); else pending.push(p['new']);
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: 'channel=eq.' + key }, function (p) {
+        if (token !== Live.token || !loaded) return;
+        Live.upd(p['new']);
+      })
       .subscribe();
-    SB.client.from('messages').select(MSG_COLS).eq('channel', key).order('created_at', { ascending: false }).limit(100)
-      .then(function (r) {
-        if (token !== Live.token) return;
-        if (r.error) return fail();
-        var rows = (r.data || []).slice().reverse();
-        box.innerHTML = '<p class="day-sep" data-empty>' + esc(t('chat.empty')) + '</p>';
-        rows.forEach(function (row) { Live.add(row); });
-        loaded = true;
-        pending.forEach(function (row) { Live.add(row); });
-        window.scrollTo(0, document.body.scrollHeight);
-      }, fail);
+    fetchRows().then(function (r) {
+      if (token !== Live.token) return;
+      if (r.error) return fail();
+      var rows = (r.data || []).slice().reverse();
+      box.innerHTML = Live.emptyNote();
+      rows.forEach(function (row) { Live.rows[row.id] = row; Live.order.push(row.id); });
+      Live.redraw();
+      loaded = true;
+      pending.forEach(function (row) { Live.add(row); });
+      window.scrollTo(0, document.body.scrollHeight);
+    }, fail);
   };
-  Live.send = function (key, text) {
+  Live.send = function (key, text, replyTo) {
     var author = (load('name', '') || t('profile.guest')).slice(0, 30);
-    return SB.client.from('messages').insert({ channel: key, author: author, text: text }).select(MSG_COLS).single()
+    var row = { channel: key, author: author, text: text };
+    if (replyTo && ui.v2) row.reply_to = replyTo;
+    return SB.client.from('messages').insert(row).select(msgCols()).single()
       .then(function (r) {
         if (r.error) throw r.error;
         return r.data;
       });
+  };
+  Live.edit = function (id, text) {
+    return SB.client.rpc('edit_message', { p_id: id, p_text: text }).then(function (r) {
+      if (r.error) throw r.error;
+      return r.data;
+    });
+  };
+  Live.remove = function (id) {
+    return SB.client.rpc('delete_message', { p_id: id }).then(function (r) {
+      if (r.error) throw r.error;
+      return r.data;
+    });
   };
 
   /* ---------- logowanie ---------- */
@@ -295,9 +386,10 @@
   }
   function nav(active) {
     var items = [
-      ['chats', '#/kawiarnia', 'cup', 'nav.cafe'],
-      ['live', '#/kawiarnia/live', 'people', 'nav.rooms'],
-      ['events', '#/wydarzenia', 'calendar', 'nav.events'],
+      ['home', '#/start', 'home', 'nav.home'],
+      ['learn', '#/nauka', 'book', 'nav.learn'],
+      ['cafe', '#/cafe', 'cafe', 'nav.korCafe'],
+      ['fandom', '#/fandomy', 'chat', 'nav.fandom'],
       ['profile', '#/profil', 'user', 'nav.profile']
     ];
     return '<nav class="nav" aria-label="' + esc(t('nav.label')) + '">' + items.map(function (i) {
@@ -318,7 +410,7 @@
   }
   function notFound(key) {
     show('<main class="screen" id="view" tabindex="-1"><div class="content"><p class="empty">' + esc(t(key)) + '</p>' +
-      '<a class="btn btn-ghost btn-sm" href="#/kawiarnia">' + esc(t('common.back')) + '</a></div></main>', 'Korean Cafe Online');
+      '<a class="btn btn-ghost btn-sm" href="#/start">' + esc(t('common.back')) + '</a></div></main>', 'Korean Cafe Online');
   }
 
   /* ---------- widok: powitanie ---------- */
@@ -405,7 +497,7 @@
       '<div class="tabs" role="navigation">' +
       '<a class="tab" href="#/kawiarnia"' + (tab === 'chats' ? ' aria-current="page"' : '') + '>' + esc(t('tab.chats')) + '</a>' +
       '<a class="tab" href="#/kawiarnia/live"' + (tab === 'live' ? ' aria-current="page"' : '') + '>' + esc(t('tab.live')) + '</a></div>' +
-      filtersHtml() + body + '</div>' + nav(tab === 'chats' ? 'chats' : 'live') + '</main>';
+      filtersHtml() + body + '</div>' + nav('cafe') + '</main>';
     show(html, t('lobby.title'));
   }
 
@@ -438,6 +530,30 @@
       '<button type="button" class="btn btn-ghost" data-action="register">' + esc(t('auth.title.register')) + '</button></div>';
   }
 
+  // Pole do pisania z paskiem "odpowiadasz / edytujesz" nad nim.
+  function composerHtml(key, placeholder, extra) {
+    return '<div class="composer-wrap"><div class="replybar" id="replybar" hidden></div>' +
+      '<form class="composer" data-form="msg" data-key="' + key + '">' +
+      '<input class="composer-input" id="composerInput" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(placeholder) + '" aria-label="' + esc(placeholder) + '">' +
+      '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button>' + (extra || '') + '</form></div>';
+  }
+  function updateReplyBar() {
+    var bar = document.getElementById('replybar');
+    if (!bar) return;
+    if (ui.edit) {
+      bar.innerHTML = '<span class="replybar-text"><strong>' + esc(t('msg.editing')) + '</strong></span>' +
+        '<button type="button" class="icon-btn" data-action="cancelcompose" aria-label="' + esc(t('msg.cancel')) + '">' + ico('close', 18) + '</button>';
+      bar.hidden = false;
+    } else if (ui.reply) {
+      bar.innerHTML = '<span class="replybar-text"><strong>' + esc(tf('msg.replyingTo', { name: ui.reply.author })) + '</strong><span>' + esc(snip(ui.reply.text)) + '</span></span>' +
+        '<button type="button" class="icon-btn" data-action="cancelcompose" aria-label="' + esc(t('msg.cancel')) + '">' + ico('close', 18) + '</button>';
+      bar.hidden = false;
+    } else {
+      bar.hidden = true;
+      bar.innerHTML = '';
+    }
+  }
+
   /* ---------- widok: czat tekstowy ---------- */
   function viewChat(id) {
     var c = findBy(D.channels, id);
@@ -449,10 +565,7 @@
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(c.name)) + '</h1><span class="subtitle">' + esc(O(c.name)) + ' · ' + esc(L(c.level)) + '</span></div></div>' +
       '<div class="strip"><span>' + esc(L(c.rule)) + '</span><span class="tag">' + esc(t('chat.tr')) + '</span></div>' +
       (SB.on ? '<div class="strip">' + esc(t('chat.live')) + '</div>' : (CFG.demo ? '<div class="strip">' + esc(t('demo.chat')) + '</div>' : '')) +
-      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) +
-      '<form class="composer" data-form="msg" data-key="' + key + '">' +
-      '<input class="composer-input" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(t('chat.input')) + '" aria-label="' + esc(t('chat.input')) + '">' +
-      '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button></form>') + '</main>';
+      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) + composerHtml(key, t('chat.input'))) + '</main>';
     show(html, L(c.name), { bottom: true });
     if (SB.on && ui.user) Live.attach(key);
   }
@@ -485,11 +598,7 @@
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(r.name)) + '</h1><span class="subtitle">' + esc(O(r.name)) + ' · ' + esc(L(r.level)) + '</span></div>' + status + '</div>' +
       '<div class="seats">' + seats + '</div>' + topic +
       '<div class="strip">' + esc(t('demo.voice')) + '</div>' +
-      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) +
-      '<form class="composer" data-form="msg" data-key="' + key + '">' +
-      '<input class="composer-input" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(t('room.input')) + '" aria-label="' + esc(t('room.input')) + '">' +
-      '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button>' +
-      '<span id="micWrap">' + micHtml() + '</span></form>') + '</main>';
+      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) + composerHtml(key, t('room.input'), '<span id="micWrap">' + micHtml() + '</span>')) + '</main>';
     show(html, L(r.name));
     if (SB.on && ui.user) Live.attach(key);
   }
@@ -512,7 +621,7 @@
       '<div class="head"><h1 class="title">' + esc(t('ev.title')) + '</h1></div>' +
       '<div class="tabs"><a class="tab" href="#/wydarzenia"' + (filter === 'all' ? ' aria-current="page"' : '') + '>' + esc(t('ev.all')) + '</a>' +
       '<a class="tab" href="#/wydarzenia/premium"' + (filter === 'premium' ? ' aria-current="page"' : '') + '>' + esc(t('ev.premium')) + '</a></div>' +
-      (cards || '<p class="empty">' + esc(t('ev.empty')) + '</p>') + '</div>' + nav('events') + '</main>';
+      (cards || '<p class="empty">' + esc(t('ev.empty')) + '</p>') + '</div>' + nav('home') + '</main>';
     show(html, t('ev.title'));
   }
   function downloadIcs(id) {
@@ -549,7 +658,7 @@
       ui.banner === 'cancel' ? '<div class="banner banner-warn">' + esc(t('pay.cancel')) + '</div>' : '';
     var benefits = ['pay.b1', 'pay.b2', 'pay.b3', 'pay.b4'].map(function (k) { return '<li>' + ico('check', 22) + '<span>' + esc(t(k)) + '</span></li>'; }).join('');
     var html = '<main class="screen paywall" id="view" tabindex="-1">' +
-      '<div class="paywall-top"><a class="icon-btn" href="#/kawiarnia" aria-label="' + esc(t('common.close')) + '">' + ico('close') + '</a></div>' +
+      '<div class="paywall-top"><a class="icon-btn" href="#/start" aria-label="' + esc(t('common.close')) + '">' + ico('close') + '</a></div>' +
       '<div class="paywall-head"><span class="eyebrow">' + esc(t('pay.eyebrow')) + '</span><h1>' + esc(t('pay.h1')) + '</h1><p>' + esc(t('pay.lead')) + '</p></div>' +
       (banner ? '<div style="margin-top:16px">' + banner + '</div>' : '') +
       '<div class="tabs" style="margin-top:22px">' +
@@ -609,7 +718,7 @@
     } else if (mode === 'reset') {
       links = '<a href="#/logowanie">' + esc(t('auth.backToLogin')) + '</a>';
     }
-    var back = mode === 'newpass' ? '#/kawiarnia' : '#/profil';
+    var back = mode === 'newpass' ? '#/start' : '#/profil';
     var html = '<main class="screen" id="view" tabindex="-1">' +
       '<div class="topbar"><a class="icon-btn" href="' + back + '" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('auth.title.' + mode)) + '</h1></div></div>' +
@@ -636,7 +745,7 @@
     function finish(user) {
       var meta = user && user.user_metadata;
       if (!load('name', '') && meta && meta.name) save('name', String(meta.name).slice(0, 30));
-      var to = ui.returnTo || '#/kawiarnia';
+      var to = ui.returnTo || '#/start';
       ui.returnTo = null;
       navigate(to);
     }
@@ -670,7 +779,7 @@
         if (r.error) throw r.error;
         ui.recovery = false;
         toast(t('auth.passSaved'));
-        navigate('#/kawiarnia');
+        navigate('#/start');
       });
     }
     job.catch(function (err) {
@@ -712,9 +821,274 @@
     show(html, t('profile.title'));
   }
 
+  /* ---------- społeczności: stoliki Korean Café i Fandom Chat (dane z Supabase) ---------- */
+  var Comm = {};
+  Comm.fetch = function () {
+    var uid = ui.user && ui.user.id;
+    return Promise.all([
+      SB.client.from('communities').select('id,kind,slug,name,description,topic,level,guidelines,capacity,status,featured,sort').order('sort').order('name'),
+      SB.client.rpc('community_stats'),
+      SB.client.from('community_members').select('community_id').eq('user_id', uid)
+    ]).then(function (r) {
+      var err = r[0].error || r[1].error || r[2].error;
+      if (err) throw err;
+      var stats = {}, mine = {};
+      (r[1].data || []).forEach(function (x) { stats[x.community_id] = { members: x.members, last: x.last_message_at }; });
+      (r[2].data || []).forEach(function (x) { mine[x.community_id] = true; });
+      return { rows: r[0].data || [], stats: stats, mine: mine };
+    });
+  };
+  Comm.join = function (id) {
+    return SB.client.rpc('join_community', { p_id: id }).then(function (r) { if (r.error) throw r.error; });
+  };
+  Comm.leave = function (id) {
+    return SB.client.from('community_members').delete().eq('community_id', id).eq('user_id', ui.user.id).then(function (r) { if (r.error) throw r.error; });
+  };
+  function commHref(c) { return (c.kind === 'table' ? '#/cafe/' : '#/fandomy/') + c.slug; }
+  function sparkles() { return '<span class="spark spark-a" aria-hidden="true"></span><span class="spark spark-b" aria-hidden="true"></span><span class="spark spark-c" aria-hidden="true"></span>'; }
+  function inlineGate() {
+    if (!SB.on) return '<p class="empty">' + esc(t('comm.needAccounts')) + '</p>';
+    return '<div class="card"><h2>' + esc(t('comm.login')) + '</h2><p class="subtitle">' + esc(t('comm.loginBody')) + '</p>' +
+      '<button type="button" class="btn btn-primary btn-sm" data-action="login">' + esc(t('auth.title.login')) + '</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-action="register">' + esc(t('auth.title.register')) + '</button></div>';
+  }
+  function commError(err) {
+    var c = (err && err.code) || '', m = String((err && err.message) || '').toLowerCase();
+    var notReady = c === 'PGRST205' || c === 'PGRST202' || c === '42P01' || m.indexOf('could not find') >= 0 || m.indexOf('does not exist') >= 0;
+    return '<p class="empty">' + esc(t(notReady ? 'comm.notReady' : 'comm.error')) + '</p>';
+  }
+  function fillBody(tok, html, after) {
+    if (tok !== ui.rt) return;
+    var el = document.getElementById('commBody');
+    if (!el) return;
+    el.innerHTML = html;
+    if (after) after(el);
+  }
+  function topHead(titleKey, subKey) {
+    return '<div class="head"><div><h1 class="title">' + esc(t(titleKey)) + '</h1><p class="subtitle">' + esc(t(subKey)) + '</p></div></div>';
+  }
+
+  /* Start (dashboard) */
+  function viewHome() {
+    var name = load('name', '');
+    var now = new Date();
+    var next = D.events.map(function (e) { return { e: e, slot: nextSlot(e, now) }; })
+      .filter(function (x) { return x.slot; }).sort(function (a, b) { return a.slot.start - b.slot.start; })[0];
+    var nextHtml = next ? '<h2 class="section-title">' + esc(t('home.next')) + '</h2>' +
+      '<a class="row" href="#/wydarzenia"><span class="badge-sq">' + ico('calendar', 20) + '</span><span class="row-text"><span class="row-time">' + esc(whenText(next.slot.start, now)) + '</span><strong>' + esc(L(next.e.name)) + '</strong><small>' + esc(O(next.e.name)) + '</small></span>' + ico('chevron', 18) + '</a>' : '';
+    var html = '<main class="screen" id="view" tabindex="-1"><div class="content home">' +
+      '<div class="head"><div class="brand"><div class="brand-mark"><img src="img/logo-96.png" alt="" width="42" height="42"></div><div><span class="brand-name">Korean Café Online</span><span class="brand-sub">' + esc(t('brand.sub')) + '</span></div></div>' + langSeg() + '</div>' +
+      '<div class="home-intro"><span class="eyebrow">안녕</span><h1 class="title">' + esc(name ? tf('home.hello', { name: name }) : t('home.helloGuest')) + '</h1><p class="subtitle">' + esc(t('home.sub')) + '</p></div>' +
+      '<div class="home-grid">' +
+      '<article class="feature feature-cafe">' + sparkles() + '<span class="feature-icon">' + ico('cafe', 26) + '</span><h2>' + esc(t('home.cafe.title')) + '</h2><p>' + esc(t('home.cafe.body')) + '</p>' +
+      '<a class="btn btn-primary" href="#/cafe">' + esc(t('home.cafe.cta')) + '</a></article>' +
+      '<article class="feature feature-dark">' + sparkles() + '<span class="feature-icon">' + ico('chat', 26) + '</span><h2>' + esc(t('home.fandom.title')) + '</h2><p>' + esc(t('home.fandom.body')) + '</p>' +
+      '<a class="btn btn-primary" href="#/fandomy">' + esc(t('home.fandom.cta')) + '</a></article>' +
+      '<article class="feature feature-plain"><span class="feature-icon">' + ico('book', 26) + '</span><h2>' + esc(t('home.learn.title')) + '</h2><p>' + esc(t('home.learn.body')) + '</p>' +
+      '<a class="btn btn-ghost" href="#/nauka">' + esc(t('home.learn.cta')) + '</a></article></div>' +
+      nextHtml + '<div id="homeMine"></div></div>' + nav('home') + '</main>';
+    show(html, t('nav.home'));
+    var tok = ui.rt, box = document.getElementById('homeMine');
+    if (!box || !SB.on) return;
+    if (!ui.user) { box.innerHTML = '<p class="notice">' + esc(t('home.mineLogin')) + '</p>'; return; }
+    Comm.fetch().then(function (d) {
+      if (tok !== ui.rt) return;
+      var mine = d.rows.filter(function (c) { return d.mine[c.id]; });
+      box.innerHTML = '<h2 class="section-title">' + esc(t('home.mine')) + '</h2>' + (mine.length ?
+        '<div class="list">' + mine.map(function (c) {
+          return '<a class="row" href="' + commHref(c) + '"><span class="badge-sq">' + ico(c.kind === 'table' ? 'cafe' : 'chat', 20) + '</span><span class="row-text"><strong>' + esc(c.name) + '</strong><small>' + esc(c.topic) + '</small></span>' + ico('chevron', 18) + '</a>';
+        }).join('') + '</div>' : '<p class="empty">' + esc(t('home.mineEmpty')) + '</p>');
+    }).catch(function () { /* sekcja "Twoje miejsca" jest dodatkiem: bez bazy po prostu jej nie ma */ });
+  }
+
+  /* Nauka */
+  var HANGUL_C = [['ㄱ', 'g/k'], ['ㄴ', 'n'], ['ㄷ', 'd/t'], ['ㄹ', 'r/l'], ['ㅁ', 'm'], ['ㅂ', 'b/p'], ['ㅅ', 's'], ['ㅇ', '–/ng'], ['ㅈ', 'j'], ['ㅊ', 'ch'], ['ㅋ', 'k'], ['ㅌ', 't'], ['ㅍ', 'p'], ['ㅎ', 'h']];
+  var HANGUL_V = [['ㅏ', 'a'], ['ㅓ', 'eo'], ['ㅗ', 'o'], ['ㅜ', 'u'], ['ㅡ', 'eu'], ['ㅣ', 'i'], ['ㅐ', 'ae'], ['ㅔ', 'e'], ['ㅑ', 'ya'], ['ㅕ', 'yeo'], ['ㅛ', 'yo'], ['ㅠ', 'yu']];
+  var PHRASES = [
+    ['안녕하세요', 'annyeonghaseyo', 'Dzień dobry', '안녕하세요'],
+    ['안녕', 'annyeong', 'Cześć (nieformalnie)', '안녕'],
+    ['반가워요', 'bangawoyo', 'Miło mi, cieszę się, że Cię poznaję', '반가워요'],
+    ['감사합니다', 'gamsahamnida', 'Dziękuję', '감사합니다'],
+    ['네 / 아니요', 'ne / aniyo', 'Tak / Nie', '네 / 아니요'],
+    ['잘 지내요?', 'jal jinaeyo?', 'Co słychać?', '잘 지내요?'],
+    ['커피 한 잔 주세요', 'keopi han jan juseyo', 'Poproszę jedną kawę', '커피 한 잔 주세요'],
+    ['함께해요', 'hamkkehaeyo', 'Zróbmy to razem', '함께해요']
+  ];
+  function viewLearn() {
+    var tiles = function (list) { return '<div class="tiles">' + list.map(function (x) { return '<div class="tile"><span class="tile-ko" lang="ko">' + x[0] + '</span><span class="tile-ro">' + esc(x[1]) + '</span></div>'; }).join('') + '</div>'; };
+    var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
+      topHead('learn.title', 'learn.sub') +
+      '<section class="card"><h2>' + esc(t('learn.hangul')) + '</h2><p class="label-caps">' + esc(t('learn.consonants')) + '</p>' + tiles(HANGUL_C) +
+      '<p class="label-caps">' + esc(t('learn.vowels')) + '</p>' + tiles(HANGUL_V) + '<p class="fine" style="text-align:left">' + esc(t('learn.note')) + '</p></section>' +
+      '<section class="card"><h2>' + esc(t('learn.phrases')) + '</h2><div class="phrases">' + PHRASES.map(function (x) {
+        return '<div class="phrase"><span class="phrase-ko" lang="ko">' + esc(x[0]) + '</span><span class="phrase-ro">' + esc(x[1]) + '</span><span class="phrase-pl">' + esc(x[2]) + '</span></div>';
+      }).join('') + '</div></section>' +
+      '<section class="feature feature-cafe">' + sparkles() + '<span class="feature-icon">' + ico('cafe', 26) + '</span><h2>' + esc(t('learn.practice')) + '</h2><p>' + esc(t('learn.practiceBody')) + '</p>' +
+      '<a class="btn btn-primary" href="#/cafe">' + esc(t('home.cafe.cta')) + '</a></section>' +
+      '<a class="btn btn-ghost btn-sm" href="#/wydarzenia">' + ico('calendar', 18) + esc(t('learn.events')) + '</a></div>' + nav('learn') + '</main>';
+    show(html, t('learn.title'));
+  }
+
+  /* Korean Café */
+  function tableCard(c, d) {
+    var st = d.stats[c.id] || { members: 0 };
+    var n = st.members || 0, cap = c.capacity || 0, left = Math.max(cap - n, 0);
+    var mine = !!d.mine[c.id];
+    var state = c.status !== 'active' ? 'inactive' : (!mine && cap && left === 0 ? 'full' : 'open');
+    var pct = cap ? Math.min(100, Math.round(n / cap * 100)) : 0;
+    var action;
+    if (state === 'inactive') action = '<button type="button" class="btn btn-ghost btn-sm" disabled>' + esc(t('cafe.inactiveBtn')) + '</button>';
+    else if (mine) action = '<a class="btn btn-primary btn-sm" href="' + commHref(c) + '">' + esc(t('cafe.enter')) + '</a>';
+    else if (state === 'full') action = '<button type="button" class="btn btn-ghost btn-sm" disabled>' + esc(t('cafe.fullBtn')) + '</button>';
+    else action = '<button type="button" class="btn btn-primary btn-sm" data-action="join" data-id="' + c.id + '" data-kind="table" data-slug="' + esc(c.slug) + '">' + esc(t('cafe.join')) + '</button>';
+    return '<article class="card table-card table-' + state + '"><div class="card-head"><span class="tag">' + esc(c.level) + '</span><span class="state state-' + state + '">' + esc(t('cafe.' + state)) + '</span></div>' +
+      '<h2><a href="' + commHref(c) + '">' + esc(c.name) + '</a></h2><p class="subtitle">' + esc(c.topic) + '</p>' +
+      '<p class="card-desc">' + esc(c.description) + '</p>' +
+      '<div class="occ" role="img" aria-label="' + esc(tf('cafe.seats', { n: n, cap: cap })) + '"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="occ-text"><span>' + esc(tf('cafe.seats', { n: n, cap: cap })) + '</span><span>' + esc(tf('cafe.free', { n: left })) + '</span></div>' + action + '</article>';
+  }
+  function viewCafe() {
+    var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
+      '<div class="cafe-hero">' + sparkles() + '<span class="feature-icon">' + ico('cafe', 26) + '</span><h1 class="title">' + esc(t('cafe.title')) + '</h1><p>' + esc(t('cafe.intro')) + '</p></div>' +
+      '<div id="commBody"><p class="day-sep">' + esc(t('comm.loading')) + '</p></div>' +
+      '<a class="btn btn-ghost btn-sm" href="#/kawiarnia">' + ico('people', 18) + esc(t('cafe.more')) + '</a></div>' + nav('cafe') + '</main>';
+    show(html, t('nav.korCafe'));
+    var tok = ui.rt;
+    if (!SB.on || !ui.user) return fillBody(tok, inlineGate());
+    Comm.fetch().then(function (d) {
+      var tables = d.rows.filter(function (c) { return c.kind === 'table'; });
+      fillBody(tok, tables.length ? '<div class="list list-cards">' + tables.map(function (c) { return tableCard(c, d); }).join('') + '</div>' : '<p class="empty">' + esc(t('lobby.empty')) + '</p>');
+    }).catch(function (err) { fillBody(tok, commError(err)); });
+  }
+
+  /* Fandom Chat */
+  function fandomCard(c, d) {
+    var st = d.stats[c.id] || { members: 0, last: null };
+    var mine = !!d.mine[c.id];
+    var last = st.last ? tf('fandom.last', { time: msgTime(st.last) }) : t('fandom.noActivity');
+    return '<article class="card fandom-card"><div class="card-head"><h2><a href="' + commHref(c) + '">' + esc(c.name) + '</a></h2><span class="tag">' + esc(c.topic) + '</span></div>' +
+      '<p class="card-desc">' + esc(c.description) + '</p>' +
+      '<div class="occ-text"><span>' + ico('users', 15) + ' ' + esc(tf('fandom.members', { n: st.members || 0 })) + '</span><span>' + esc(last) + '</span></div>' +
+      (mine ? '<a class="btn btn-primary btn-sm" href="' + commHref(c) + '">' + esc(t('fandom.open')) + '</a>'
+        : '<button type="button" class="btn btn-primary btn-sm" data-action="join" data-id="' + c.id + '" data-kind="fandom" data-slug="' + esc(c.slug) + '">' + esc(t('fandom.join')) + '</button>') + '</article>';
+  }
+  function renderFandomList() {
+    var box = document.getElementById('fandomList');
+    var d = ui.fandomData;
+    if (!box || !d) return;
+    var q = ui.fq.trim().toLowerCase();
+    var list = d.rows.filter(function (c) {
+      if (c.kind !== 'fandom') return false;
+      if (ui.fmine && !d.mine[c.id]) return false;
+      return !q || (c.name + ' ' + c.topic + ' ' + c.description).toLowerCase().indexOf(q) >= 0;
+    });
+    list.sort(function (a, b) {
+      var sa = d.stats[a.id] || {}, sb = d.stats[b.id] || {};
+      if (ui.fsort === 'recent') return String(sb.last || '').localeCompare(String(sa.last || '')) || (sa.members > sb.members ? -1 : 1);
+      return (sb.members || 0) - (sa.members || 0) || a.sort - b.sort;
+    });
+    box.innerHTML = list.length ? list.map(function (c) { return fandomCard(c, d); }).join('') : '<p class="empty">' + esc(t('fandom.empty')) + '</p>';
+  }
+  function viewFandoms() {
+    var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
+      '<div class="cafe-hero fandom-hero">' + sparkles() + '<span class="feature-icon">' + ico('chat', 26) + '</span><h1 class="title">' + esc(t('fandom.title')) + '</h1><p>' + esc(t('fandom.intro')) + '</p></div>' +
+      '<div id="commBody"><p class="day-sep">' + esc(t('comm.loading')) + '</p></div></div>' + nav('fandom') + '</main>';
+    show(html, t('nav.fandom'));
+    var tok = ui.rt;
+    if (!SB.on || !ui.user) return fillBody(tok, inlineGate());
+    Comm.fetch().then(function (d) {
+      ui.fandomData = d;
+      fillBody(tok, '<div class="dir-tools"><input class="field" id="fandomSearch" type="search" value="' + esc(ui.fq) + '" placeholder="' + esc(t('fandom.search')) + '" aria-label="' + esc(t('fandom.search')) + '">' +
+        '<div class="dir-row"><label class="chip-select"><span class="sr-only">' + esc(t('fandom.sort')) + '</span><select data-fsort aria-label="' + esc(t('fandom.sort')) + '">' +
+        '<option value="popular"' + (ui.fsort === 'popular' ? ' selected' : '') + '>' + esc(t('fandom.sortPop')) + '</option>' +
+        '<option value="recent"' + (ui.fsort === 'recent' ? ' selected' : '') + '>' + esc(t('fandom.sortRecent')) + '</option></select></label>' +
+        '<label class="check"><input type="checkbox" id="fandomMine"' + (ui.fmine ? ' checked' : '') + '><span>' + esc(t('fandom.mine')) + '</span></label></div></div>' +
+        '<div class="list list-cards" id="fandomList"></div>' +
+        '<div class="dashed">' + ico('plus', 18) + esc(t('fandom.requestSoon')) + '</div>', renderFandomList);
+    }).catch(function (err) { fillBody(tok, commError(err)); });
+  }
+
+  /* Pojedynczy stolik albo fandom: podgląd przed dołączeniem, a po dołączeniu czat */
+  function viewCommunity(kind, slug) {
+    var isTable = kind === 'table';
+    var backHref = isTable ? '#/cafe' : '#/fandomy';
+    var html = '<main class="screen" id="view" tabindex="-1">' +
+      '<div class="topbar"><a class="icon-btn" href="' + backHref + '" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title" id="commTitle">…</h1><span class="subtitle" id="commSub"></span></div></div>' +
+      '<div id="commBody" class="comm-body"><p class="day-sep">' + esc(t('comm.loading')) + '</p></div>' + '</main>';
+    show(html, t(isTable ? 'nav.korCafe' : 'nav.fandom'));
+    var tok = ui.rt;
+    if (!SB.on || !ui.user) {
+      var b = document.getElementById('commBody');
+      b.innerHTML = '<div class="content">' + inlineGate() + '</div>';
+      return;
+    }
+    Comm.fetch().then(function (d) {
+      if (tok !== ui.rt) return;
+      var c = null;
+      d.rows.forEach(function (x) { if (x.kind === kind && x.slug === slug) c = x; });
+      var body = document.getElementById('commBody');
+      if (!body) return;
+      if (!c) { body.innerHTML = '<div class="content"><p class="empty">' + esc(t('comm.notFound')) + '</p></div>'; return; }
+      var st = d.stats[c.id] || { members: 0 };
+      var mine = !!d.mine[c.id];
+      document.getElementById('commTitle').textContent = c.name;
+      document.getElementById('commSub').textContent = c.topic + (c.level ? ' · ' + c.level : '');
+      document.title = c.name + ' · Korean Cafe Online';
+      var rules = c.guidelines ? '<details class="rules"><summary>' + esc(t(isTable ? 'cafe.rules' : 'fandom.guidelines')) + '</summary><p>' + esc(c.guidelines) + '</p></details>' : '';
+      var meta = isTable ? tf('cafe.seats', { n: st.members || 0, cap: c.capacity || 0 }) : tf('fandom.members', { n: st.members || 0 });
+      var leaveBtn = '<button type="button" class="link-btn link-btn-quiet" data-action="leave" data-id="' + c.id + '" data-back="' + backHref + '">' + esc(t(isTable ? 'cafe.leave' : 'fandom.leave')) + '</button>';
+      if (!mine) {
+        var full = isTable && c.capacity && (st.members || 0) >= c.capacity;
+        body.innerHTML = '<div class="content"><article class="card preview">' + sparkles() + '<h2>' + esc(c.name) + '</h2><p class="card-desc">' + esc(c.description) + '</p>' +
+          '<p class="subtitle">' + esc(meta) + '</p>' + rules +
+          (c.status !== 'active' ? '<button type="button" class="btn btn-ghost" disabled>' + esc(t('cafe.inactiveBtn')) + '</button>'
+            : full ? '<button type="button" class="btn btn-ghost" disabled>' + esc(t('cafe.fullBtn')) + '</button>'
+            : '<button type="button" class="btn btn-primary" data-action="join" data-id="' + c.id + '" data-kind="' + kind + '" data-slug="' + esc(slug) + '" data-stay="1">' + esc(t(isTable ? 'cafe.join' : 'fandom.join')) + '</button>') +
+          '<p class="fine">' + esc(t('cafe.joinFirst')) + '</p></article></div>';
+        return;
+      }
+      var key = kind + ':' + slug;
+      body.innerHTML = '<div class="strip"><span>' + esc(meta) + '</span><button type="button" class="tag tag-btn" data-action="members" data-id="' + c.id + '">' + esc(t('fandom.membersList')) + '</button></div>' +
+        '<div id="membersBox" class="members-box" hidden></div>' +
+        (rules ? '<div class="strip strip-rules">' + rules + '</div>' : '') +
+        '<div class="messages" id="messages" aria-live="polite"><p class="day-sep">' + esc(t('chat.loading')) + '</p></div>' +
+        composerHtml(key, t('chat.input')) + '<div class="leave-row">' + leaveBtn + '</div>';
+      Live.attach(key);
+    }).catch(function (err) {
+      var b = document.getElementById('commBody');
+      if (tok === ui.rt && b) b.innerHTML = '<div class="content">' + commError(err).replace('<p class="empty">', '<p class="empty">') + '</div>';
+    });
+  }
+  function loadMembers(id) {
+    var box = document.getElementById('membersBox');
+    if (!box) return;
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = '<p class="day-sep">' + esc(t('comm.loading')) + '</p>';
+    var tok = ui.rt;
+    SB.client.from('community_members').select('role,profiles(display_name)').eq('community_id', id).order('joined_at').limit(200).then(function (r) {
+      if (tok !== ui.rt) return;
+      if (r.error) { box.innerHTML = '<p class="empty">' + esc(t('comm.error')) + '</p>'; return; }
+      box.innerHTML = '<p class="label-caps">' + esc(t('fandom.membersTitle')) + ' (' + r.data.length + ')</p><ul class="members">' + r.data.map(function (m) {
+        var n = (m.profiles && m.profiles.display_name) || '?';
+        return '<li><span class="avatar avatar-sm" aria-hidden="true">' + esc(initial(n)) + '</span><span>' + esc(n) + '</span>' + (m.role === 'moderator' ? '<span class="tag tag-premium">mod</span>' : '') + '</li>';
+      }).join('') + '</ul>';
+    });
+  }
+  function loadProfile() {
+    if (!SB.on || !ui.user) { ui.role = 'member'; return Promise.resolve(); }
+    return SB.client.from('profiles').select('role').eq('id', ui.user.id).maybeSingle().then(function (r) {
+      ui.role = (r && r.data && r.data.role) || 'member';
+    }, function () { ui.role = 'member'; });
+  }
+
   /* ---------- router ---------- */
   function route() {
     if (SB.on) Live.detach();
+    ui.rt++;
+    ui.reply = null;
+    ui.edit = null;
     var hash = currentHash();
     renderedHash = hash;
     var seg = hash.slice(1).split('/').filter(Boolean);
@@ -723,6 +1097,10 @@
     if (name !== '' && name !== 'nowe-haslo' && ui.recovery && ui.user) { navigate('#/nowe-haslo', true); return; }
     switch (name) {
       case '': return viewWelcome();
+      case 'start': return viewHome();
+      case 'nauka': return viewLearn();
+      case 'cafe': return seg[1] ? viewCommunity('table', seg[1]) : viewCafe();
+      case 'fandomy': return seg[1] ? viewCommunity('fandom', seg[1]) : viewFandoms();
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
@@ -731,7 +1109,7 @@
       case 'profil': return viewProfile();
       case 'logowanie': return viewAuth(seg[1] === 'rejestracja' ? 'register' : (seg[1] === 'reset' ? 'reset' : 'login'));
       case 'nowe-haslo': return viewAuth('newpass');
-      default: navigate('#/kawiarnia', true);
+      default: navigate('#/start', true);
     }
   }
 
@@ -747,7 +1125,7 @@
     if (!el) return;
     var a = el.getAttribute('data-action');
     if (a === 'enter') {
-      if (load('age18', false)) navigate('#/kawiarnia');
+      if (load('age18', false)) navigate('#/start');
     } else if (a === 'lang') {
       lang = el.getAttribute('data-lang') === 'ko' ? 'ko' : 'pl';
       save('lang', lang);
@@ -775,6 +1153,51 @@
     } else if ((a === 'login' || a === 'register') && SB.on) {
       ui.returnTo = currentHash();
       navigate(a === 'login' ? '#/logowanie' : '#/logowanie/rejestracja');
+    } else if (a === 'join' && SB.on) {
+      var jid = +el.getAttribute('data-id'), jkind = el.getAttribute('data-kind'), jslug = el.getAttribute('data-slug');
+      el.disabled = true;
+      Comm.join(jid).then(function () {
+        toast(t('comm.joined'));
+        navigate((jkind === 'table' ? '#/cafe/' : '#/fandomy/') + jslug);
+      }).catch(function (err) {
+        var code = err && err.code;
+        toast(t(code === 'P0002' ? 'comm.fullToast' : (code === 'P0004' ? 'comm.inactiveToast' : 'comm.joinError')));
+        el.disabled = false;
+        route();
+      });
+    } else if (a === 'leave' && SB.on) {
+      var back = el.getAttribute('data-back');
+      if (!window.confirm(t(back === '#/cafe' ? 'cafe.leaveConfirm' : 'fandom.leaveConfirm'))) return;
+      Comm.leave(+el.getAttribute('data-id')).then(function () {
+        toast(t('comm.left'));
+        navigate(back);
+      }).catch(function () { toast(t('comm.error')); });
+    } else if (a === 'members' && SB.on) {
+      loadMembers(+el.getAttribute('data-id'));
+    } else if (a === 'msgmenu') {
+      var msgEl = el.closest('.msg');
+      var panel = msgEl && msgEl.querySelector('.msg-actions');
+      if (panel) { panel.hidden = !panel.hidden; el.setAttribute('aria-expanded', String(!panel.hidden)); }
+    } else if (a === 'reply' || a === 'edit') {
+      var row = Live.rows[el.getAttribute('data-id')];
+      var inp = document.getElementById('composerInput');
+      if (!row || !inp) return;
+      if (a === 'reply') { ui.reply = { id: row.id, author: row.author, text: row.text }; ui.edit = null; }
+      else { ui.edit = { id: row.id }; ui.reply = null; inp.value = row.text; }
+      updateReplyBar();
+      var panel2 = el.closest('.msg-actions');
+      if (panel2) panel2.hidden = true;
+      inp.focus();
+    } else if (a === 'del') {
+      var did = +el.getAttribute('data-id');
+      if (!window.confirm(t('msg.confirmDelete'))) return;
+      Live.remove(did).then(function (row) { Live.upd(row); }).catch(function () { toast(t('msg.delError')); });
+    } else if (a === 'cancelcompose') {
+      var wasEdit = !!ui.edit;
+      ui.reply = null; ui.edit = null;
+      updateReplyBar();
+      var inp2 = document.getElementById('composerInput');
+      if (inp2) { if (wasEdit) inp2.value = ''; inp2.focus(); }
     } else if (a === 'logout' && SB.on) {
       Auth.logout().then(function () { toast(t('profile.loggedOut')); });
     }
@@ -796,12 +1219,27 @@
       if (again) again.focus();
     } else if (el.getAttribute && el.getAttribute('data-pref') === 'level') {
       save('level', el.value);
+    } else if (el.hasAttribute && el.hasAttribute('data-fsort')) {
+      ui.fsort = el.value === 'recent' ? 'recent' : 'popular';
+      renderFandomList();
+    } else if (el.id === 'fandomMine') {
+      ui.fmine = el.checked;
+      renderFandomList();
     }
   });
 
   document.addEventListener('input', function (e) {
     var el = e.target;
-    if (el.getAttribute && el.getAttribute('data-pref') === 'name') save('name', el.value.trim().slice(0, 30));
+    if (el.id === 'fandomSearch') { ui.fq = el.value; renderFandomList(); return; }
+    if (el.getAttribute && el.getAttribute('data-pref') === 'name') {
+      var nm = el.value.trim().slice(0, 30);
+      save('name', nm);
+      // nazwa widoczna na listach członków: zapis do profilu z krótkim opóźnieniem
+      if (SB.on && ui.user && nm) {
+        clearTimeout(ui._pt);
+        ui._pt = setTimeout(function () { SB.client.from('profiles').update({ display_name: nm }).eq('id', ui.user.id).then(function () {}, function () {}); }, 900);
+      }
+    }
   });
 
   document.addEventListener('submit', function (e) {
@@ -821,11 +1259,15 @@
       if (!ui.user) return;
       var sendBtn = form.querySelector('button[type="submit"]');
       sendBtn.disabled = true;
-      Live.send(key, text).then(function (row) {
+      var editing = ui.edit;
+      var job = editing ? Live.edit(editing.id, text) : Live.send(key, text, ui.reply && ui.reply.id);
+      job.then(function (row) {
         input.value = '';
-        Live.add(row, true);
+        ui.reply = null; ui.edit = null;
+        updateReplyBar();
+        if (editing) Live.upd(row); else Live.add(row, true);
       }).catch(function (err) {
-        toast(t(err && err.code === 'P0001' ? 'chat.sendFast' : 'chat.sendError'));
+        toast(t(editing ? 'msg.editError' : (err && err.code === 'P0001' ? 'chat.sendFast' : 'chat.sendError')));
       }).then(function () {
         sendBtn.disabled = false;
         input.focus();
@@ -863,7 +1305,7 @@
       started = true;
       ui.authReady = true;
       cleanAuthUrl();
-      route();
+      loadProfile().then(route);
     };
     SB.client.auth.onAuthStateChange(function (event, session) {
       var u = session && session.user ? { id: session.user.id, email: session.user.email || '' } : null;
@@ -874,7 +1316,7 @@
       if (!ui.authReady) return;
       // Wywołania po stronie Supabase wolno robić dopiero poza tą funkcją, dlatego setTimeout.
       if (event === 'PASSWORD_RECOVERY') setTimeout(function () { navigate('#/nowe-haslo'); }, 0);
-      else if (changed) setTimeout(route, 0);
+      else if (changed) setTimeout(function () { loadProfile().then(route); }, 0);
     });
     SB.client.auth.getSession().then(function (r) {
       var s = r && r.data && r.data.session;
