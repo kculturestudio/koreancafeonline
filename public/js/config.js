@@ -2,7 +2,7 @@
 window.KCO_CONFIG = {
   // true = pokazuje przykładowe wiadomości i informacje "tryb demo".
   // Ustaw false, gdy podłączysz prawdziwy czat i logowanie (zob. README).
-  demo: true,
+  demo: false,
 
   // Gdzie strona wysyła prośbę o utworzenie płatności (Netlify Function).
   checkoutEndpoint: '/.netlify/functions/create-checkout-session',
@@ -30,8 +30,8 @@ window.KCO_CONFIG = {
   // Supabase → Project Settings → API. Oba pola są PUBLICZNE i mogą być w repozytorium.
   // NIGDY nie wpisuj tu klucza "service_role" (tajny).
   supabase: {
-    url: '',      // np. 'https://abcdefghijkl.supabase.co'
-    anonKey: ''   // długi klucz "anon" / "publishable"
+    url: 'https://ticecrcqylfmiliwhunh.supabase.co',
+    anonKey: 'sb_publishable_l6TbxmfyXMFiV-bjCEhZcQ_EBL6qbsw'   // klucz publiczny (publishable)
   },
 
   // Tylko do testów na własnym komputerze: odblokowuje treści Premium bez płatności.
