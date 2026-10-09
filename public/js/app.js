@@ -4,8 +4,6 @@
   var CFG = window.KCO_CONFIG;
   var D = window.KCO_DATA;
   var S = window.KCO_I18N;
-  // podgląd dwóch układów na komputerze: dodaj ?desk=a do adresu (do usunięcia po wyborze)
-  if (/[?&]desk=a\b/.test(location.search)) document.documentElement.className += ' desk-a';
   var app = document.getElementById('app');
   var toastEl = document.getElementById('toast');
   var WARSAW = 'Europe/Warsaw';

@@ -228,35 +228,29 @@ select.field { appearance: none; -webkit-appearance: none; background: #fff var(
 .legal .todo { border: 1px dashed var(--blush-deep); border-radius: var(--r-sm); padding: 12px 14px; color: var(--text); }
 .legal a { color: var(--blush-deep); text-decoration: underline; }
 
-/* ===== komputer (od 900 px) =====
-   Dwie propozycje do wyboru: domyślnie B (pełna szerokość), A po dodaniu ?desk=a do adresu. */
+/* ===== komputer (od 900 px) ===== */
 @media (min-width: 900px) {
-  /* A: wąska "aplikacja" na środku, po bokach spokojne tło z wzorem */
-  html.desk-a body { background: var(--bg-outer) var(--grid); padding: 28px 0; }
-  html.desk-a .app { min-height: calc(100dvh - 56px); border-radius: 28px; border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(42, 42, 46, .08); overflow: clip; }
-  html.desk-a .nav, html.desk-a .composer { border-radius: 0 0 28px 28px; }
-
-  /* B: szeroki układ, dwie kolumny */
-  html:not(.desk-a) body { background: var(--bg); }
-  html:not(.desk-a) .app { max-width: 1080px; padding: 0 40px; }
-  html:not(.desk-a) .welcome { padding: 32px 0 48px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 64px; align-content: center; }
-  html:not(.desk-a) .welcome .head { grid-column: 1 / -1; }
-  html:not(.desk-a) .welcome .hero { grid-column: 1; grid-row: 2 / span 3; margin-top: 32px; padding: 64px 32px 56px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
-  html:not(.desk-a) .welcome .hero-logo { width: 190px; height: 190px; box-shadow: 0 0 0 12px var(--blush-soft); }
-  html:not(.desk-a) .welcome-copy { grid-column: 2; margin-top: 32px; align-self: end; }
-  html:not(.desk-a) .welcome h1 { font-size: 44px; }
-  html:not(.desk-a) .welcome-copy p { font-size: 17px; }
-  html:not(.desk-a) .chips { grid-column: 2; }
-  html:not(.desk-a) .welcome-actions { grid-column: 2; margin-top: 0; align-self: start; max-width: 420px; }
-  html:not(.desk-a) .content { padding: 40px 0 32px; }
-  html:not(.desk-a) .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  html:not(.desk-a) .filters { margin: 0; padding: 2px 0; flex-wrap: wrap; overflow: visible; }
-  html:not(.desk-a) .tabs { max-width: 420px; }
-  html:not(.desk-a) .nav { position: sticky; max-width: 520px; margin: 0 auto 16px; width: 100%; border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow); height: 64px; padding: 0 12px; }
-  html:not(.desk-a) .screen:not(.welcome):not(.paywall) > .content, html:not(.desk-a) .paywall { max-width: 760px; width: 100%; margin: 0 auto; }
-  html:not(.desk-a) .messages, html:not(.desk-a) .composer, html:not(.desk-a) .topbar, html:not(.desk-a) .strip, html:not(.desk-a) .seats, html:not(.desk-a) .topic-card { max-width: 760px; width: 100%; margin-left: auto; margin-right: auto; }
-  html:not(.desk-a) .seats, html:not(.desk-a) .messages { padding-left: 20px; padding-right: 20px; }
-  html:not(.desk-a) .composer { border-radius: 0; }
+  /* szeroki układ, dwie kolumny */
+  body { background: var(--bg); }
+  .app { max-width: 1080px; padding: 0 40px; }
+  .welcome { padding: 32px 0 48px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 64px; align-content: center; }
+  .welcome .head { grid-column: 1 / -1; }
+  .welcome .hero { grid-column: 1; grid-row: 2 / span 3; margin-top: 32px; padding: 64px 32px 56px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+  .welcome .hero-logo { width: 190px; height: 190px; box-shadow: 0 0 0 12px var(--blush-soft); }
+  .welcome-copy { grid-column: 2; margin-top: 32px; align-self: end; }
+  .welcome h1 { font-size: 44px; }
+  .welcome-copy p { font-size: 17px; }
+  .chips { grid-column: 2; }
+  .welcome-actions { grid-column: 2; margin-top: 0; align-self: start; max-width: 420px; }
+  .content { padding: 40px 0 32px; }
+  .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .filters { margin: 0; padding: 2px 0; flex-wrap: wrap; overflow: visible; }
+  .tabs { max-width: 420px; }
+  .nav { position: sticky; max-width: 520px; margin: 0 auto 16px; width: 100%; border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow); height: 64px; padding: 0 12px; }
+  .screen:not(.welcome):not(.paywall) > .content, .paywall { max-width: 760px; width: 100%; margin: 0 auto; }
+  .messages, .composer, .topbar, .strip, .seats, .topic-card { max-width: 760px; width: 100%; margin-left: auto; margin-right: auto; }
+  .seats, .messages { padding-left: 20px; padding-right: 20px; }
+  .composer { border-radius: 0; }
 }
 
 
