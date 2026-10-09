@@ -7,9 +7,11 @@ Wirtualna kawiarnia PL/KR: czaty 24/7, roomy na żywo, wydarzenia i subskrypcja 
 ```
 public/                      strona (to Netlify publikuje)
   index.html, css/, js/      aplikacja
+  img/                       logo i ikony
+  css/styles.css             wygląd (paleta kolorów na górze, w :root)
   js/config.js               ustawienia (ceny do wyświetlania, usługi, tryb demo)
   js/data.js                 czaty, roomy, wydarzenia, przykładowe wiadomości
-  js/teksty.js                 wszystkie teksty interfejsu PL/KR
+  js/teksty.js               wszystkie teksty interfejsu PL/KR
   regulamin.html, prywatnosc.html   SZKIELETY do uzupełnienia
 netlify/functions/           płatności Stripe (checkout + webhook)
 supabase/schema.sql          baza wiadomości czatu (wklejasz raz w Supabase)
@@ -88,8 +90,8 @@ Dobrze wiedzieć:
 
 - Regulamin i Polityka prywatności: uzupełnij szkielety (RODO, dane sprzedawcy, prawo odstąpienia dla treści cyfrowych).
 - Moderacja: zgłaszanie nadużyć, blokowanie, rola moderatora w roomach. Strona wymaga potwierdzenia 18+, ale to tylko oświadczenie w przeglądarce, a konta nie weryfikują wieku.
-- Czcionki Google: ładowane z serwerów Google (przekazują adres IP). Jeśli chcesz tego uniknąć, pobierz Noto Sans KR i Noto Serif KR i hostuj je lokalnie.
-- Ikony PWA: `manifest.webmanifest` używa SVG. Dla instalacji na wszystkich telefonach dodaj ikony PNG 192×192 i 512×512.
+- Czcionki Google (Fredoka, Jua, Nunito, Noto Sans KR, Pacifico): ładowane z serwerów Google (przekazują adres IP). Jeśli chcesz tego uniknąć, pobierz je i hostuj lokalnie.
+- Ikony PWA: gotowe w `public/img/` (z Twojego logo). Jeśli zmienisz logo, podmień pliki `logo.png`, `logo-96.png`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`.
 - Godziny roomów i wydarzeń: podawane w `data.js` w czasie warszawskim. Wspólne okno z Koreą to mniej więcej 12:00–15:00 w Polsce (19:00–22:00 w Seulu); wieczorne godziny polskie wypadają w Korei w nocy.
 
 ## Jak zmieniać treści

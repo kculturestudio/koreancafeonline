@@ -280,12 +280,10 @@
   };
 
   /* ---------- widoki: części wspólne ---------- */
-  var HERO = '<svg viewBox="0 0 342 250" fill="none" role="img" aria-label="">' +
-    '<circle cx="171" cy="104" r="74" fill="#2B4440"/><circle cx="171" cy="104" r="52" fill="#F08A4B"/>' +
-    '<path d="M96 166h150v22a46 46 0 0 1-46 46h-58a46 46 0 0 1-46-46z" fill="#F2EDE0"/>' +
-    '<path d="M246 174h14a20 20 0 0 1 0 40h-22" stroke="#F2EDE0" stroke-width="9" stroke-linecap="round"/>' +
-    '<path d="M144 148c-10-12 10-18 0-30M171 148c-10-12 10-18 0-30M198 148c-10-12 10-18 0-30" stroke="#9CC5B4" stroke-width="4" stroke-linecap="round"/>' +
-    '<path d="M118 196h106" stroke="#17211F" stroke-width="4" stroke-linecap="round" opacity="0.25"/></svg>';
+  var HERO = '<img class="hero-logo" src="img/logo.png" alt="" width="148" height="148">' +
+    '<div class="hero-title" aria-hidden="true">KOREAN CAFÉ</div>' +
+    '<span class="hero-script" aria-hidden="true">online</span>' +
+    '<div class="hero-hearts" aria-hidden="true">♥ ♥ ♥</div>';
 
   function langSeg() {
     return '<div class="seg" role="group" aria-label="' + esc(t('profile.lang')) + '">' +
@@ -328,8 +326,8 @@
   function viewWelcome() {
     var ok = !!load('age18', false);
     var html = '<main class="screen welcome" id="view" tabindex="-1">' +
-      '<div class="head"><div class="brand"><div class="brand-mark">' + ico('cup', 22) + '</div><div><span class="brand-name">Korean Cafe Online</span><span class="brand-sub">' + esc(t('brand.sub')) + '</span></div></div>' + langSeg() + '</div>' +
-      '<div class="hero">' + HERO.replace('aria-label=""', 'aria-label="' + esc(t('welcome.heroAlt')) + '"') + '</div>' +
+      '<div class="head"><div class="brand"><div class="brand-mark"><img src="img/logo-96.png" alt="" width="46" height="46"></div><div><span class="brand-name">Korean Cafe Online</span><span class="brand-sub">' + esc(t('brand.sub')) + '</span></div></div>' + langSeg() + '</div>' +
+      '<div class="hero">' + HERO.replace('alt=""', 'alt="' + esc(t('welcome.heroAlt')) + '"') + '</div>' +
       '<div class="welcome-copy"><span class="eyebrow">' + esc(t('welcome.eyebrow')) + '</span><h1>' + esc(t('welcome.h1')) + '</h1><p>' + esc(t('welcome.body')) + '</p></div>' +
       '<div class="chips"><span class="chip">' + esc(t('welcome.c1')) + '</span><span class="chip">' + esc(t('welcome.c2')) + '</span><span class="chip">' + esc(t('welcome.c3')) + '</span></div>' +
       '<div class="welcome-actions">' +

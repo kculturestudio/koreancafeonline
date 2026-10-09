@@ -23,7 +23,7 @@ window.KCO_I18N = {
   'welcome.cta': ['Wejdź do kawiarni', '카페 입장하기'],
   'welcome.age': ['Mam ukończone 18 lat', '만 18세 이상입니다'],
   'welcome.trial': ['7 dni za darmo, potem subskrypcja. Anulujesz, kiedy chcesz.', '7일 무료, 이후 구독. 언제든지 해지할 수 있어요.'],
-  'welcome.heroAlt': ['Filiżanka kawy z parą pod księżycem', '달 아래 김이 나는 커피잔'],
+  'welcome.heroAlt': ['Logo Korean Café online: litera K z kotkiem', '한국 카페 온라인 로고: 고양이가 있는 K'],
 
   'legal.pre': ['Wchodząc, akceptujesz ', '입장하면 '],
   'legal.terms': ['Regulamin', '이용약관'],
