@@ -1,0 +1,13 @@
+{
+  "name": "Korean Cafe Online",
+  "short_name": "Korean Cafe",
+  "description": "Wirtualna kawiarnia PL/KR: czaty 24/7, roomy na żywo i wydarzenia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#17211F",
+  "theme_color": "#17211F",
+  "lang": "pl",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
