@@ -219,3 +219,7 @@ select.field { appearance: none; -webkit-appearance: none; background: var(--sur
 .legal p, .legal li { color: var(--muted); line-height: 1.6; }
 .legal .todo { border: 1px dashed var(--accent); border-radius: 14px; padding: 12px 14px; color: var(--text); }
 .legal a { color: var(--celadon); text-decoration: underline; }
+
+/* logowanie i rejestracja */
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-form .banner { margin: 4px 0 0; }

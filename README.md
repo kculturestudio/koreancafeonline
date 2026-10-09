@@ -12,6 +12,8 @@ public/                      strona (to Netlify publikuje)
   js/teksty.js                 wszystkie teksty interfejsu PL/KR
   regulamin.html, prywatnosc.html   SZKIELETY do uzupełnienia
 netlify/functions/           płatności Stripe (checkout + webhook)
+supabase/schema.sql          baza wiadomości czatu (wklejasz raz w Supabase)
+public/js/vendor/supabase.js biblioteka Supabase (gotowy plik, nie edytuj)
 netlify.toml                 konfiguracja, nagłówki bezpieczeństwa
 .env.example                 lista zmiennych środowiskowych
 ```
@@ -20,9 +22,9 @@ netlify.toml                 konfiguracja, nagłówki bezpieczeństwa
 
 | Działa naprawdę | Jeszcze demo |
 | --- | --- |
-| Nawigacja, przełącznik PL/한국어, filtry (język, poziom, temat, wiek) | Czat: wiadomości widzisz tylko Ty (zapis w przeglądarce) |
+| Nawigacja, przełącznik PL/한국어, filtry (język, poziom, temat, wiek) | Czat: bez Supabase wiadomości widzisz tylko Ty (zapis w przeglądarce); z Supabase (krok 2) czat jest prawdziwy |
 | Godziny roomów i wydarzeń przeliczane na czas Seulu (z uwagą na zmianę czasu) | Roomy: brak głosu i prawdziwych uczestników |
-| „Dodaj do kalendarza” (plik .ics) | Konta i logowanie: brak |
+| „Dodaj do kalendarza” (plik .ics) | Konta i logowanie: działają po podłączeniu Supabase (krok 2) |
 | Potwierdzenie 18+, imię i poziom zapisane w przeglądarce | Dostęp Premium: nie jest nigdzie egzekwowany |
 | Płatność subskrypcji w Stripe (po konfiguracji niżej) | Przycisk „Zarządzaj subskrypcją” (po wpisaniu `portalUrl` otwiera portal Stripe) |
 
@@ -57,17 +59,35 @@ Samą stronę (bez płatności) możesz otworzyć też prostym serwerem: `npx se
 6. Przetestuj kartą testową `4242 4242 4242 4242`. Dopiero po kroku 2 przejdź na klucze produkcyjne.
 7. Podatki: sprawdź z księgową VAT dla usług cyfrowych (Stripe Tax może pomóc) i fakturowanie.
 
-## Krok 2: konta, prawdziwy czat i głos (do zrobienia przed startem)
+## Krok 2a: konta i prawdziwy czat (Supabase)
 
-Polecany zestaw, który dobrze współpracuje z Netlify:
-- **Supabase** (logowanie e-mailem, baza, Realtime): konta użytkowników, historia czatu, tabela `subscriptions` zasilana przez `stripe-webhook.js`. Egzekwowanie Premium robisz regułami dostępu w bazie (Row Level Security), nie w kodzie strony.
+Kod jest już w repozytorium. Do uruchomienia potrzebujesz tylko darmowego projektu w Supabase. Dopóki nie wpiszesz jego danych w `config.js`, strona działa jak dotąd, w trybie demo.
+
+1. Wejdź na https://supabase.com, załóż konto i kliknij *New project* (wybierz region w UE, np. Frankfurt). Zapisz hasło do bazy w bezpiecznym miejscu.
+2. W projekcie otwórz *SQL Editor* → *New query*, wklej całą zawartość pliku `supabase/schema.sql` i kliknij *Run*. To tworzy tabelę wiadomości, reguły dostępu (każdy zalogowany czyta, pisać można tylko jako ty sam) i włącza wiadomości na żywo.
+3. *Project Settings → API*: skopiuj **Project URL** i klucz **anon / publishable**. Oba są publiczne. Klucza `service_role` nigdy nigdzie nie wklejaj.
+4. W `public/js/config.js` wpisz je w pole `supabase.url` i `supabase.anonKey`, a `demo` ustaw na `false`. Zapisz, wypchnij na GitHuba. Netlify wdroży się sam.
+5. *Authentication → URL Configuration*: jako **Site URL** wpisz adres strony (np. `https://koreancafeonline.netlify.app`) i dodaj go też do **Redirect URLs**. Bez tego linki z e-maili (potwierdzenie konta, reset hasła) nie wrócą na stronę.
+6. *Authentication → Sign In / Providers → Email*: zostaw włączone logowanie e-mailem. Opcja *Confirm email* włączona = nowa osoba musi kliknąć link z maila, zanim wejdzie (polecane na start publiczny).
+
+Jak to działa: logowanie e-mailem i hasłem, reset hasła przez e-mail, historia czatu zapisana w bazie, nowe wiadomości pojawiają się u wszystkich od razu. Rozmowy są wspólne (każdy zalogowany widzi wiadomości w danym czacie).
+
+Dobrze wiedzieć:
+- Link z maila otwieraj w tej samej przeglądarce i na tym samym urządzeniu, na którym zakładasz konto lub prosisz o reset hasła. Z innego urządzenia konto i tak zostanie potwierdzone, ale po kliknięciu trzeba zalogować się ręcznie.
+- Wbudowana wysyłka maili Supabase ma bardzo niski limit (kilka maili na godzinę). Przed startem podłącz własny SMTP (*Authentication → Emails → SMTP Settings*), np. Resend lub Brevo.
+- Nazwy w czacie nie są unikalne: ktoś może wpisać to samo imię co inna osoba albo „Moderator”. Przed publicznym startem dodaj tabelę profili z unikalnymi nazwami i rolą moderatora.
+- Wiadomości można na razie usuwać tylko ręcznie (*Table Editor → messages*). Przycisk „zgłoś” i blokowanie osób to następny krok (lista kontrolna niżej).
+- Premium nadal nie jest egzekwowane. Następny krok: tabela `subscriptions` zasilana przez `stripe-webhook.js` i reguła w bazie.
+
+## Krok 2b: głos w roomach (do zrobienia przed startem)
+
 - **LiveKit** lub **Daily** (rozmowy głosowe w roomach): token dostępu generowany przez funkcję Netlify po sprawdzeniu, czy użytkownik ma prawo wejść.
-- Po podłączeniu: w `config.js` ustaw `demo: false` i `providers`, a w `app.js` podmień obiekt `Chat` (jedno miejsce) na wywołania Supabase. Dopisz adresy usług do `connect-src` w `netlify.toml`.
+- Po podłączeniu dopisz adresy usługi do `connect-src` w `netlify.toml` i ustaw `providers.voice` w `config.js`.
 
 ## Przed publicznym startem (lista kontrolna)
 
 - Regulamin i Polityka prywatności: uzupełnij szkielety (RODO, dane sprzedawcy, prawo odstąpienia dla treści cyfrowych).
-- Moderacja: zgłaszanie nadużyć, blokowanie, rola moderatora w roomach. Strona wymaga potwierdzenia 18+, ale bez kont nie da się tego egzekwować.
+- Moderacja: zgłaszanie nadużyć, blokowanie, rola moderatora w roomach. Strona wymaga potwierdzenia 18+, ale to tylko oświadczenie w przeglądarce, a konta nie weryfikują wieku.
 - Czcionki Google: ładowane z serwerów Google (przekazują adres IP). Jeśli chcesz tego uniknąć, pobierz Noto Sans KR i Noto Serif KR i hostuj je lokalnie.
 - Ikony PWA: `manifest.webmanifest` używa SVG. Dla instalacji na wszystkich telefonach dodaj ikony PNG 192×192 i 512×512.
 - Godziny roomów i wydarzeń: podawane w `data.js` w czasie warszawskim. Wspólne okno z Koreą to mniej więcej 12:00–15:00 w Polsce (19:00–22:00 w Seulu); wieczorne godziny polskie wypadają w Korei w nocy.

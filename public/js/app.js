@@ -43,6 +43,26 @@
     }
   })();
 
+  /* ---------- konta i czat na żywo: Supabase (włącza się, gdy w config.js są adres i klucz) ---------- */
+  var SB = (function () {
+    var sc = CFG.supabase || {};
+    var pr = CFG.providers || {};
+    var lib = window.supabase;
+    if (pr.auth !== 'supabase' || pr.chat !== 'supabase' || !sc.url || !sc.anonKey || !lib || !lib.createClient) return { on: false };
+    try {
+      return {
+        on: true,
+        client: lib.createClient(sc.url, sc.anonKey, {
+          auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        })
+      };
+    } catch (e) { return { on: false }; }
+  })();
+  ui.user = null;            // { id, email } po zalogowaniu
+  ui.authReady = !SB.on;     // true, gdy wiadomo już, czy ktoś jest zalogowany
+  ui.returnTo = null;        // dokąd wrócić po zalogowaniu
+  ui.recovery = false;       // true, gdy ktoś wszedł z linku "zmień hasło"
+
   /* ---------- helpers ---------- */
   function t(key) {
     var v = S[key];
@@ -167,6 +187,96 @@
       save('msgs.' + key, list.slice(-100));
       return msg;
     }
+  };
+
+  /* ---------- czat na żywo (Supabase): historia z bazy + nowe wiadomości od razu ---------- */
+  var Live = { token: 0, ids: {}, channel: null };
+  var MSG_COLS = 'id,user_id,author,text,created_at';
+
+  function msgTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var hm = pad(d.getHours()) + ':' + pad(d.getMinutes());
+    var n = new Date();
+    if (d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate()) return hm;
+    return (lang === 'ko' ? (d.getMonth() + 1) + '/' + d.getDate() : pad(d.getDate()) + '.' + pad(d.getMonth() + 1)) + ' ' + hm;
+  }
+  function rowToMsg(row) {
+    return { mine: !!(ui.user && row.user_id === ui.user.id), author: row.author, time: msgTime(row.created_at), text: row.text };
+  }
+  Live.detach = function () {
+    Live.token++;
+    if (Live.channel) { try { SB.client.removeChannel(Live.channel); } catch (e) { /* ignore */ } }
+    Live.channel = null;
+    Live.ids = {};
+  };
+  Live.add = function (row, force) {
+    if (!row || Live.ids[row.id]) return;
+    var box = document.getElementById('messages');
+    if (!box) return;
+    Live.ids[row.id] = true;
+    var near = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight) < 160;
+    var empty = box.querySelector('[data-empty]');
+    if (empty) empty.parentNode.removeChild(empty);
+    box.insertAdjacentHTML('beforeend', msgHtml(rowToMsg(row)));
+    if (force || near) window.scrollTo(0, document.body.scrollHeight);
+  };
+  Live.attach = function (key) {
+    Live.detach();
+    var token = Live.token;
+    var box = document.getElementById('messages');
+    if (!box || !ui.user) return;
+    var loaded = false;
+    var pending = [];
+    function fail() { if (token === Live.token) box.innerHTML = '<p class="day-sep">' + esc(t('chat.loadError')) + '</p>'; }
+    // najpierw nasłuch, potem pobranie historii, żeby żadna wiadomość nie przepadła pomiędzy
+    Live.channel = SB.client.channel('msgs:' + key)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'channel=eq.' + key }, function (p) {
+        if (token !== Live.token) return;
+        if (loaded) Live.add(p['new']); else pending.push(p['new']);
+      })
+      .subscribe();
+    SB.client.from('messages').select(MSG_COLS).eq('channel', key).order('created_at', { ascending: false }).limit(100)
+      .then(function (r) {
+        if (token !== Live.token) return;
+        if (r.error) return fail();
+        var rows = (r.data || []).slice().reverse();
+        box.innerHTML = '<p class="day-sep" data-empty>' + esc(t('chat.empty')) + '</p>';
+        rows.forEach(function (row) { Live.add(row); });
+        loaded = true;
+        pending.forEach(function (row) { Live.add(row); });
+        window.scrollTo(0, document.body.scrollHeight);
+      }, fail);
+  };
+  Live.send = function (key, text) {
+    var author = (load('name', '') || t('profile.guest')).slice(0, 30);
+    return SB.client.from('messages').insert({ channel: key, author: author, text: text }).select(MSG_COLS).single()
+      .then(function (r) {
+        if (r.error) throw r.error;
+        return r.data;
+      });
+  };
+
+  /* ---------- logowanie ---------- */
+  function siteUrl() { return window.location.origin + window.location.pathname; }
+  function authErr(err) {
+    var c = (err && err.code) || '';
+    var m = String((err && err.message) || '').toLowerCase();
+    if (c === 'invalid_credentials' || m.indexOf('invalid login') >= 0) return t('auth.err.invalid');
+    if (c === 'email_not_confirmed' || m.indexOf('not confirmed') >= 0) return t('auth.err.unconfirmed');
+    if (c === 'user_already_exists' || m.indexOf('already registered') >= 0) return t('auth.err.exists');
+    if (c === 'weak_password') return t('auth.err.weak');
+    if (c === 'over_request_rate_limit' || c === 'over_email_send_rate_limit' || (err && err.status === 429)) return t('auth.err.rate');
+    return t('auth.err.generic');
+  }
+  var Auth = {
+    login: function (email, pw) { return SB.client.auth.signInWithPassword({ email: email, password: pw }); },
+    register: function (email, pw, name) {
+      return SB.client.auth.signUp({ email: email, password: pw, options: { data: { name: name }, emailRedirectTo: siteUrl() } });
+    },
+    reset: function (email) { return SB.client.auth.resetPasswordForEmail(email, { redirectTo: siteUrl() }); },
+    setPassword: function (pw) { return SB.client.auth.updateUser({ password: pw }); },
+    logout: function () { return SB.client.auth.signOut(); }
   };
 
   /* ---------- widoki: części wspólne ---------- */
@@ -304,7 +414,7 @@
 
   /* ---------- wiadomości ---------- */
   function msgHtml(m) {
-    var author = m.mine ? (load('name', '') || t('room.you')) : m.author;
+    var author = m.author || (m.mine ? (load('name', '') || t('room.you')) : '');
     var meta = esc(author) + (m.city ? ' · ' + esc(m.city) : '') + (m.time ? ' ' + esc(m.time) : '');
     if (m.fix) {
       return '<div class="bubble bubble-fix"><span class="meta">' + esc(t('chat.fix')) + ' · ' + meta + '</span><span class="txt">' + esc(m.text) + '</span><span class="tr">' + esc(L(m.fix)) + '</span></div>';
@@ -318,6 +428,18 @@
     if (!list.length) return '<p class="day-sep">' + esc(t('chat.empty')) + '</p>';
     return list.map(msgHtml).join('');
   }
+  // Lista wiadomości: lokalna (demo) albo pusta ramka, którą po narysowaniu widoku wypełnia Live.attach.
+  function messagesBlock(key) {
+    var inner = SB.on ? '<p class="day-sep">' + esc(t('chat.loading')) + '</p>' : messagesHtml(key);
+    return '<div class="messages" id="messages" aria-live="polite">' + inner + '</div>';
+  }
+  // Zamiast pola do pisania, gdy czat jest na koncie, a nikt nie jest zalogowany.
+  function gateHtml() {
+    return '<div class="content gate"><h2 class="section-title">' + esc(t('chat.loginTitle')) + '</h2>' +
+      '<p class="subtitle">' + esc(t('chat.loginBody')) + '</p>' +
+      '<button type="button" class="btn btn-primary" data-action="login">' + esc(t('auth.title.login')) + '</button>' +
+      '<button type="button" class="btn btn-ghost" data-action="register">' + esc(t('auth.title.register')) + '</button></div>';
+  }
 
   /* ---------- widok: czat tekstowy ---------- */
   function viewChat(id) {
@@ -329,12 +451,13 @@
       '<div class="topbar"><a class="icon-btn" href="#/kawiarnia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(c.name)) + '</h1><span class="subtitle">' + esc(O(c.name)) + ' · ' + esc(L(c.level)) + '</span></div></div>' +
       '<div class="strip"><span>' + esc(L(c.rule)) + '</span><span class="tag">' + esc(t('chat.tr')) + '</span></div>' +
-      (CFG.demo ? '<div class="strip">' + esc(t('demo.chat')) + '</div>' : '') +
-      '<div class="messages" id="messages" aria-live="polite">' + messagesHtml(key) + '</div>' +
+      (SB.on ? '<div class="strip">' + esc(t('chat.live')) + '</div>' : (CFG.demo ? '<div class="strip">' + esc(t('demo.chat')) + '</div>' : '')) +
+      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) +
       '<form class="composer" data-form="msg" data-key="' + key + '">' +
       '<input class="composer-input" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(t('chat.input')) + '" aria-label="' + esc(t('chat.input')) + '">' +
-      '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button></form></main>';
+      '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button></form>') + '</main>';
     show(html, L(c.name), { bottom: true });
+    if (SB.on && ui.user) Live.attach(key);
   }
 
   /* ---------- widok: room na żywo ---------- */
@@ -365,12 +488,13 @@
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(r.name)) + '</h1><span class="subtitle">' + esc(O(r.name)) + ' · ' + esc(L(r.level)) + '</span></div>' + status + '</div>' +
       '<div class="seats">' + seats + '</div>' + topic +
       '<div class="strip">' + esc(t('demo.voice')) + '</div>' +
-      '<div class="messages" id="messages" aria-live="polite">' + messagesHtml(key) + '</div>' +
+      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) +
       '<form class="composer" data-form="msg" data-key="' + key + '">' +
       '<input class="composer-input" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(t('room.input')) + '" aria-label="' + esc(t('room.input')) + '">' +
       '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button>' +
-      '<span id="micWrap">' + micHtml() + '</span></form></main>';
+      '<span id="micWrap">' + micHtml() + '</span></form>') + '</main>';
     show(html, L(r.name));
+    if (SB.on && ui.user) Live.attach(key);
   }
 
   /* ---------- widok: wydarzenia ---------- */
@@ -463,7 +587,111 @@
     });
   }
 
+  /* ---------- widok: logowanie, rejestracja, reset hasła, nowe hasło ---------- */
+  function authField(id, name, labelKey, type, autocomplete, extra) {
+    return '<div class="setting setting-col"><label for="' + id + '">' + esc(t(labelKey)) + '</label>' +
+      '<input class="field" id="' + id + '" name="' + name + '" type="' + type + '" autocomplete="' + autocomplete + '"' + (extra || '') + '></div>';
+  }
+  function viewAuth(mode) {
+    if (!SB.on) { navigate('#/profil', true); return; }
+    if (mode !== 'newpass' && ui.user) { navigate('#/profil', true); return; }
+    if (mode === 'newpass' && !ui.user) { navigate('#/logowanie', true); return; }
+    var fields = '';
+    if (mode === 'register') fields += authField('a-name', 'name', 'profile.name', 'text', 'nickname', ' maxlength="30" placeholder="' + esc(t('profile.namePh')) + '"');
+    if (mode !== 'newpass') fields += authField('a-email', 'email', 'auth.email', 'email', 'email', ' inputmode="email" autocapitalize="none" spellcheck="false" maxlength="254"');
+    if (mode !== 'reset') {
+      fields += authField('a-pass', 'password', mode === 'newpass' ? 'auth.passwordNew' : 'auth.password', 'password',
+        mode === 'login' ? 'current-password' : 'new-password',
+        mode === 'login' ? ' maxlength="72"' : ' maxlength="72" placeholder="' + esc(t('auth.passwordHint')) + '"');
+    }
+    var links = '';
+    if (mode === 'login') {
+      links = '<a href="#/logowanie/reset">' + esc(t('auth.forgot')) + '</a><a href="#/logowanie/rejestracja">' + esc(t('auth.toRegister')) + '</a>';
+    } else if (mode === 'register') {
+      links = '<a href="#/logowanie">' + esc(t('auth.toLogin')) + '</a>';
+    } else if (mode === 'reset') {
+      links = '<a href="#/logowanie">' + esc(t('auth.backToLogin')) + '</a>';
+    }
+    var back = mode === 'newpass' ? '#/kawiarnia' : '#/profil';
+    var html = '<main class="screen" id="view" tabindex="-1">' +
+      '<div class="topbar"><a class="icon-btn" href="' + back + '" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('auth.title.' + mode)) + '</h1></div></div>' +
+      '<div class="content"><p class="subtitle">' + esc(t('auth.lead.' + mode)) + '</p>' +
+      '<form class="auth-form" data-form="auth" data-mode="' + mode + '" novalidate>' + fields +
+      '<p id="authMsg" role="alert" hidden></p>' +
+      '<button class="btn btn-primary" type="submit">' + esc(t('auth.submit.' + mode)) + '</button></form>' +
+      (links ? '<div class="links">' + links + '</div>' : '') + '</div></main>';
+    show(html, t('auth.title.' + mode));
+  }
+  function submitAuth(form) {
+    var mode = form.getAttribute('data-mode');
+    var email = form.elements.email ? form.elements.email.value.trim() : '';
+    var pw = form.elements.password ? form.elements.password.value : '';
+    var name = form.elements.name ? form.elements.name.value.trim() : '';
+    var btn = form.querySelector('button[type="submit"]');
+    var msg = document.getElementById('authMsg');
+    var label = btn.textContent;
+    function say(text, ok) {
+      msg.textContent = text;
+      msg.className = 'banner' + (ok ? '' : ' banner-warn');
+      msg.hidden = false;
+    }
+    function finish(user) {
+      var meta = user && user.user_metadata;
+      if (!load('name', '') && meta && meta.name) save('name', String(meta.name).slice(0, 30));
+      var to = ui.returnTo || '#/kawiarnia';
+      ui.returnTo = null;
+      navigate(to);
+    }
+    if (mode !== 'newpass' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say(t('auth.err.email'));
+    if (mode === 'register' && (name.length < 2 || name.length > 30)) return say(t('auth.err.name'));
+    if ((mode === 'register' || mode === 'newpass') && pw.length < 8) return say(t('auth.err.weak'));
+    if (mode === 'login' && !pw) return say(t('auth.err.invalid'));
+    btn.disabled = true;
+    btn.textContent = t('auth.working');
+    msg.hidden = true;
+    var job;
+    if (mode === 'login') {
+      job = Auth.login(email, pw).then(function (r) {
+        if (r.error) throw r.error;
+        finish(r.data.user);
+      });
+    } else if (mode === 'register') {
+      job = Auth.register(email, pw, name).then(function (r) {
+        if (r.error) throw r.error;
+        save('name', name);
+        if (r.data.session) finish(r.data.user);
+        else say(t('auth.checkEmail'), true);
+      });
+    } else if (mode === 'reset') {
+      job = Auth.reset(email).then(function (r) {
+        if (r.error && authErr(r.error) === t('auth.err.rate')) throw r.error;
+        say(t('auth.resetSent'), true);
+      });
+    } else {
+      job = Auth.setPassword(pw).then(function (r) {
+        if (r.error) throw r.error;
+        ui.recovery = false;
+        toast(t('auth.passSaved'));
+        navigate('#/kawiarnia');
+      });
+    }
+    job.catch(function (err) {
+      say(authErr(err));
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = label;
+    });
+  }
+
   /* ---------- widok: profil ---------- */
+  function accountHtml() {
+    if (!SB.on) return '';
+    if (!ui.user) return '<button type="button" class="btn btn-primary btn-sm" data-action="login">' + esc(t('profile.login')) + '</button>';
+    return '<div class="setting setting-col"><span class="label-caps">' + esc(t('profile.account')) + '</span>' +
+      '<span>' + esc(tf('profile.loggedAs', { email: ui.user.email })) + '</span>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-action="logout">' + esc(t('profile.logout')) + '</button></div>';
+  }
   function viewProfile() {
     var name = load('name', '');
     var level = load('level', '');
@@ -471,6 +699,7 @@
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
       '<div class="profile-head"><span class="avatar avatar-you">' + esc((name || t('profile.guest')).charAt(0).toUpperCase()) + '</span>' +
       '<div><h1 class="title">' + esc(name || t('profile.title')) + '</h1><p class="subtitle">' + esc(t('profile.plan')) + '</p></div></div>' +
+      accountHtml() +
       '<a class="plan-card" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
       '<span class="row-text"><strong>' + esc(t('profile.plan')) + '</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
       '<div><p class="label-caps" style="padding-bottom:4px">' + esc(t('profile.settings')) + '</p>' +
@@ -482,17 +711,19 @@
       '<div class="setting"><button type="button" class="link-btn" data-action="portal"><span>' + esc(t('profile.manage')) + '</span>' + ico('chevron', 20) + '</button></div>' +
       '<div class="setting"><a class="link-btn" href="regulamin.html"><span>' + esc(t('legal.terms')) + '</span>' + ico('chevron', 20) + '</a></div>' +
       '<div class="setting"><a class="link-btn" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 20) + '</a></div></div>' +
-      '<p class="notice">' + esc(t('demo.account')) + '</p></div>' + nav('profile') + '</main>';
+      '<p class="notice">' + esc(t(SB.on ? 'profile.noteRemote' : 'demo.account')) + '</p></div>' + nav('profile') + '</main>';
     show(html, t('profile.title'));
   }
 
   /* ---------- router ---------- */
   function route() {
+    if (SB.on) Live.detach();
     var hash = currentHash();
     renderedHash = hash;
     var seg = hash.slice(1).split('/').filter(Boolean);
     var name = seg[0] || '';
     if (name !== '' && !load('age18', false)) { navigate('#/', true); return; }
+    if (name !== '' && name !== 'nowe-haslo' && ui.recovery && ui.user) { navigate('#/nowe-haslo', true); return; }
     switch (name) {
       case '': return viewWelcome();
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
@@ -501,6 +732,8 @@
       case 'wydarzenia': return viewEvents(seg[1] === 'premium' ? 'premium' : 'all');
       case 'premium': return viewPremium();
       case 'profil': return viewProfile();
+      case 'logowanie': return viewAuth(seg[1] === 'rejestracja' ? 'register' : (seg[1] === 'reset' ? 'reset' : 'login'));
+      case 'nowe-haslo': return viewAuth('newpass');
       default: navigate('#/kawiarnia', true);
     }
   }
@@ -542,6 +775,11 @@
     } else if (a === 'portal') {
       if (CFG.portalUrl) window.location.href = CFG.portalUrl;
       else toast(t('profile.manageNone'));
+    } else if ((a === 'login' || a === 'register') && SB.on) {
+      ui.returnTo = currentHash();
+      navigate(a === 'login' ? '#/logowanie' : '#/logowanie/rejestracja');
+    } else if (a === 'logout' && SB.on) {
+      Auth.logout().then(function () { toast(t('profile.loggedOut')); });
     }
   });
 
@@ -571,12 +809,32 @@
 
   document.addEventListener('submit', function (e) {
     var form = e.target;
+    if (form.getAttribute('data-form') === 'auth') {
+      e.preventDefault();
+      if (SB.on) submitAuth(form);
+      return;
+    }
     if (form.getAttribute('data-form') !== 'msg') return;
     e.preventDefault();
     var input = form.elements.text;
     var text = input.value.trim();
     if (!text) return;
     var key = form.getAttribute('data-key');
+    if (SB.on) {
+      if (!ui.user) return;
+      var sendBtn = form.querySelector('button[type="submit"]');
+      sendBtn.disabled = true;
+      Live.send(key, text).then(function (row) {
+        input.value = '';
+        Live.add(row, true);
+      }).catch(function (err) {
+        toast(t(err && err.code === 'P0001' ? 'chat.sendFast' : 'chat.sendError'));
+      }).then(function () {
+        sendBtn.disabled = false;
+        input.focus();
+      });
+      return;
+    }
     var box = document.getElementById('messages');
     var wasEmpty = Chat.history(key).length === 0;
     var msg = Chat.send(key, text);
@@ -591,5 +849,43 @@
     memHash = null;
     route();
   });
-  route();
+
+  /* ---------- start ---------- */
+  if (SB.on) {
+    // Po kliknięciu linku z e-maila adres wraca z parametrem ?code=... (biblioteka sama go wymienia na sesję).
+    var cleanAuthUrl = function () {
+      var q = new URLSearchParams(window.location.search);
+      if (q.get('error_code') || q.get('error_description')) toast(t('auth.err.link'));
+      if (q.has('code') || q.has('error') || q.has('error_code') || q.has('error_description')) {
+        try { history.replaceState(null, '', window.location.pathname + window.location.hash); } catch (e) { /* ignore */ }
+      }
+    };
+    var started = false;
+    var start = function () {
+      if (started) return;
+      started = true;
+      ui.authReady = true;
+      cleanAuthUrl();
+      route();
+    };
+    SB.client.auth.onAuthStateChange(function (event, session) {
+      var u = session && session.user ? { id: session.user.id, email: session.user.email || '' } : null;
+      var changed = (u ? u.id : null) !== (ui.user ? ui.user.id : null);
+      ui.user = u;
+      if (event === 'PASSWORD_RECOVERY') ui.recovery = true;
+      if (event === 'SIGNED_OUT') ui.recovery = false;
+      if (!ui.authReady) return;
+      // Wywołania po stronie Supabase wolno robić dopiero poza tą funkcją, dlatego setTimeout.
+      if (event === 'PASSWORD_RECOVERY') setTimeout(function () { navigate('#/nowe-haslo'); }, 0);
+      else if (changed) setTimeout(route, 0);
+    });
+    SB.client.auth.getSession().then(function (r) {
+      var s = r && r.data && r.data.session;
+      if (s && s.user && !ui.user) ui.user = { id: s.user.id, email: s.user.email || '' };
+      start();
+    }, start);
+    setTimeout(start, 4000); // zapas: gdyby sprawdzanie sesji się zawiesiło, strona i tak się pokaże
+  } else {
+    route();
+  }
 })();
