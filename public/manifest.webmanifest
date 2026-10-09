@@ -4,8 +4,8 @@
   "description": "Wirtualna kawiarnia PL/KR: czaty 24/7, roomy na żywo i wydarzenia.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFF6F9",
-  "theme_color": "#4B67C4",
+  "background_color": "#FBF7F2",
+  "theme_color": "#FBF7F2",
   "lang": "pl",
   "icons": [
     {

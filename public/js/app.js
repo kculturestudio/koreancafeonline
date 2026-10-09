@@ -4,6 +4,8 @@
   var CFG = window.KCO_CONFIG;
   var D = window.KCO_DATA;
   var S = window.KCO_I18N;
+  // podgląd dwóch układów na komputerze: dodaj ?desk=a do adresu (do usunięcia po wyborze)
+  if (/[?&]desk=a\b/.test(location.search)) document.documentElement.className += ' desk-a';
   var app = document.getElementById('app');
   var toastEl = document.getElementById('toast');
   var WARSAW = 'Europe/Warsaw';
@@ -280,10 +282,9 @@
   };
 
   /* ---------- widoki: części wspólne ---------- */
-  var HERO = '<img class="hero-logo" src="img/logo.png" alt="" width="148" height="148">' +
-    '<div class="hero-title" aria-hidden="true">KOREAN CAFÉ</div>' +
-    '<span class="hero-script" aria-hidden="true">online</span>' +
-    '<div class="hero-hearts" aria-hidden="true">♥ ♥ ♥</div>';
+  var HERO = '<img class="hero-logo" src="img/logo.png" alt="" width="132" height="132">' +
+    '<div class="hero-title" aria-hidden="true">Korean Café Online</div>' +
+    '<span class="hero-script" aria-hidden="true">한국 카페 온라인</span>';
 
   function langSeg() {
     return '<div class="seg" role="group" aria-label="' + esc(t('profile.lang')) + '">' +
