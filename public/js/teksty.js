@@ -137,5 +137,72 @@ window.KCO_I18N = {
   'profile.manageNone': ['Zarządzanie subskrypcją będzie dostępne po zalogowaniu.', '구독 관리는 로그인 후 이용할 수 있어요.'],
   'profile.guest': ['Gość', '손님'],
   'profile.polish': ['Polski', '폴란드어'],
-  'profile.korean': ['한국어', '한국어']
+  'profile.korean': ['한국어', '한국어'],
+
+  'profile.account': ['KONTO', '계정'],
+  'profile.loggedAs': ['Zalogowano jako {email}', '{email} 계정으로 로그인됨'],
+  'profile.login': ['Zaloguj się lub załóż konto', '로그인 또는 회원가입'],
+  'profile.logout': ['Wyloguj się', '로그아웃'],
+  'profile.loggedOut': ['Wylogowano.', '로그아웃했어요.'],
+  'profile.noteRemote': [
+    'Imię i poziom języka zapisują się w tej przeglądarce. Wiadomości z czatów są zapisane na Twoim koncie i widzą je inni uczestnicy.',
+    '이름과 언어 레벨은 이 브라우저에 저장돼요. 채팅 메시지는 계정에 저장되며 다른 참가자에게도 보여요.'
+  ],
+
+  'auth.title.login': ['Zaloguj się', '로그인'],
+  'auth.title.register': ['Załóż konto', '회원가입'],
+  'auth.title.reset': ['Reset hasła', '비밀번호 재설정'],
+  'auth.title.newpass': ['Nowe hasło', '새 비밀번호'],
+  'auth.lead.login': ['Wejdź na swoje konto, żeby pisać na czatach.', '계정에 로그인해서 채팅에 참여해 보세요.'],
+  'auth.lead.register': [
+    'Konto jest potrzebne, żeby pisać na czatach. Dzięki niemu Twoje wiadomości są zapisane.',
+    '채팅에 참여하려면 계정이 필요해요. 보낸 메시지는 계정에 저장돼요.'
+  ],
+  'auth.lead.reset': ['Podaj e-mail, a wyślemy link do ustawienia nowego hasła.', '이메일을 입력하시면 새 비밀번호를 설정할 링크를 보내 드려요.'],
+  'auth.lead.newpass': ['Ustaw nowe hasło do swojego konta.', '계정의 새 비밀번호를 설정해 주세요.'],
+  'auth.email': ['E-mail', '이메일'],
+  'auth.password': ['Hasło', '비밀번호'],
+  'auth.passwordNew': ['Nowe hasło', '새 비밀번호'],
+  'auth.passwordHint': ['Co najmniej 8 znaków', '8자 이상'],
+  'auth.submit.login': ['Zaloguj się', '로그인'],
+  'auth.submit.register': ['Załóż konto', '가입하기'],
+  'auth.submit.reset': ['Wyślij link', '링크 보내기'],
+  'auth.submit.newpass': ['Zapisz hasło', '비밀번호 저장'],
+  'auth.toRegister': ['Nie masz konta? Załóż je', '계정이 없나요? 가입하기'],
+  'auth.toLogin': ['Masz już konto? Zaloguj się', '이미 계정이 있나요? 로그인'],
+  'auth.forgot': ['Nie pamiętam hasła', '비밀번호를 잊었어요'],
+  'auth.backToLogin': ['Wróć do logowania', '로그인으로 돌아가기'],
+  'auth.working': ['Chwileczkę…', '잠시만요…'],
+  'auth.checkEmail': [
+    'Sprawdź skrzynkę e-mail i kliknij link, żeby dokończyć zakładanie konta. Zajrzyj też do folderu ze spamem.',
+    '이메일함에서 링크를 눌러 가입을 완료해 주세요. 스팸함도 확인해 보세요.'
+  ],
+  'auth.resetSent': [
+    'Jeśli konto z tym adresem istnieje, wysłaliśmy na niego link do zmiany hasła.',
+    '이 주소로 가입된 계정이 있다면 비밀번호 변경 링크를 보냈어요.'
+  ],
+  'auth.passSaved': ['Hasło zostało zmienione.', '비밀번호가 변경되었어요.'],
+  'auth.err.email': ['Wpisz poprawny adres e-mail.', '올바른 이메일 주소를 입력해 주세요.'],
+  'auth.err.name': ['Wpisz imię (od 2 do 30 znaków).', '이름을 2~30자로 입력해 주세요.'],
+  'auth.err.weak': ['Hasło jest za krótkie lub zbyt słabe. Użyj co najmniej 8 znaków.', '비밀번호가 너무 짧거나 약해요. 8자 이상으로 입력해 주세요.'],
+  'auth.err.invalid': ['Nieprawidłowy e-mail lub hasło.', '이메일 또는 비밀번호가 올바르지 않아요.'],
+  'auth.err.unconfirmed': ['Najpierw potwierdź adres e-mail (link w wiadomości od nas).', '먼저 이메일 인증을 완료해 주세요. (보내 드린 메일의 링크)'],
+  'auth.err.exists': ['Konto z tym adresem już istnieje. Zaloguj się.', '이미 가입된 이메일이에요. 로그인해 주세요.'],
+  'auth.err.rate': ['Za dużo prób. Spróbuj ponownie za kilka minut.', '시도 횟수가 너무 많아요. 몇 분 후에 다시 해 주세요.'],
+  'auth.err.link': ['Link wygasł lub został już użyty. Poproś o nowy.', '링크가 만료되었거나 이미 사용되었어요. 새 링크를 요청해 주세요.'],
+  'auth.err.generic': ['Coś poszło nie tak. Spróbuj ponownie.', '문제가 생겼어요. 다시 시도해 주세요.'],
+
+  'chat.live': [
+    'Wiadomości zapisują się na Twoim koncie i widzą je wszyscy na tym czacie.',
+    '메시지는 계정에 저장되며 이 채팅의 모든 사람에게 보여요.'
+  ],
+  'chat.loginTitle': ['Zaloguj się, żeby pisać', '로그인하고 대화하세요'],
+  'chat.loginBody': [
+    'Czaty są dla zalogowanych osób. Dzięki temu Twoje wiadomości są zapisane, a rozmowę możesz dokończyć na innym urządzeniu.',
+    '채팅은 로그인한 분들을 위한 공간이에요. 메시지가 저장되어 다른 기기에서도 이어서 대화할 수 있어요.'
+  ],
+  'chat.loading': ['Ładuję wiadomości…', '메시지를 불러오는 중…'],
+  'chat.loadError': ['Nie udało się wczytać wiadomości. Odśwież stronę.', '메시지를 불러오지 못했어요. 새로고침해 주세요.'],
+  'chat.sendError': ['Nie udało się wysłać wiadomości. Spróbuj ponownie.', '메시지를 보내지 못했어요. 다시 시도해 주세요.'],
+  'chat.sendFast': ['Za szybko. Poczekaj chwilę przed kolejną wiadomością.', '너무 빨라요. 잠시 후에 다시 보내 주세요.']
 };

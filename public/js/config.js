@@ -18,11 +18,20 @@ window.KCO_CONFIG = {
   },
   trialDays: 7,
 
-  // Jakie usługi są podłączone. Dziś: tylko lokalne demo.
+  // Jakie usługi są podłączone.
+  // Konta i czat korzystają z Supabase, ale tylko gdy wpiszesz poniżej adres projektu i klucz publiczny.
+  // Dopóki pola są puste, strona działa jak dotąd, w trybie demo (wiadomości tylko w przeglądarce).
   providers: {
-    auth: 'none',   // 'none' | 'supabase' | ...
-    chat: 'local',  // 'local' | 'supabase' | ...
-    voice: 'none'   // 'none' | 'livekit' | 'daily' | ...
+    auth: 'supabase',  // 'none' | 'supabase'
+    chat: 'supabase',  // 'local' | 'supabase'
+    voice: 'none'      // 'none' | 'livekit' | 'daily' | ...
+  },
+
+  // Supabase → Project Settings → API. Oba pola są PUBLICZNE i mogą być w repozytorium.
+  // NIGDY nie wpisuj tu klucza "service_role" (tajny).
+  supabase: {
+    url: '',      // np. 'https://abcdefghijkl.supabase.co'
+    anonKey: ''   // długi klucz "anon" / "publishable"
   },
 
   // Tylko do testów na własnym komputerze: odblokowuje treści Premium bez płatności.
