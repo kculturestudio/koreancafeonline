@@ -86,6 +86,17 @@ Dobrze wiedzieć:
 - **LiveKit** lub **Daily** (rozmowy głosowe w roomach): token dostępu generowany przez funkcję Netlify po sprawdzeniu, czy użytkownik ma prawo wejść.
 - Po podłączeniu dopisz adresy usługi do `connect-src` w `netlify.toml` i ustaw `providers.voice` w `config.js`.
 
+## Etap 1: Korean Café, Fandom Chat, odpowiedzi i edycja (wymaga bazy)
+
+Nowe sekcje (Start, Nauka, Korean Café, Fandom Chat) korzystają z Supabase. Zanim zaczną działać:
+
+1. Supabase → *SQL Editor* → wklej `supabase/schema-v2.sql` → *Run* (po wcześniejszym `schema.sql`; można uruchomić ponownie).
+2. Załóż konto w aplikacji, a potem w tym samym edytorze uruchom (z Twoim adresem e-mail), żeby zostać administratorem:
+   `update public.profiles set role = 'admin' where id = (select id from auth.users where email = 'TWOJ@EMAIL.PL');`
+3. Stoliki i fandomy (ARMY, STAY, MULTISTAN) pojawią się od razu. Liczby członków, wolne miejsca i ostatnia aktywność są liczone z bazy.
+
+Role: `member` (domyślnie), `moderator` (może usuwać cudze wiadomości), `admin`.
+
 ## Przed publicznym startem (lista kontrolna)
 
 - Regulamin i Polityka prywatności: uzupełnij szkielety (RODO, dane sprzedawcy, prawo odstąpienia dla treści cyfrowych).
