@@ -276,3 +276,7 @@ select.field { appearance: none; -webkit-appearance: none; background: #fff var(
 .stats div { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
 .stats b { font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .stats span { font-size: 11px; color: var(--muted); }
+.topic-card.daily { gap: 8px; }
+.topic-card.daily > p:first-of-type { font-size: 17px; color: var(--ink); }
+.topic-card .starter { display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: var(--ink); }
+.topic-card .btn { align-self: flex-start; }

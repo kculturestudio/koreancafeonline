@@ -508,6 +508,21 @@
     if (SB.on && ui.user) Live.attach(key);
   }
 
+  /* Temat dnia: ten sam dla wszystkich w danym dniu (czas warszawski), zmienia się o północy. */
+  function dailyIndex(r, now) {
+    var v = ymd(now, WARSAW), y = Math.floor(v / 10000), m = Math.floor(v / 100) % 100, d = v % 100;
+    return Math.floor(Date.UTC(y, m - 1, d) / 86400000) % r.daily.length;
+  }
+  function dailyCard(r, canType) {
+    var i = dailyIndex(r, new Date()), x = r.daily[i];
+    var starter = x.starter.replace(/___/g, '…');
+    return '<div class="topic-card daily"><span class="label-caps">' + esc(t('room.dailyLabel')) + ' · ' + esc(tf('room.dailyOf', { n: i + 1, m: r.daily.length })) + '</span>' +
+      '<strong>' + esc(L(x.title)) + ' · ' + esc(O(x.title)) + '</strong>' +
+      '<p lang="' + (r.lang === 'PL' ? 'pl' : 'ko') + '">' + esc(x.q) + '</p><p class="muted">' + esc(x.tr) + '</p>' +
+      '<p class="starter"><span class="label-caps">' + esc(t('room.starter')) + '</span> <span lang="' + (r.lang === 'PL' ? 'pl' : 'ko') + '">' + esc(starter) + '</span></p>' +
+      (canType ? '<button type="button" class="btn btn-ghost btn-sm" data-action="starter" data-text="' + esc(starter) + '">' + esc(t('room.useStarter')) + '</button>' : '') +
+      '<small class="fine" style="text-align:left">' + esc(t('room.dailyNew')) + '</small></div>';
+  }
   /* ---------- widok: room na żywo ---------- */
   function micHtml() {
     return '<button type="button" class="mic-btn" data-action="mic" aria-pressed="' + ui.mic + '" aria-label="' + esc(ui.mic ? t('room.mic.on') : t('room.mic.off')) + '">' + ico(ui.mic ? 'mic' : 'micoff') + '</button>';
@@ -529,7 +544,7 @@
     for (var i = 2; i < r.seats; i++) {
       seats += '<div class="seat"><span class="avatar avatar-empty">' + ico('plus', 22) + '</span><span class="seat-empty">' + esc(t('room.free')) + '</span></div>';
     }
-    var topic = r.topicCard ? '<div class="topic-card"><span class="label-caps">' + esc(t('room.topicLabel')) + '</span><strong>' + esc(L(r.topicCard.title)) + ' · ' + esc(O(r.topicCard.title)) + '</strong><p>' + esc(r.topicCard.ko) + '<br>' + esc(r.topicCard.pl) + '</p></div>' : '';
+    var topic = r.daily ? dailyCard(r, !(SB.on && !ui.user)) : r.topicCard ? '<div class="topic-card"><span class="label-caps">' + esc(t('room.topicLabel')) + '</span><strong>' + esc(L(r.topicCard.title)) + ' · ' + esc(O(r.topicCard.title)) + '</strong><p>' + esc(r.topicCard.ko) + '<br>' + esc(r.topicCard.pl) + '</p></div>' : '';
     var key = 'room:' + id;
     var html = '<main class="screen" id="view" tabindex="-1">' +
       '<div class="topbar"><a class="icon-btn" href="#/kawiarnia/live" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
@@ -897,6 +912,9 @@
         var u = new SpeechSynthesisUtterance(el.getAttribute('data-text')); u.lang = 'ko-KR'; u.rate = .9;
         window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
       } catch (err) { /* brak syntezy mowy w tej przeglądarce */ }
+    } else if (a === 'starter') {
+      var inp = document.querySelector('.composer-input');
+      if (inp) { inp.value = el.getAttribute('data-text'); inp.focus(); }
     } else if (a === 'ics') {
       downloadIcs(el.getAttribute('data-id'));
     } else if (a === 'portal') {
