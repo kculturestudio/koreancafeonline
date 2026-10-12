@@ -783,7 +783,7 @@
     }).join('');
     show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
       '<div class="head"><div><h1 class="title">' + esc(t('practice.title')) + '</h1><p class="subtitle">' + esc(t('practice.sub')) + '</p></div></div>' +
-      statsHtml() + '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
+      '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
   }
   function pBubble(e, mine) {
     var tr = (!mine && lang === 'pl') ? '<span class="tr">' + esc(e.p) + '</span>' : '';
@@ -883,7 +883,7 @@
           ui.pWrong = null; pSet(pr.id, pn + 1);
           var last = pn + 1 >= pr.ex.length;
           Prog.award(last ? 7 : 2, last ? 3 : 1);
-          if (last) toast(tf('practice.reward', { xp: 7, n: 3 }));
+          if (last) toast(t('practice.done'));
         } else { ui.pWrong = pi; }
         ui.keepScroll = false;
         route();
