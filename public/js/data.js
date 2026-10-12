@@ -17,7 +17,7 @@
     channels: [
       {
         id: 'kr-a1', badge: 'KR', lang: 'KR', topic: 'language', premium: false,
-        levels: ['A1'], level: { pl: 'A1', ko: 'A1' }, ages: ALL_AGES,
+        levels: ['A1', 'A2'], level: { pl: 'A1–A2', ko: 'A1–A2' }, ages: ALL_AGES,
         name: { pl: 'Koreański dla początkujących', ko: '한국어 초급' },
         desc: { pl: 'pisz po koreańsku', ko: '한국어로 써 보세요' },
         rule: { pl: 'Pisz po koreańsku, native speakerzy poprawiają.', ko: '한국어로 써 보세요. 원어민이 고쳐 드려요.' },
@@ -68,7 +68,7 @@
       {
         id: 'kr-adv', badge: 'KR', lang: 'KR', topic: 'language', premium: false,
         levels: ['B1', 'B2', 'C1', 'C2'], level: { pl: 'B1–C2', ko: 'B1–C2' }, ages: ALL_AGES,
-        name: { pl: 'Koreański na poziomie zaawansowanym', ko: '한국어 고급 수준' },
+        name: { pl: 'Rozmowy po koreańsku', ko: '한국어 대화' },
         desc: { pl: 'pytania do głębszych rozmów', ko: '깊이 있는 대화 질문' },
         rule: { pl: 'Pisz po koreańsku, native speakerzy poprawiają.', ko: '한국어로 써 보세요. 원어민이 고쳐 드려요.' },
         // 40 pytań do rozmów (prompt nad polem wiadomości): k = pytanie po koreańsku, pl = tłumaczenie. Bez pola starter, więc bez przycisku "Odpowiedz".
