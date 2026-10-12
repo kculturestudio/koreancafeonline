@@ -218,58 +218,34 @@
 
     rooms: [
       {
-        id: 'stolik-kr', always: true, premium: false, seats: 6, badge: 'KR',
-        lang: 'KR', topic: 'language', levels: ['A1', 'A2', 'B1'], level: { pl: 'A1–B1', ko: 'A1–B1' }, ages: ALL_AGES,
-        name: { pl: 'Stolik koreański · temat dnia', ko: '한국어 테이블 · 오늘의 주제' },
-        // 14 tematów po koreańsku (q), z tłumaczeniem PL (tr). Temat zmienia się o północy czasu warszawskiego.
+        id: 'temat-dnia', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'language', levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Temat dnia', ko: '테이블 · 오늘의 주제' },
+        // Pytanie dnia na start rozmowy: zmienia się codziennie o 00:00 czasu seulskiego (tz). q = po polsku, tr = po koreańsku (do sprawdzenia przez native speakera).
+        tz: 'Asia/Seoul',
         daily: [
-          { title: { pl: 'Poranna kawa', ko: '아침 커피' }, q: '오늘 아침에 뭐 마셨어요?', tr: 'Co dziś rano piłeś lub piłaś?', starter: '저는 오늘 아침에 ___ 마셨어요.' },
-          { title: { pl: 'Plany na weekend', ko: '주말 계획' }, q: '이번 주말에 뭐 할 거예요?', tr: 'Co robisz w ten weekend?', starter: '저는 이번 주말에 ___ 할 거예요.' },
-          { title: { pl: 'Ulubione jedzenie', ko: '좋아하는 음식' }, q: '제일 좋아하는 한국 음식이 뭐예요?', tr: 'Jakie jest Twoje ulubione koreańskie jedzenie?', starter: '제가 제일 좋아하는 음식은 ___ 이에요/예요.' },
-          { title: { pl: 'Seriale', ko: '드라마' }, q: '요즘 어떤 드라마를 보고 있어요?', tr: 'Jaki serial teraz oglądasz?', starter: '요즘 ___ 보고 있어요.' },
-          { title: { pl: 'Muzyka', ko: '음악' }, q: '요즘 어떤 노래를 자주 들어요?', tr: 'Jakiej piosenki ostatnio często słuchasz?', starter: '요즘 ___ 노래를 자주 들어요.' },
-          { title: { pl: 'Hobby', ko: '취미' }, q: '취미가 뭐예요?', tr: 'Jakie masz hobby?', starter: '제 취미는 ___ 이에요/예요.' },
-          { title: { pl: 'Podróże', ko: '여행' }, q: '한국에서 가 보고 싶은 곳이 어디예요?', tr: 'Dokąd w Korei chciał(a)byś pojechać?', starter: '저는 ___ 에 가 보고 싶어요.' },
-          { title: { pl: 'Pogoda', ko: '날씨' }, q: '오늘 날씨 어때요?', tr: 'Jaka dziś jest pogoda?', starter: '오늘은 날씨가 ___ (좋아요, 추워요, 더워요).' },
-          { title: { pl: 'Nauka koreańskiego', ko: '한국어 공부' }, q: '하루에 한국어를 얼마나 공부해요?', tr: 'Ile dziennie uczysz się koreańskiego?', starter: '저는 하루에 ___ 분 공부해요.' },
-          { title: { pl: 'Zwierzęta', ko: '동물' }, q: '좋아하는 동물이 있어요?', tr: 'Masz ulubione zwierzę?', starter: '저는 ___ 좋아해요.' },
-          { title: { pl: 'Ranek czy wieczór', ko: '아침 또는 저녁' }, q: '아침형 인간이에요, 저녁형 인간이에요?', tr: 'Jesteś rannym ptaszkiem czy nocnym markiem?', starter: '저는 ___ 인간이에요 (아침형/저녁형).' },
-          { title: { pl: 'Kawa czy herbata', ko: '커피 또는 차' }, q: '커피를 좋아해요, 차를 좋아해요?', tr: 'Wolisz kawę czy herbatę?', starter: '저는 ___ 더 좋아해요.' },
-          { title: { pl: 'Wczorajszy dzień', ko: '어제' }, q: '어제 뭐 했어요?', tr: 'Co robiłeś lub robiłaś wczoraj?', starter: '어제는 ___ 했어요.' },
-          { title: { pl: 'Cele na ten rok', ko: '올해의 목표' }, q: '올해 꼭 하고 싶은 일이 뭐예요?', tr: 'Co koniecznie chcesz zrobić w tym roku?', starter: '올해는 꼭 ___ 고 싶어요.' }
+          { title: {pl: 'Poranna kawa', ko: '아침 커피'}, q: 'Co dziś rano piłeś lub piłaś?', tr: '오늘 아침에 뭐 마셨어요?' },
+          { title: {pl: 'Plany na weekend', ko: '주말 계획'}, q: 'Co robisz w ten weekend?', tr: '이번 주말에 뭐 할 거예요?' },
+          { title: {pl: 'Ulubione jedzenie', ko: '좋아하는 음식'}, q: 'Jakie jest Twoje ulubione koreańskie jedzenie?', tr: '제일 좋아하는 한국 음식이 뭐예요?' },
+          { title: {pl: 'Seriale', ko: '드라마'}, q: 'Jaki serial teraz oglądasz?', tr: '요즘 어떤 드라마를 보고 있어요?' },
+          { title: {pl: 'Muzyka', ko: '음악'}, q: 'Jakiej piosenki ostatnio często słuchasz?', tr: '요즘 어떤 노래를 자주 들어요?' },
+          { title: {pl: 'Hobby', ko: '취미'}, q: 'Jakie masz hobby?', tr: '취미가 뭐예요?' },
+          { title: {pl: 'Podróże', ko: '여행'}, q: 'Dokąd w Korei chciał(a)byś pojechać?', tr: '한국에서 가 보고 싶은 곳이 어디예요?' },
+          { title: {pl: 'Pogoda', ko: '날씨'}, q: 'Jaka dziś jest pogoda?', tr: '오늘 날씨 어때요?' },
+          { title: {pl: 'Nauka koreańskiego', ko: '한국어 공부'}, q: 'Ile dziennie uczysz się koreańskiego?', tr: '하루에 한국어를 얼마나 공부해요?' },
+          { title: {pl: 'Zwierzęta', ko: '동물'}, q: 'Masz ulubione zwierzę?', tr: '좋아하는 동물이 있어요?' },
+          { title: {pl: 'Ranek czy wieczór', ko: '아침 또는 저녁'}, q: 'Jesteś rannym ptaszkiem czy nocnym markiem?', tr: '아침형 인간이에요, 저녁형 인간이에요?' },
+          { title: {pl: 'Kawa czy herbata', ko: '커피 또는 차'}, q: 'Wolisz kawę czy herbatę?', tr: '커피를 좋아해요, 차를 좋아해요?' },
+          { title: {pl: 'Wczorajszy dzień', ko: '어제'}, q: 'Co robiłeś lub robiłaś wczoraj?', tr: '어제 뭐 했어요?' },
+          { title: {pl: 'Cele na ten rok', ko: '올해의 목표'}, q: 'Co koniecznie chcesz zrobić w tym roku?', tr: '올해 꼭 하고 싶은 일이 뭐예요?' },
+          { title: {pl: 'Plany na weekend', ko: '주말 계획'}, q: 'Co robisz w ten weekend?', tr: '이번 주말에 뭐 해요?' },
+          { title: {pl: 'Ulubione jedzenie', ko: '좋아하는 음식'}, q: 'Jakie jest Twoje ulubione danie?', tr: '제일 좋아하는 음식이 뭐예요?' },
+          { title: {pl: 'Muzyka', ko: '음악'}, q: 'Czego ostatnio najczęściej słuchasz?', tr: '요즘 무엇을 가장 자주 들어요?' },
+          { title: {pl: 'Podróże', ko: '여행'}, q: 'Dokąd w Polsce chciał(a)byś pojechać?', tr: '폴란드에서 가 보고 싶은 곳이 어디예요?' },
+          { title: {pl: 'Nauka polskiego', ko: '폴란드어 공부'}, q: 'Ile czasu dziennie uczysz się polskiego?', tr: '하루에 폴란드어를 얼마나 공부해요?' },
+          { title: {pl: 'Ranek czy wieczór', ko: '아침 또는 저녁'}, q: 'Wolisz poranki czy wieczory?', tr: '아침이 좋아요, 저녁이 좋아요?' },
+          { title: {pl: 'Kawa czy herbata', ko: '커피 또는 차'}, q: 'Wolisz kawę czy herbatę?', tr: '커피가 좋아요, 차가 좋아요?' }
         ]
-      },
-      {
-        id: 'stolik-pl', always: true, premium: false, seats: 6, badge: 'PL',
-        lang: 'PL', topic: 'language', levels: ['A1', 'A2', 'B1'], level: { pl: 'A1–B1', ko: 'A1–B1' }, ages: ALL_AGES,
-        name: { pl: 'Stolik polski · temat dnia', ko: '폴란드어 테이블 · 오늘의 주제' },
-        // 14 tematów po polsku (q), z tłumaczeniem KO (tr).
-        daily: [
-          { title: { pl: 'Poranna kawa', ko: '아침 커피' }, q: 'Co dziś rano piłeś lub piłaś?', tr: '오늘 아침에 뭐 마셨어요?', starter: 'Dziś rano piłem lub piłam ___.' },
-          { title: { pl: 'Plany na weekend', ko: '주말 계획' }, q: 'Co robisz w ten weekend?', tr: '이번 주말에 뭐 해요?', starter: 'W ten weekend ___.' },
-          { title: { pl: 'Ulubione jedzenie', ko: '좋아하는 음식' }, q: 'Jakie jest Twoje ulubione danie?', tr: '제일 좋아하는 음식이 뭐예요?', starter: 'Moje ulubione danie to ___.' },
-          { title: { pl: 'Seriale', ko: '드라마' }, q: 'Jaki serial teraz oglądasz?', tr: '요즘 어떤 드라마를 보고 있어요?', starter: 'Teraz oglądam ___.' },
-          { title: { pl: 'Muzyka', ko: '음악' }, q: 'Czego ostatnio najczęściej słuchasz?', tr: '요즘 무엇을 가장 자주 들어요?', starter: 'Ostatnio często słucham ___.' },
-          { title: { pl: 'Hobby', ko: '취미' }, q: 'Jakie masz hobby?', tr: '취미가 뭐예요?', starter: 'Moje hobby to ___.' },
-          { title: { pl: 'Podróże', ko: '여행' }, q: 'Dokąd w Polsce chciał(a)byś pojechać?', tr: '폴란드에서 가 보고 싶은 곳이 어디예요?', starter: 'Chcę pojechać do ___.' },
-          { title: { pl: 'Pogoda', ko: '날씨' }, q: 'Jaka dziś jest pogoda?', tr: '오늘 날씨 어때요?', starter: 'Dziś jest ___.' },
-          { title: { pl: 'Nauka polskiego', ko: '폴란드어 공부' }, q: 'Ile czasu dziennie uczysz się polskiego?', tr: '하루에 폴란드어를 얼마나 공부해요?', starter: 'Uczę się polskiego ___ minut dziennie.' },
-          { title: { pl: 'Zwierzęta', ko: '동물' }, q: 'Czy masz ulubione zwierzę?', tr: '좋아하는 동물이 있어요?', starter: 'Lubię ___.' },
-          { title: { pl: 'Ranek czy wieczór', ko: '아침 또는 저녁' }, q: 'Wolisz poranki czy wieczory?', tr: '아침이 좋아요, 저녁이 좋아요?', starter: 'Wolę ___.' },
-          { title: { pl: 'Kawa czy herbata', ko: '커피 또는 차' }, q: 'Wolisz kawę czy herbatę?', tr: '커피가 좋아요, 차가 좋아요?', starter: 'Wolę ___.' },
-          { title: { pl: 'Wczorajszy dzień', ko: '어제' }, q: 'Co robiłeś lub robiłaś wczoraj?', tr: '어제 뭐 했어요?', starter: 'Wczoraj ___.' },
-          { title: { pl: 'Cele na ten rok', ko: '올해의 목표' }, q: 'Co koniecznie chcesz zrobić w tym roku?', tr: '올해 꼭 하고 싶은 일이 뭐예요?', starter: 'W tym roku chcę ___.' }
-        ]
-      },
-      {
-        id: 'stolik-3', always: true, premium: false, seats: 6, badge: 'ROOM',
-        lang: 'MIX', topic: 'language', levels: ['A2', 'B1'], level: { pl: 'A2', ko: 'A2' }, ages: ALL_AGES,
-        name: { pl: 'Stolik 3 · Jedzenie i kawa', ko: '3번 테이블 · 음식과 커피' },
-        topicCard: {
-          title: { pl: 'Zamawiamy w kawiarni', ko: '카페에서 주문하기' },
-          ko: '아이스 아메리카노 한 잔 주세요.',
-          pl: 'Poproszę jedno mrożone americano.'
-        }
       },
       {
         id: 'fandomy', always: true, premium: false, seats: 6, badge: 'ROOM',
@@ -421,12 +397,7 @@
         { author: 'Ola', city: 'Kraków', time: '13:31', lang: 'pl', text: 'Dzień dobry, Minji! Świetnie ci idzie.', tr: { ko: '안녕하세요, 민지 씨! 정말 잘하고 계세요.' } },
         { author: 'Minji', city: '서울', time: '20:33', lang: 'pl', text: 'Lubię kawa.', tr: { ko: '저는 커피를 좋아해요.' } },
         { author: 'Ola', city: 'Kraków', time: '13:34', lang: 'pl', text: 'Lubię kawę.', fix: { pl: 'Biernik: kawa → kawę.', ko: '대격: kawa → kawę.' } }
-      ],
-      'room:stolik-3': [
-        { author: 'Minjun', city: '서울', time: '20:10', lang: 'ko', text: '주문하시겠어요?', tr: { pl: 'Czy chcesz złożyć zamówienie?' } },
-        { author: 'Kasia', city: 'Kraków', time: '13:11', lang: 'ko', text: '라떼 한 잔 주세요.', tr: { pl: 'Poproszę jedną latte.' } }
-      ]
-    }
+      ],    }
   };
 
   /* Ćwiczenia rozmów: krótkie scenariusze, w których odpowiadasz po koreańsku.

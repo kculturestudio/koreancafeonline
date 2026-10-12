@@ -530,7 +530,7 @@
 
   /* Temat dnia: ten sam dla wszystkich w danym dniu (czas warszawski), zmienia się o północy. */
   function dailyIndex(r, now) {
-    var v = ymd(now, WARSAW), y = Math.floor(v / 10000), m = Math.floor(v / 100) % 100, d = v % 100;
+    var v = ymd(now, r.tz || WARSAW), y = Math.floor(v / 10000), m = Math.floor(v / 100) % 100, d = v % 100;
     return Math.floor(Date.UTC(y, m - 1, d) / 86400000) % r.daily.length;
   }
   function dailyCard(r, canType) {
@@ -543,7 +543,7 @@
       '<p lang="' + qLang + '">' + esc(x.q) + '</p><p class="muted" lang="' + trLang + '">' + esc(x.tr) + '</p>' +
       (starter ? '<p class="starter"><span class="label-caps">' + esc(t('room.starter')) + '</span> <span lang="' + qLang + '">' + esc(starter) + '</span></p>' : '') +
       (canType && starter ? '<button type="button" class="btn btn-ghost btn-sm" data-action="starter" data-text="' + esc(starter) + '">' + esc(t('room.useStarter')) + '</button>' : '') +
-      '<small class="fine" style="text-align:left">' + esc(t('room.dailyNew')) + '</small></div>';
+      '<small class="fine" style="text-align:left">' + esc(t(r.tz === SEOUL ? 'room.dailyNewKr' : 'room.dailyNew')) + '</small></div>';
   }
   /* ---------- widok: room na żywo ---------- */
   function micHtml() {
