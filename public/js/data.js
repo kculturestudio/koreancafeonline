@@ -200,4 +200,27 @@
         { u: 'jisoo_barista', k: '사이즈는요?', p: 'Jaki rozmiar?', o: ['한국에서 왔어요.', '큰 걸로 주세요.', '내일 봐요.'], a: 1 }
       ] }
   ];
+
+  /* Rozmowa z baristą (Ćwicz): zamawiamy americano. Pytania zadawane po kolei;
+     jeśli ktoś odpowie od razu na kilka (np. "큰 아이스 아메리카노"), pasujące pytania są pomijane.
+     keys = słowa po których rozpoznajemy odpowiedź (regex), yn = akceptuje też "tak/nie",
+     kind: 0 zwykły krok, 1 = imię (przyjmuje dowolny tekst), 2 = zakończenie. */
+  window.KCO_DATA.barista = {
+    id: 'barista', badge: 'A1',
+    name: { pl: 'Zamówimy americano', ko: '아메리카노 주문하기' },
+    desc: { pl: 'rozmowa z baristą', ko: '바리스타와 대화' },
+    barista: '지수 바리스타',
+    steps: [
+      { q: '어서 오세요! 뭐 드릴까요?', tr: 'Witamy! Co podać?', sample: '아메리카노 한 잔 주세요.', sampleTr: 'Poproszę jedno americano.', keys: '아메리카노|라테|녹차|커피', yn: false, kind: 0 },
+      { q: '따뜻한 걸로 드릴까요, 차가운 걸로 드릴까요?', tr: 'Gorące czy zimne?', sample: '아이스로 주세요.', sampleTr: 'Poproszę zimne (z lodem).', keys: '따뜻|뜨거|핫|차가|아이스|시원', yn: false, kind: 0 },
+      { q: '사이즈는 어떻게 해 드릴까요?', tr: 'Jaki rozmiar?', sample: '큰 걸로 주세요.', sampleTr: 'Poproszę duży.', keys: '작은|보통|큰|톨|그란데|벤티|레귤러|스몰|라지|사이즈', yn: false, kind: 0 },
+      { q: '샷 추가하실래요?', tr: 'Dodać shot espresso?', sample: '아니요, 괜찮아요.', sampleTr: 'Nie, dziękuję.', keys: '샷', yn: true, kind: 0 },
+      { q: '시럽은 필요하세요?', tr: 'Czy potrzebny syrop?', sample: '시럽은 괜찮아요.', sampleTr: 'Syrop nie jest potrzebny.', keys: '시럽', yn: true, kind: 0 },
+      { q: '여기서 드실 거예요, 가져가실 거예요?', tr: 'Na miejscu czy na wynos?', sample: '여기서 먹을 거예요.', sampleTr: 'Zjem na miejscu.', keys: '여기|가져|포장|테이크아웃|매장|먹고', yn: false, kind: 0 },
+      { q: '디저트도 같이 드릴까요?', tr: 'Podać też coś słodkiego?', sample: '크루아상 하나 주세요.', sampleTr: 'Poproszę jednego croissanta.', keys: '크루아상|케이크|쿠키|빵|디저트|마들렌|스콘', yn: true, kind: 0 },
+      { q: '카드로 하실 거예요, 현금으로 하실 거예요?', tr: 'Płacisz kartą czy gotówką?', sample: '카드로 할게요.', sampleTr: 'Zapłacę kartą.', keys: '카드|현금|페이|계산', yn: false, kind: 0 },
+      { q: '성함이 어떻게 되세요?', tr: 'Jak masz na imię? (na kubek)', sample: '민지예요.', sampleTr: 'Mam na imię Minji.', keys: '', yn: false, kind: 1 },
+      { q: '주문하신 음료 나왔습니다! 맛있게 드세요.', tr: 'Twój napój gotowy! Smacznego.', sample: '감사합니다!', sampleTr: 'Dziękuję!', keys: '', yn: false, kind: 2 }
+    ]
+  };
 })();
