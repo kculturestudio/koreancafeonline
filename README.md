@@ -15,7 +15,6 @@ public/                      strona (to Netlify publikuje)
   regulamin.html, prywatnosc.html   SZKIELETY do uzupełnienia
 netlify/functions/           płatności Stripe (checkout + webhook)
 supabase/schema.sql          baza wiadomości czatu (wklejasz raz w Supabase)
-supabase/progress.sql        tabela postępu: XP, ziarna, streak, ćwiczenia (wklejasz raz; bez niej postęp zostaje w przeglądarce)
 public/js/vendor/supabase.js biblioteka Supabase (gotowy plik, nie edytuj)
 netlify.toml                 konfiguracja, nagłówki bezpieczeństwa
 .env.example                 lista zmiennych środowiskowych
