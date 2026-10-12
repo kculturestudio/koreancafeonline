@@ -493,7 +493,7 @@
   function promptHtml(c) {
     var n = c.practice.length, i = (ui.qi && ui.qi[c.id]) || 0, x = c.practice[i % n];
     // Język docelowy czatu: pytanie pokazujemy w nim, a tłumaczenie tylko osobom z interfejsem w drugim języku.
-    var target = c.lang === 'PL' ? 'pl' : 'ko';
+    var target = c.lang === 'KR' ? 'ko' : 'pl';
     var main = target === 'pl' ? x.pl : x.k, other = target === 'pl' ? x.k : x.pl;
     return '<div class="qprompt" id="qprompt" data-ch="' + c.id + '"><span class="label-caps">' + esc(t('chat.qLabel')) + ' · ' + ((i % n) + 1) + '/' + n + '</span>' +
       '<span class="q-k" lang="' + target + '">' + esc(main) + '</span>' + (lang !== target ? '<span class="q-pl">' + esc(other) + '</span>' : '') +
