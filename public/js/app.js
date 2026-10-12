@@ -33,6 +33,7 @@
     mic: false,
     banner: null,
     keepScroll: false,
+    pWrong: null,
     filters: load('filters', { lang: 'all', level: 'all', topic: 'all', age: 'all' })
   };
   (function readCheckoutResult() {
@@ -118,7 +119,9 @@
     plus: '<path d="M12 5v14M5 12h14"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     close: '<path d="M6 6l12 12M18 6L6 18"/>',
-    send: '<path d="M4 12l16-8-6 16-3-7z"/>'
+    send: '<path d="M4 12l16-8-6 16-3-7z"/>',
+    pen: '<path d="M4 20l1-4L17 4l3 3L8 19zM14.5 6.5l3 3"/>',
+    sound: '<path d="M4 10v4h4l5 4V6l-5 4zM16.5 9a4 4 0 0 1 0 6"/>'
   };
   function ico(name, size) {
     size = size || 24;
@@ -279,6 +282,53 @@
     logout: function () { return SB.client.auth.signOut(); }
   };
 
+  /* ---------- postęp: XP, ziarna, streak i ćwiczenia. Lokalnie zawsze, na koncie (Supabase) po zalogowaniu ---------- */
+  function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  var Prog = {
+    stats: function () { return load('stats', { xp: 0, beans: 0, streak: 0, last: '' }); },
+    // Nagroda za poprawną odpowiedź. Streak rośnie raz dziennie i zeruje się po przerwie dłuższej niż dzień.
+    award: function (xp, beans) {
+      var st = this.stats(), today = dayKey();
+      if (st.last !== today) {
+        var y = new Date(); y.setDate(y.getDate() - 1);
+        st.streak = st.last === dayKey(y) ? st.streak + 1 : 1;
+        st.last = today;
+      }
+      st.xp += xp; st.beans += beans;
+      save('stats', st);
+      this.push();
+    },
+    level: function () { return 1 + Math.floor(this.stats().xp / 100); },
+    snapshot: function () { return { stats: this.stats(), practice: load('practice', {}) }; },
+    // Łączy dane z konta z lokalnymi: wyższe XP wygrywa, a w ćwiczeniach liczy się dalszy postęp.
+    merge: function (remote) {
+      if (!remote || typeof remote !== 'object') return;
+      var ls = this.stats(), rs = remote.stats || {};
+      var st = (rs.xp || 0) > ls.xp ? { xp: rs.xp || 0, beans: rs.beans || 0, streak: rs.streak || 0, last: rs.last || '' } : ls;
+      save('stats', st);
+      var lp = load('practice', {}), rp = remote.practice || {};
+      Object.keys(rp).forEach(function (k) { if ((rp[k] || 0) > (lp[k] || 0)) lp[k] = rp[k]; });
+      save('practice', lp);
+    },
+    pull: function () {
+      if (!SB.on || !ui.user) return;
+      var self = this;
+      SB.client.from('progress').select('data').eq('user_id', ui.user.id).maybeSingle().then(function (r) {
+        if (r && r.data && r.data.data) self.merge(r.data.data);
+        self.push(true);
+        if (/^#\/(cwiczenia|profil)/.test(currentHash())) { ui.keepScroll = true; route(); }
+      }, function () { /* offline: zostaje zapis lokalny */ });
+    },
+    push: function (now) {
+      if (!SB.on || !ui.user) return;
+      var self = this;
+      clearTimeout(this._t);
+      this._t = setTimeout(function () {
+        SB.client.from('progress').upsert({ user_id: ui.user.id, data: self.snapshot(), updated_at: new Date().toISOString() }).then(function () {}, function () {});
+      }, now ? 0 : 800);
+    }
+  };
+
   /* ---------- widoki: części wspólne ---------- */
   var HERO = '<img class="hero-logo" src="img/logo.png" alt="" width="132" height="132">' +
     '<div class="hero-title" aria-hidden="true">Korean Café Online</div>' +
@@ -297,6 +347,7 @@
     var items = [
       ['chats', '#/kawiarnia', 'cup', 'nav.cafe'],
       ['live', '#/kawiarnia/live', 'people', 'nav.rooms'],
+      ['practice', '#/cwiczenia', 'pen', 'nav.practice'],
       ['events', '#/wydarzenia', 'calendar', 'nav.events'],
       ['profile', '#/profil', 'user', 'nav.profile']
     ];
@@ -696,7 +747,7 @@
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
       '<div class="profile-head"><span class="avatar avatar-you">' + esc((name || t('profile.guest')).charAt(0).toUpperCase()) + '</span>' +
       '<div><h1 class="title">' + esc(name || t('profile.title')) + '</h1><p class="subtitle">' + esc(t('profile.plan')) + '</p></div></div>' +
-      accountHtml() +
+      accountHtml() + statsHtml() +
       '<a class="plan-card" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
       '<span class="row-text"><strong>' + esc(t('profile.plan')) + '</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
       '<div><p class="label-caps" style="padding-bottom:4px">' + esc(t('profile.settings')) + '</p>' +
@@ -710,6 +761,62 @@
       '<div class="setting"><a class="link-btn" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 20) + '</a></div></div>' +
       '<p class="notice">' + esc(t(SB.on ? 'profile.noteRemote' : 'demo.account')) + '</p></div>' + nav('profile') + '</main>';
     show(html, t('profile.title'));
+  }
+
+  /* ---------- ćwiczenia rozmów: odpowiadasz po koreańsku, scenariusze z data.js ---------- */
+  function statsHtml() {
+    var st = Prog.stats();
+    return '<div class="stats" role="group" aria-label="' + esc(t('stats.label')) + '">' +
+      [[st.xp, t('stats.xp')], [st.streak, t('stats.streak')], [st.beans, t('stats.beans')], [Prog.level(), t('stats.level')]].map(function (x) {
+        return '<div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div>';
+      }).join('') + '</div>';
+  }
+  function pProg(id) { var p = load('practice', {}); return p[id] || 0; }
+  function pSet(id, n) { var p = load('practice', {}); p[id] = n; save('practice', p); Prog.push(); }
+  function viewPractice() {
+    var rows = D.practice.map(function (r) {
+      var n = pProg(r.id), m = r.ex.length, done = n >= m;
+      return '<a class="row" href="#/cwiczenia/' + r.id + '"><span class="badge-sq">' + esc(r.badge) + '</span>' +
+        '<span class="row-text"><strong>' + esc(L(r.name)) + '</strong><small>' + esc(O(r.name)) + ' · ' + esc(L(r.desc)) + '</small>' +
+        '<span class="pbar" aria-hidden="true"><i style="width:' + Math.round(100 * Math.min(n, m) / m) + '%"></i></span></span>' +
+        (done ? '<span class="lock">' + ico('check', 20) + '</span>' : '<span class="row-time">' + esc(tf('practice.progress', { n: n, m: m })) + '</span>') + '</a>';
+    }).join('');
+    show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
+      '<div class="head"><div><h1 class="title">' + esc(t('practice.title')) + '</h1><p class="subtitle">' + esc(t('practice.sub')) + '</p></div></div>' +
+      statsHtml() + '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
+  }
+  function pBubble(e, mine) {
+    var tr = (!mine && lang === 'pl') ? '<span class="tr">' + esc(e.p) + '</span>' : '';
+    var say = mine ? '' : '<button type="button" class="say" data-action="say" data-text="' + esc(e.k) + '" aria-label="' + esc(t('practice.listen')) + '">' + ico('sound', 18) + '</button>';
+    return '<div class="bubble ' + (mine ? 'bubble-out' : 'bubble-in') + '"><span class="meta">' + esc(mine ? t('room.you') : e.u) + '</span>' +
+      '<span class="txt" lang="ko">' + esc(e.k) + '</span>' + tr + say + '</div>';
+  }
+  function viewPracticeRoom(id) {
+    var r = findBy(D.practice, id);
+    if (!r) return notFound('practice.notFound');
+    var n = Math.min(pProg(id), r.ex.length), done = n >= r.ex.length, html = '';
+    r.ex.forEach(function (e, i) {
+      if (i > n) return;
+      html += pBubble(e, false);
+      if (i < n) html += pBubble({ k: e.o[e.a] }, true);
+    });
+    var foot;
+    if (done) {
+      foot = '<div class="content pdone"><h2 class="section-title">' + esc(t('practice.done')) + '</h2><p class="subtitle">' + esc(t('practice.doneSub')) + '</p>' +
+        '<button type="button" class="btn btn-primary" data-action="p-again" data-id="' + id + '">' + esc(t('practice.again')) + '</button>' +
+        '<a class="btn btn-ghost" href="#/cwiczenia">' + esc(t('practice.rooms')) + '</a></div>';
+    } else {
+      var cur = r.ex[n];
+      foot = '<div class="content popts"><span class="label-caps">' + esc(t('practice.pick')) + '</span>' +
+        (ui.pWrong !== null && ui.pWrong !== undefined ? '<p class="phint" role="alert">' + esc(t('practice.wrong')) + '</p>' : '') +
+        cur.o.map(function (o, i) {
+          return '<button type="button" class="popt' + (ui.pWrong === i ? ' bad' : '') + '" lang="ko" data-action="p-pick" data-id="' + id + '" data-i="' + i + '">' + esc(o) + '</button>';
+        }).join('') + '</div>';
+    }
+    show('<main class="screen" id="view" tabindex="-1">' +
+      '<div class="topbar"><a class="icon-btn" href="#/cwiczenia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(r.name)) + '</h1><span class="subtitle">' + esc(O(r.name)) + ' · ' + esc(r.level) + ' · ' + esc(tf('practice.progress', { n: n, m: r.ex.length })) + '</span></div></div>' +
+      '<div class="messages" aria-live="polite">' + html + '</div>' + foot + nav('practice') + '</main>', L(r.name), { bottom: true });
   }
 
   /* ---------- router ---------- */
@@ -726,6 +833,7 @@
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
+      case 'cwiczenia': return seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
       case 'wydarzenia': return viewEvents(seg[1] === 'premium' ? 'premium' : 'all');
       case 'premium': return viewPremium();
       case 'profil': return viewProfile();
@@ -767,6 +875,28 @@
       ui.mic = !ui.mic;
       var wrap = document.getElementById('micWrap');
       if (wrap) { wrap.innerHTML = micHtml(); var nb = wrap.querySelector('button'); if (nb) nb.focus(); }
+    } else if (a === 'p-pick') {
+      var pr = findBy(D.practice, el.getAttribute('data-id'));
+      var pi = +el.getAttribute('data-i'), pn = pr ? pProg(pr.id) : 0;
+      if (pr && pn < pr.ex.length) {
+        if (pi === pr.ex[pn].a) {
+          ui.pWrong = null; pSet(pr.id, pn + 1);
+          var last = pn + 1 >= pr.ex.length;
+          Prog.award(last ? 7 : 2, last ? 3 : 1);
+          if (last) toast(tf('practice.reward', { xp: 7, n: 3 }));
+        } else { ui.pWrong = pi; }
+        ui.keepScroll = false;
+        route();
+        var nb = document.querySelector('.popts .popt, .pdone .btn');
+        if (nb) nb.focus({ preventScroll: true });
+      }
+    } else if (a === 'p-again') {
+      ui.pWrong = null; pSet(el.getAttribute('data-id'), 0); route();
+    } else if (a === 'say') {
+      try {
+        var u = new SpeechSynthesisUtterance(el.getAttribute('data-text')); u.lang = 'ko-KR'; u.rate = .9;
+        window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+      } catch (err) { /* brak syntezy mowy w tej przeglądarce */ }
     } else if (a === 'ics') {
       downloadIcs(el.getAttribute('data-id'));
     } else if (a === 'portal') {
@@ -871,6 +1001,7 @@
       ui.user = u;
       if (event === 'PASSWORD_RECOVERY') ui.recovery = true;
       if (event === 'SIGNED_OUT') ui.recovery = false;
+      if (changed && u) setTimeout(function () { Prog.pull(); }, 0);
       if (!ui.authReady) return;
       // Wywołania po stronie Supabase wolno robić dopiero poza tą funkcją, dlatego setTimeout.
       if (event === 'PASSWORD_RECOVERY') setTimeout(function () { navigate('#/nowe-haslo'); }, 0);
@@ -880,6 +1011,7 @@
       var s = r && r.data && r.data.session;
       if (s && s.user && !ui.user) ui.user = { id: s.user.id, email: s.user.email || '' };
       start();
+      Prog.pull();
     }, start);
     setTimeout(start, 4000); // zapas: gdyby sprawdzanie sesji się zawiesiło, strona i tak się pokaże
   } else {

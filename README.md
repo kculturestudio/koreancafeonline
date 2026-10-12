@@ -15,6 +15,7 @@ public/                      strona (to Netlify publikuje)
   regulamin.html, prywatnosc.html   SZKIELETY do uzupełnienia
 netlify/functions/           płatności Stripe (checkout + webhook)
 supabase/schema.sql          baza wiadomości czatu (wklejasz raz w Supabase)
+supabase/progress.sql        tabela postępu: XP, ziarna, streak, ćwiczenia (wklejasz raz; bez niej postęp zostaje w przeglądarce)
 public/js/vendor/supabase.js biblioteka Supabase (gotowy plik, nie edytuj)
 netlify.toml                 konfiguracja, nagłówki bezpieczeństwa
 .env.example                 lista zmiennych środowiskowych
@@ -24,6 +25,7 @@ netlify.toml                 konfiguracja, nagłówki bezpieczeństwa
 
 | Działa naprawdę | Jeszcze demo |
 | --- | --- |
+| Ćwiczenia rozmów (zakładka „Ćwicz”): odpowiadasz po koreańsku, postęp zapisany w przeglądarce; scenariusze edytujesz w `public/js/data.js` (`practice`) | Scenariusze są wbudowane, a rozmówcy przykładowi |
 | Nawigacja, przełącznik PL/한국어, filtry (język, poziom, temat, wiek) | Czat: bez Supabase wiadomości widzisz tylko Ty (zapis w przeglądarce); z Supabase (krok 2) czat jest prawdziwy |
 | Godziny roomów i wydarzeń przeliczane na czas Seulu (z uwagą na zmianę czasu) | Roomy: brak głosu i prawdziwych uczestników |
 | „Dodaj do kalendarza” (plik .ics) | Konta i logowanie: działają po podłączeniu Supabase (krok 2) |
