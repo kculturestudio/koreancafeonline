@@ -120,4 +120,40 @@
       ]
     }
   };
+
+  /* Ćwiczenia rozmów: krótkie scenariusze, w których odpowiadasz po koreańsku.
+     ex[]: u = rozmówca, k = wiadomość po koreańsku, p = tłumaczenie PL,
+           o = trzy odpowiedzi do wyboru, a = indeks poprawnej odpowiedzi (0-2).
+     Zdania warto przejrzeć z native speakerem przed publikacją. */
+  window.KCO_DATA.practice = [
+    { id: 'comeback', badge: 'A1', level: 'A1',
+      name: { pl: 'Dzień comebacku', ko: '컴백 데이' },
+      desc: { pl: 'po występie i premierze', ko: '무대와 신곡 이야기' },
+      ex: [
+        { u: 'mint_latte', k: '오늘 컴백 무대 봤어요?', p: 'Widziałaś dzisiejszy występ comebackowy?', o: ['네, 정말 멋있었어요!', '아니요, 저는 커피예요.', '얼마예요?'], a: 0 },
+        { u: 'seoul_bean', k: '저는 두 번 봤어요. 노래가 너무 좋아요.', p: 'Ja oglądałam dwa razy. Piosenka jest super.', o: ['저도 노래가 좋아요.', '저는 학생이 아니에요.', '물 주세요.'], a: 0 },
+        { u: 'dalgona.k', k: '다음 주에 팬 미팅도 있어요.', p: 'W przyszłym tygodniu jest też fanmeeting.', o: ['커피가 없어요.', '와, 같이 가요!', '안녕히 가세요.'], a: 1 }
+      ] },
+    { id: 'lyrics', badge: 'A2', level: 'A2',
+      name: { pl: 'Klub tekstów', ko: '가사 클럽' },
+      desc: { pl: 'teksty piosenek i słówka', ko: '노래 가사와 단어' },
+      ex: [
+        { u: 'hanbok_fan', k: '이 가사 무슨 뜻이에요?', p: 'Co znaczy ten tekst?', o: ['사랑이라는 뜻이에요.', '내일 만나요.', '커피가 없어요.'], a: 0 },
+        { u: 'nuna_cafe', k: '한국어 공부 얼마나 했어요?', p: 'Jak długo uczysz się koreańskiego?', o: ['아메리카노 주세요.', '삼 년 했어요.', '저는 고양이예요.'], a: 1 }
+      ] },
+    { id: 'drama', badge: 'A2', level: 'A2',
+      name: { pl: 'Wieczór z dramą', ko: '드라마 나이트' },
+      desc: { pl: 'rozmowa o wczorajszym odcinku', ko: '어제 본 드라마 이야기' },
+      ex: [
+        { u: 'kimchi_cat', k: '어제 드라마 어땠어요?', p: 'Jak był wczorajszy dramat?', o: ['지금 열 시예요.', '화장실이 어디예요?', '너무 재미있었어요!'], a: 2 },
+        { u: 'bori_tea', k: '저는 울었어요. 마지막 장면이 슬퍼요.', p: 'Płakałam. Ostatnia scena jest smutna.', o: ['저도 눈물이 났어요.', '맛있게 드세요.', '천천히 가세요.'], a: 0 }
+      ] },
+    { id: 'order', badge: 'A1', level: 'A1',
+      name: { pl: 'Przy ladzie', ko: '카페 주문' },
+      desc: { pl: 'zamawianie kawy po koreańsku', ko: '한국어로 커피 주문하기' },
+      ex: [
+        { u: 'jisoo_barista', k: '어서 오세요! 뭐 드릴까요?', p: 'Witamy! Co podać?', o: ['안녕히 가세요.', '저는 학생이에요.', '아이스 아메리카노 한 잔 주세요.'], a: 2 },
+        { u: 'jisoo_barista', k: '사이즈는요?', p: 'Jaki rozmiar?', o: ['한국에서 왔어요.', '큰 걸로 주세요.', '내일 봐요.'], a: 1 }
+      ] }
+  ];
 })();

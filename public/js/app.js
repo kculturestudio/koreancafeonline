@@ -33,6 +33,7 @@
     mic: false,
     banner: null,
     keepScroll: false,
+    pWrong: null,
     filters: load('filters', { lang: 'all', level: 'all', topic: 'all', age: 'all' })
   };
   (function readCheckoutResult() {
@@ -118,7 +119,9 @@
     plus: '<path d="M12 5v14M5 12h14"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     close: '<path d="M6 6l12 12M18 6L6 18"/>',
-    send: '<path d="M4 12l16-8-6 16-3-7z"/>'
+    send: '<path d="M4 12l16-8-6 16-3-7z"/>',
+    pen: '<path d="M4 20l1-4L17 4l3 3L8 19zM14.5 6.5l3 3"/>',
+    sound: '<path d="M4 10v4h4l5 4V6l-5 4zM16.5 9a4 4 0 0 1 0 6"/>'
   };
   function ico(name, size) {
     size = size || 24;
@@ -297,6 +300,7 @@
     var items = [
       ['chats', '#/kawiarnia', 'cup', 'nav.cafe'],
       ['live', '#/kawiarnia/live', 'people', 'nav.rooms'],
+      ['practice', '#/cwiczenia', 'pen', 'nav.practice'],
       ['events', '#/wydarzenia', 'calendar', 'nav.events'],
       ['profile', '#/profil', 'user', 'nav.profile']
     ];
@@ -712,6 +716,55 @@
     show(html, t('profile.title'));
   }
 
+  /* ---------- ćwiczenia rozmów: odpowiadasz po koreańsku, scenariusze z data.js ---------- */
+  function pProg(id) { var p = load('practice', {}); return p[id] || 0; }
+  function pSet(id, n) { var p = load('practice', {}); p[id] = n; save('practice', p); }
+  function viewPractice() {
+    var rows = D.practice.map(function (r) {
+      var n = pProg(r.id), m = r.ex.length, done = n >= m;
+      return '<a class="row" href="#/cwiczenia/' + r.id + '"><span class="badge-sq">' + esc(r.badge) + '</span>' +
+        '<span class="row-text"><strong>' + esc(L(r.name)) + '</strong><small>' + esc(O(r.name)) + ' · ' + esc(L(r.desc)) + '</small>' +
+        '<span class="pbar" aria-hidden="true"><i style="width:' + Math.round(100 * Math.min(n, m) / m) + '%"></i></span></span>' +
+        (done ? '<span class="lock">' + ico('check', 20) + '</span>' : '<span class="row-time">' + esc(tf('practice.progress', { n: n, m: m })) + '</span>') + '</a>';
+    }).join('');
+    show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
+      '<div class="head"><div><h1 class="title">' + esc(t('practice.title')) + '</h1><p class="subtitle">' + esc(t('practice.sub')) + '</p></div></div>' +
+      '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
+  }
+  function pBubble(e, mine) {
+    var tr = (!mine && lang === 'pl') ? '<span class="tr">' + esc(e.p) + '</span>' : '';
+    var say = mine ? '' : '<button type="button" class="say" data-action="say" data-text="' + esc(e.k) + '" aria-label="' + esc(t('practice.listen')) + '">' + ico('sound', 18) + '</button>';
+    return '<div class="bubble ' + (mine ? 'bubble-out' : 'bubble-in') + '"><span class="meta">' + esc(mine ? t('room.you') : e.u) + '</span>' +
+      '<span class="txt" lang="ko">' + esc(e.k) + '</span>' + tr + say + '</div>';
+  }
+  function viewPracticeRoom(id) {
+    var r = findBy(D.practice, id);
+    if (!r) return notFound('practice.notFound');
+    var n = Math.min(pProg(id), r.ex.length), done = n >= r.ex.length, html = '';
+    r.ex.forEach(function (e, i) {
+      if (i > n) return;
+      html += pBubble(e, false);
+      if (i < n) html += pBubble({ k: e.o[e.a] }, true);
+    });
+    var foot;
+    if (done) {
+      foot = '<div class="content pdone"><h2 class="section-title">' + esc(t('practice.done')) + '</h2><p class="subtitle">' + esc(t('practice.doneSub')) + '</p>' +
+        '<button type="button" class="btn btn-primary" data-action="p-again" data-id="' + id + '">' + esc(t('practice.again')) + '</button>' +
+        '<a class="btn btn-ghost" href="#/cwiczenia">' + esc(t('practice.rooms')) + '</a></div>';
+    } else {
+      var cur = r.ex[n];
+      foot = '<div class="content popts"><span class="label-caps">' + esc(t('practice.pick')) + '</span>' +
+        (ui.pWrong !== null && ui.pWrong !== undefined ? '<p class="phint" role="alert">' + esc(t('practice.wrong')) + '</p>' : '') +
+        cur.o.map(function (o, i) {
+          return '<button type="button" class="popt' + (ui.pWrong === i ? ' bad' : '') + '" lang="ko" data-action="p-pick" data-id="' + id + '" data-i="' + i + '">' + esc(o) + '</button>';
+        }).join('') + '</div>';
+    }
+    show('<main class="screen" id="view" tabindex="-1">' +
+      '<div class="topbar"><a class="icon-btn" href="#/cwiczenia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(r.name)) + '</h1><span class="subtitle">' + esc(O(r.name)) + ' · ' + esc(r.level) + ' · ' + esc(tf('practice.progress', { n: n, m: r.ex.length })) + '</span></div></div>' +
+      '<div class="messages" aria-live="polite">' + html + '</div>' + foot + nav('practice') + '</main>', L(r.name), { bottom: true });
+  }
+
   /* ---------- router ---------- */
   function route() {
     if (SB.on) Live.detach();
@@ -726,6 +779,7 @@
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
+      case 'cwiczenia': return seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
       case 'wydarzenia': return viewEvents(seg[1] === 'premium' ? 'premium' : 'all');
       case 'premium': return viewPremium();
       case 'profil': return viewProfile();
@@ -767,6 +821,23 @@
       ui.mic = !ui.mic;
       var wrap = document.getElementById('micWrap');
       if (wrap) { wrap.innerHTML = micHtml(); var nb = wrap.querySelector('button'); if (nb) nb.focus(); }
+    } else if (a === 'p-pick') {
+      var pr = findBy(D.practice, el.getAttribute('data-id'));
+      var pi = +el.getAttribute('data-i'), pn = pr ? pProg(pr.id) : 0;
+      if (pr && pn < pr.ex.length) {
+        if (pi === pr.ex[pn].a) { ui.pWrong = null; pSet(pr.id, pn + 1); } else { ui.pWrong = pi; }
+        ui.keepScroll = false;
+        route();
+        var nb = document.querySelector('.popts .popt, .pdone .btn');
+        if (nb) nb.focus({ preventScroll: true });
+      }
+    } else if (a === 'p-again') {
+      ui.pWrong = null; pSet(el.getAttribute('data-id'), 0); route();
+    } else if (a === 'say') {
+      try {
+        var u = new SpeechSynthesisUtterance(el.getAttribute('data-text')); u.lang = 'ko-KR'; u.rate = .9;
+        window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+      } catch (err) { /* brak syntezy mowy w tej przeglądarce */ }
     } else if (a === 'ics') {
       downloadIcs(el.getAttribute('data-id'));
     } else if (a === 'portal') {
