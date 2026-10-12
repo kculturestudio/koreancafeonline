@@ -492,9 +492,12 @@
   /* Prompt pytania nad polem wiadomości (czat z polem practice): jedno pytanie naraz, po wysłaniu wiadomości pojawia się następne. */
   function promptHtml(c) {
     var n = c.practice.length, i = (ui.qi && ui.qi[c.id]) || 0, x = c.practice[i % n];
+    // Język docelowy czatu: pytanie pokazujemy w nim, a tłumaczenie tylko osobom z interfejsem w drugim języku.
+    var target = c.lang === 'PL' ? 'pl' : 'ko';
+    var main = target === 'pl' ? x.pl : x.k, other = target === 'pl' ? x.k : x.pl;
     return '<div class="qprompt" id="qprompt" data-ch="' + c.id + '"><span class="label-caps">' + esc(t('chat.qLabel')) + ' · ' + ((i % n) + 1) + '/' + n + '</span>' +
-      '<span class="q-k" lang="ko">' + esc(x.k) + '</span>' + (lang === 'pl' ? '<span class="q-pl">' + esc(x.pl) + '</span>' : '') +
-      '<span class="q-btns"><button type="button" class="chip-btn chip-main" data-action="starter" data-text="' + esc(x.k) + '">' + esc(t('chat.ask')) + '</button>' +
+      '<span class="q-k" lang="' + target + '">' + esc(main) + '</span>' + (lang !== target ? '<span class="q-pl">' + esc(other) + '</span>' : '') +
+      '<span class="q-btns"><button type="button" class="chip-btn chip-main" data-action="starter" data-text="' + esc(main) + '">' + esc(t('chat.ask')) + '</button>' +
       (x.starter ? '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.starter.replace(/___/g, '…')) + '">' + esc(t('chat.answer')) + '</button>' : '') +
       '<button type="button" class="chip-btn" data-action="next-q" data-ch="' + c.id + '">' + esc(t('chat.nextQ')) + '</button></span></div>';
   }
