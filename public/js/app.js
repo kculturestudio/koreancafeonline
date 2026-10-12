@@ -535,12 +535,14 @@
   }
   function dailyCard(r, canType) {
     var i = dailyIndex(r, new Date()), x = r.daily[i];
-    var starter = x.starter.replace(/___/g, '…');
+    var starter = x.starter ? x.starter.replace(/___/g, '…') : '';
+    // Stolik KR: pytanie po koreańsku; stolik PL i mieszane (MIX): pytanie po polsku, tłumaczenie po koreańsku.
+    var qLang = r.lang === 'KR' ? 'ko' : 'pl', trLang = qLang === 'ko' ? 'pl' : 'ko';
     return '<div class="topic-card daily"><span class="label-caps">' + esc(t('room.dailyLabel')) + ' · ' + esc(tf('room.dailyOf', { n: i + 1, m: r.daily.length })) + '</span>' +
       '<strong>' + esc(L(x.title)) + ' · ' + esc(O(x.title)) + '</strong>' +
-      '<p lang="' + (r.lang === 'PL' ? 'pl' : 'ko') + '">' + esc(x.q) + '</p><p class="muted">' + esc(x.tr) + '</p>' +
-      '<p class="starter"><span class="label-caps">' + esc(t('room.starter')) + '</span> <span lang="' + (r.lang === 'PL' ? 'pl' : 'ko') + '">' + esc(starter) + '</span></p>' +
-      (canType ? '<button type="button" class="btn btn-ghost btn-sm" data-action="starter" data-text="' + esc(starter) + '">' + esc(t('room.useStarter')) + '</button>' : '') +
+      '<p lang="' + qLang + '">' + esc(x.q) + '</p><p class="muted" lang="' + trLang + '">' + esc(x.tr) + '</p>' +
+      (starter ? '<p class="starter"><span class="label-caps">' + esc(t('room.starter')) + '</span> <span lang="' + qLang + '">' + esc(starter) + '</span></p>' : '') +
+      (canType && starter ? '<button type="button" class="btn btn-ghost btn-sm" data-action="starter" data-text="' + esc(starter) + '">' + esc(t('room.useStarter')) + '</button>' : '') +
       '<small class="fine" style="text-align:left">' + esc(t('room.dailyNew')) + '</small></div>';
   }
   /* ---------- widok: room na żywo ---------- */

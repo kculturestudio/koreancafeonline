@@ -208,78 +208,6 @@
         rule: { pl: 'Pytaj o pracę, wizy, mieszkanie i codzienność w Polsce. Odpowiadamy po polsku i po koreańsku.', ko: '폴란드에서의 일, 비자, 집, 일상에 대해 물어보세요. 폴란드어와 한국어로 답해요.' }
       },
       {
-        id: 'fandomy', badge: 'PL·KR', lang: 'MIX', topic: 'culture', premium: false,
-        levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'Fandomy', ko: '팬덤' },
-        desc: { pl: 'rozmowy fanów', ko: '팬들의 대화' },
-        rule: { pl: 'Dzielimy się pasją. Piszcie w dowolnym języku.', ko: '좋아하는 것을 나눠요. 어느 언어로든 써 보세요.' },
-        // Prompty nad polem wiadomości: pl = pytanie po polsku, k = tłumaczenie po koreańsku (do sprawdzenia przez native speakera).
-        practice: [
-          { pl: 'W jakim fandomie jesteś i od kiedy?', k: '어떤 팬덤에 있어요? 언제부터예요?' },
-          { pl: 'Jak trafiłeś(-aś) do swojego fandomu?', k: '팬덤에 어떻게 들어오게 됐어요?' },
-          { pl: 'Czy byłeś(-aś) na koncercie lub fanmeetingu?', k: '콘서트나 팬미팅에 가 본 적 있어요?' },
-          { pl: 'Co lubisz w swoim fandomie najbardziej?', k: '팬덤에서 제일 좋은 점이 뭐예요?' },
-          { pl: 'Czy kolekcjonujesz albumy lub gadżety?', k: '앨범이나 굿즈를 모아요?' },
-          { pl: 'Jak poznałeś(-aś) przyjaciół dzięki fandomowi?', k: '팬덤 덕분에 친구를 사귄 적 있어요?' },
-          { pl: 'Jaki jest Twój ulubiony fanart lub fanfik?', k: '제일 좋아하는 팬아트나 팬픽이 있어요?' },
-          { pl: 'Czego fandom Cię nauczył?', k: '팬덤 활동으로 무엇을 배웠어요?' }
-        ]
-      },
-      {
-        id: 'gotowanie', badge: 'PL·KR', lang: 'MIX', topic: 'life', premium: false,
-        levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'Gotowanie', ko: '요리' },
-        desc: { pl: 'przepisy i składniki', ko: '레시피와 재료' },
-        rule: { pl: 'Przepisy, składniki, wpadki kuchenne. Piszcie w dowolnym języku.', ko: '레시피, 재료, 요리 실수. 어느 언어로든 써 보세요.' },
-        // Prompty nad polem wiadomości: pl = pytanie po polsku, k = tłumaczenie po koreańsku (do sprawdzenia przez native speakera).
-        practice: [
-          { pl: 'Co ugotowałeś(-aś) w tym tygodniu?', k: '이번 주에 어떤 요리를 했어요?' },
-          { pl: 'Jakie koreańskie danie najłatwiej zrobić w domu?', k: '집에서 만들기 제일 쉬운 한국 음식이 뭐예요?' },
-          { pl: 'Gdzie kupujesz koreańskie składniki w Polsce?', k: '폴란드에서 한국 식재료를 어디서 사요?' },
-          { pl: 'Czy lubisz kimchi? Robiłeś(-aś) je sam(a)?', k: '김치를 좋아해요? 직접 만들어 본 적 있어요?' },
-          { pl: 'Jakie polskie danie poleciłbyś(-abyś) komuś z Korei?', k: '한국 사람에게 어떤 폴란드 음식을 추천하고 싶어요?' },
-          { pl: 'Co lubisz jeść na śniadanie?', k: '아침에 보통 뭐 먹어요?' },
-          { pl: 'Jaki jest Twój ulubiony przepis rodzinny?', k: '가족에게 물려받은 좋아하는 레시피가 있어요?' },
-          { pl: 'Jak ostre jedzenie potrafisz zjeść?', k: '얼마나 매운 음식까지 먹을 수 있어요?' }
-        ]
-      },
-      {
-        id: 'historia', badge: 'PL·KR', lang: 'MIX', topic: 'culture', premium: false,
-        levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'Historia', ko: '역사' },
-        desc: { pl: 'Polska, Korea i nie tylko', ko: '폴란드, 한국 그리고 더' },
-        rule: { pl: 'Rozmawiamy życzliwie i opieramy się na faktach.', ko: '서로 존중하며 사실에 근거해 이야기해요.' },
-        // Prompty nad polem wiadomości: pl = pytanie po polsku, k = tłumaczenie po koreańsku (do sprawdzenia przez native speakera).
-        practice: [
-          { pl: 'Jakie podobieństwa widzisz w historii Polski i Korei?', k: '폴란드와 한국의 역사에서 비슷한 점이 뭐라고 생각해요?' },
-          { pl: 'Jaki okres historii interesuje Cię najbardziej?', k: '역사에서 어느 시대가 제일 흥미로워요?' },
-          { pl: 'Którą postać historyczną chciał(a)byś poznać?', k: '만나 보고 싶은 역사 속 인물이 있어요?' },
-          { pl: 'Jakie historyczne miejsce warto zobaczyć w Polsce?', k: '폴란드에서 꼭 가 봐야 할 역사적인 장소가 어디예요?' },
-          { pl: 'Jakie historyczne miejsce warto zobaczyć w Korei?', k: '한국에서 꼭 가 봐야 할 역사적인 장소가 어디예요?' },
-          { pl: 'Czy historia Twojej rodziny jest związana z jakimś wydarzeniem?', k: '가족의 역사가 어떤 사건과 관련이 있어요?' },
-          { pl: 'Który historyczny serial lub film najlepiej oddaje epokę?', k: '시대를 가장 잘 보여 주는 사극이나 영화가 뭐예요?' },
-          { pl: 'Czego historia uczy Cię na co dzień?', k: '역사에서 배운 것 중에 일상에 도움이 되는 게 뭐예요?' }
-        ]
-      },
-      {
-        id: 'przeprowadzka', badge: 'PL·KR', lang: 'MIX', topic: 'life', premium: true,
-        levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'Przeprowadzka do Korei', ko: '한국으로 이사' },
-        desc: { pl: 'mała grupa z prowadzącą', ko: '진행자와 함께하는 소규모 그룹' },
-        rule: { pl: 'Wizy, mieszkanie, praca, pierwsze tygodnie. Dzielimy się doświadczeniem.', ko: '비자, 집, 일, 첫 몇 주. 경험을 나눠요.' },
-        // Prompty nad polem wiadomości: pl = pytanie po polsku, k = tłumaczenie po koreańsku (do sprawdzenia przez native speakera).
-        practice: [
-          { pl: 'Co jest najtrudniejsze przy szukaniu mieszkania w Korei?', k: '한국에서 집을 구할 때 가장 어려운 점이 뭐예요?' },
-          { pl: 'Jaką wizę masz lub planujesz?', k: '어떤 비자를 가지고 있거나 준비하고 있어요?' },
-          { pl: 'Jak znalazłeś(-aś) pracę w Korei?', k: '한국에서 일자리를 어떻게 구했어요?' },
-          { pl: 'Co Cię zaskoczyło po przyjeździe?', k: '도착한 뒤에 가장 놀라웠던 게 뭐예요?' },
-          { pl: 'Jak wyglądają pierwsze tygodnie: bank, telefon, ubezpieczenie?', k: '처음 몇 주는 어땠어요? 은행, 휴대폰, 보험은요?' },
-          { pl: 'Czego żałujesz, że nie zrobiłeś(-aś) przed wyjazdem?', k: '떠나기 전에 해 둘걸 하고 후회하는 게 있어요?' },
-          { pl: 'Jak radzisz sobie z tęsknotą za domem?', k: '집이 그리울 때 어떻게 해요?' },
-          { pl: 'Jaką radę dałbyś(-abyś) osobie, która się przeprowadza?', k: '이사를 준비하는 사람에게 어떤 조언을 해 주고 싶어요?' }
-        ]
-      },
-      {
         id: 'dance', badge: 'PL·KR', lang: 'MIX', topic: 'dance', premium: true,
         levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
         name: { pl: 'Taniec i muzyka', ko: '춤과 음악' },
@@ -342,6 +270,86 @@
           ko: '아이스 아메리카노 한 잔 주세요.',
           pl: 'Poproszę jedno mrożone americano.'
         }
+      },
+      {
+        id: 'fandomy', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'culture', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Fandomy', ko: '테이블 · 팬덤' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Twój fandom', ko: '내 팬덤' }, q: 'W jakim fandomie jesteś i od kiedy?', tr: '어떤 팬덤에 있어요? 언제부터예요?' },
+          { title: { pl: 'Początki', ko: '입덕 계기' }, q: 'Jak trafiłeś(-aś) do swojego fandomu?', tr: '팬덤에 어떻게 들어오게 됐어요?' },
+          { title: { pl: 'Koncerty', ko: '콘서트' }, q: 'Czy byłeś(-aś) na koncercie lub fanmeetingu?', tr: '콘서트나 팬미팅에 가 본 적 있어요?' },
+          { title: { pl: 'Najlepsze w fandomie', ko: '팬덤의 매력' }, q: 'Co lubisz w swoim fandomie najbardziej?', tr: '팬덤에서 제일 좋은 점이 뭐예요?' },
+          { title: { pl: 'Gadżety', ko: '굿즈' }, q: 'Czy kolekcjonujesz albumy lub gadżety?', tr: '앨범이나 굿즈를 모아요?' },
+          { title: { pl: 'Przyjaźnie', ko: '팬덤 친구' }, q: 'Jak poznałeś(-aś) przyjaciół dzięki fandomowi?', tr: '팬덤 덕분에 친구를 사귄 적 있어요?' },
+          { title: { pl: 'Fanart', ko: '팬아트' }, q: 'Jaki jest Twój ulubiony fanart lub fanfik?', tr: '제일 좋아하는 팬아트나 팬픽이 있어요?' },
+          { title: { pl: 'Czego się nauczyłem(-am)', ko: '배운 것' }, q: 'Czego fandom Cię nauczył?', tr: '팬덤 활동으로 무엇을 배웠어요?' }
+        ]
+      },
+      {
+        id: 'gotowanie', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'culture', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Gotowanie', ko: '테이블 · 요리' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'W tym tygodniu', ko: '이번 주 요리' }, q: 'Co ugotowałeś(-aś) w tym tygodniu?', tr: '이번 주에 어떤 요리를 했어요?' },
+          { title: { pl: 'Łatwe dania', ko: '쉬운 요리' }, q: 'Jakie koreańskie danie najłatwiej zrobić w domu?', tr: '집에서 만들기 제일 쉬운 한국 음식이 뭐예요?' },
+          { title: { pl: 'Składniki w Polsce', ko: '식재료 구하기' }, q: 'Gdzie kupujesz koreańskie składniki w Polsce?', tr: '폴란드에서 한국 식재료를 어디서 사요?' },
+          { title: { pl: 'Kimchi', ko: '김치' }, q: 'Czy lubisz kimchi? Robiłeś(-aś) je sam(a)?', tr: '김치를 좋아해요? 직접 만들어 본 적 있어요?' },
+          { title: { pl: 'Polska kuchnia', ko: '폴란드 음식' }, q: 'Jakie polskie danie poleciłbyś(-abyś) komuś z Korei?', tr: '한국 사람에게 어떤 폴란드 음식을 추천하고 싶어요?' },
+          { title: { pl: 'Śniadanie', ko: '아침 식사' }, q: 'Co lubisz jeść na śniadanie?', tr: '아침에 보통 뭐 먹어요?' },
+          { title: { pl: 'Rodzinny przepis', ko: '집안 레시피' }, q: 'Jaki jest Twój ulubiony przepis rodzinny?', tr: '가족에게 물려받은 좋아하는 레시피가 있어요?' },
+          { title: { pl: 'Ostre jedzenie', ko: '매운 음식' }, q: 'Jak ostre jedzenie potrafisz zjeść?', tr: '얼마나 매운 음식까지 먹을 수 있어요?' }
+        ]
+      },
+      {
+        id: 'historia', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'culture', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Historia', ko: '테이블 · 역사' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Polska i Korea', ko: '폴란드와 한국' }, q: 'Jakie podobieństwa widzisz w historii Polski i Korei?', tr: '폴란드와 한국의 역사에서 비슷한 점이 뭐라고 생각해요?' },
+          { title: { pl: 'Ulubiona epoka', ko: '좋아하는 시대' }, q: 'Jaki okres historii interesuje Cię najbardziej?', tr: '역사에서 어느 시대가 제일 흥미로워요?' },
+          { title: { pl: 'Postać historyczna', ko: '역사 인물' }, q: 'Którą postać historyczną chciał(a)byś poznać?', tr: '만나 보고 싶은 역사 속 인물이 있어요?' },
+          { title: { pl: 'Miejsce w Polsce', ko: '폴란드의 명소' }, q: 'Jakie historyczne miejsce warto zobaczyć w Polsce?', tr: '폴란드에서 꼭 가 봐야 할 역사적인 장소가 어디예요?' },
+          { title: { pl: 'Miejsce w Korei', ko: '한국의 명소' }, q: 'Jakie historyczne miejsce warto zobaczyć w Korei?', tr: '한국에서 꼭 가 봐야 할 역사적인 장소가 어디예요?' },
+          { title: { pl: 'Historia rodziny', ko: '가족의 역사' }, q: 'Czy historia Twojej rodziny jest związana z jakimś wydarzeniem?', tr: '가족의 역사가 어떤 사건과 관련이 있어요?' },
+          { title: { pl: 'Seriale historyczne', ko: '사극' }, q: 'Który historyczny serial lub film najlepiej oddaje epokę?', tr: '시대를 가장 잘 보여 주는 사극이나 영화가 뭐예요?' },
+          { title: { pl: 'Lekcje historii', ko: '역사의 교훈' }, q: 'Czego historia uczy Cię na co dzień?', tr: '역사에서 배운 것 중에 일상에 도움이 되는 게 뭐예요?' }
+        ]
+      },
+      {
+        id: 'przeprowadzka-kr', always: true, premium: true, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Przeprowadzka do Korei', ko: '테이블 · 한국으로 이사' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Mieszkanie', ko: '집 구하기' }, q: 'Co jest najtrudniejsze przy szukaniu mieszkania w Korei?', tr: '한국에서 집을 구할 때 가장 어려운 점이 뭐예요?' },
+          { title: { pl: 'Wiza', ko: '비자' }, q: 'Jaką wizę masz lub planujesz?', tr: '어떤 비자를 가지고 있거나 준비하고 있어요?' },
+          { title: { pl: 'Praca', ko: '일자리' }, q: 'Jak znalazłeś(-aś) pracę w Korei?', tr: '한국에서 일자리를 어떻게 구했어요?' },
+          { title: { pl: 'Zaskoczenia', ko: '놀라운 점' }, q: 'Co Cię zaskoczyło po przyjeździe?', tr: '도착한 뒤에 가장 놀라웠던 게 뭐예요?' },
+          { title: { pl: 'Pierwsze tygodnie', ko: '첫 몇 주' }, q: 'Jak wyglądają pierwsze tygodnie: bank, telefon, ubezpieczenie?', tr: '처음 몇 주는 어땠어요? 은행, 휴대폰, 보험은요?' },
+          { title: { pl: 'Czego żałuję', ko: '후회' }, q: 'Czego żałujesz, że nie zrobiłeś(-aś) przed wyjazdem?', tr: '떠나기 전에 해 둘걸 하고 후회하는 게 있어요?' },
+          { title: { pl: 'Tęsknota', ko: '향수' }, q: 'Jak radzisz sobie z tęsknotą za domem?', tr: '집이 그리울 때 어떻게 해요?' },
+          { title: { pl: 'Rada na drogę', ko: '조언' }, q: 'Jaką radę dałbyś(-abyś) osobie, która się przeprowadza?', tr: '이사를 준비하는 사람에게 어떤 조언을 해 주고 싶어요?' }
+        ]
+      },
+      {
+        id: 'przeprowadzka-pl', always: true, premium: true, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Przeprowadzka do Polski', ko: '테이블 · 폴란드로 이사' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Mieszkanie', ko: '집 구하기' }, q: 'Co jest najtrudniejsze przy szukaniu mieszkania w Polsce?', tr: '폴란드에서 집을 구할 때 가장 어려운 점이 뭐예요?' },
+          { title: { pl: 'Pozwolenie na pobyt', ko: '체류 허가' }, q: 'Jaką wizę lub pozwolenie na pobyt masz lub planujesz?', tr: '어떤 비자나 체류 허가를 가지고 있거나 준비하고 있어요?' },
+          { title: { pl: 'Praca', ko: '일자리' }, q: 'Jak znalazłeś(-aś) pracę w Polsce?', tr: '폴란드에서 일자리를 어떻게 구했어요?' },
+          { title: { pl: 'Zaskoczenia', ko: '놀라운 점' }, q: 'Co Cię zaskoczyło po przyjeździe do Polski?', tr: '폴란드에 도착한 뒤에 가장 놀라웠던 게 뭐예요?' },
+          { title: { pl: 'Pierwsze tygodnie', ko: '첫 몇 주' }, q: 'Jak wyglądają pierwsze tygodnie: PESEL, konto, telefon, ubezpieczenie?', tr: '처음 몇 주는 어땠어요? 페셀, 계좌, 휴대폰, 보험은요?' },
+          { title: { pl: 'Czego żałuję', ko: '후회' }, q: 'Czego żałujesz, że nie zrobiłeś(-aś) przed wyjazdem do Polski?', tr: '폴란드에 오기 전에 해 둘걸 하고 후회하는 게 있어요?' },
+          { title: { pl: 'Tęsknota', ko: '향수' }, q: 'Jak radzisz sobie z tęsknotą za domem?', tr: '집이 그리울 때 어떻게 해요?' },
+          { title: { pl: 'Rada na drogę', ko: '조언' }, q: 'Jaką radę dałbyś(-abyś) osobie, która przeprowadza się do Polski?', tr: '폴란드로 이사를 준비하는 사람에게 어떤 조언을 해 주고 싶어요?' }
+        ]
       },
       {
         id: 'jedzenie', time: '13:30', dow: EVERY_DAY, dur: 60, premium: false, seats: 8, badge: 'ROOM',
