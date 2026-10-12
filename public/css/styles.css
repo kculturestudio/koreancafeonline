@@ -272,3 +272,7 @@ select.field { appearance: none; -webkit-appearance: none; background: #fff var(
 .phint { font-size: 13px; color: var(--blush-deep); }
 @keyframes pshake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .popt.bad { animation: none; } .popt { transition: none; } }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.stats div { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.stats b { font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stats span { font-size: 11px; color: var(--muted); }

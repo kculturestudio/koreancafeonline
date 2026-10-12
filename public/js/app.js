@@ -282,6 +282,53 @@
     logout: function () { return SB.client.auth.signOut(); }
   };
 
+  /* ---------- postęp: XP, ziarna, streak i ćwiczenia. Lokalnie zawsze, na koncie (Supabase) po zalogowaniu ---------- */
+  function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  var Prog = {
+    stats: function () { return load('stats', { xp: 0, beans: 0, streak: 0, last: '' }); },
+    // Nagroda za poprawną odpowiedź. Streak rośnie raz dziennie i zeruje się po przerwie dłuższej niż dzień.
+    award: function (xp, beans) {
+      var st = this.stats(), today = dayKey();
+      if (st.last !== today) {
+        var y = new Date(); y.setDate(y.getDate() - 1);
+        st.streak = st.last === dayKey(y) ? st.streak + 1 : 1;
+        st.last = today;
+      }
+      st.xp += xp; st.beans += beans;
+      save('stats', st);
+      this.push();
+    },
+    level: function () { return 1 + Math.floor(this.stats().xp / 100); },
+    snapshot: function () { return { stats: this.stats(), practice: load('practice', {}) }; },
+    // Łączy dane z konta z lokalnymi: wyższe XP wygrywa, a w ćwiczeniach liczy się dalszy postęp.
+    merge: function (remote) {
+      if (!remote || typeof remote !== 'object') return;
+      var ls = this.stats(), rs = remote.stats || {};
+      var st = (rs.xp || 0) > ls.xp ? { xp: rs.xp || 0, beans: rs.beans || 0, streak: rs.streak || 0, last: rs.last || '' } : ls;
+      save('stats', st);
+      var lp = load('practice', {}), rp = remote.practice || {};
+      Object.keys(rp).forEach(function (k) { if ((rp[k] || 0) > (lp[k] || 0)) lp[k] = rp[k]; });
+      save('practice', lp);
+    },
+    pull: function () {
+      if (!SB.on || !ui.user) return;
+      var self = this;
+      SB.client.from('progress').select('data').eq('user_id', ui.user.id).maybeSingle().then(function (r) {
+        if (r && r.data && r.data.data) self.merge(r.data.data);
+        self.push(true);
+        if (/^#\/(cwiczenia|profil)/.test(currentHash())) { ui.keepScroll = true; route(); }
+      }, function () { /* offline: zostaje zapis lokalny */ });
+    },
+    push: function (now) {
+      if (!SB.on || !ui.user) return;
+      var self = this;
+      clearTimeout(this._t);
+      this._t = setTimeout(function () {
+        SB.client.from('progress').upsert({ user_id: ui.user.id, data: self.snapshot(), updated_at: new Date().toISOString() }).then(function () {}, function () {});
+      }, now ? 0 : 800);
+    }
+  };
+
   /* ---------- widoki: części wspólne ---------- */
   var HERO = '<img class="hero-logo" src="img/logo.png" alt="" width="132" height="132">' +
     '<div class="hero-title" aria-hidden="true">Korean Café Online</div>' +
@@ -700,7 +747,7 @@
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
       '<div class="profile-head"><span class="avatar avatar-you">' + esc((name || t('profile.guest')).charAt(0).toUpperCase()) + '</span>' +
       '<div><h1 class="title">' + esc(name || t('profile.title')) + '</h1><p class="subtitle">' + esc(t('profile.plan')) + '</p></div></div>' +
-      accountHtml() +
+      accountHtml() + statsHtml() +
       '<a class="plan-card" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
       '<span class="row-text"><strong>' + esc(t('profile.plan')) + '</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
       '<div><p class="label-caps" style="padding-bottom:4px">' + esc(t('profile.settings')) + '</p>' +
@@ -717,8 +764,15 @@
   }
 
   /* ---------- ćwiczenia rozmów: odpowiadasz po koreańsku, scenariusze z data.js ---------- */
+  function statsHtml() {
+    var st = Prog.stats();
+    return '<div class="stats" role="group" aria-label="' + esc(t('stats.label')) + '">' +
+      [[st.xp, t('stats.xp')], [st.streak, t('stats.streak')], [st.beans, t('stats.beans')], [Prog.level(), t('stats.level')]].map(function (x) {
+        return '<div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div>';
+      }).join('') + '</div>';
+  }
   function pProg(id) { var p = load('practice', {}); return p[id] || 0; }
-  function pSet(id, n) { var p = load('practice', {}); p[id] = n; save('practice', p); }
+  function pSet(id, n) { var p = load('practice', {}); p[id] = n; save('practice', p); Prog.push(); }
   function viewPractice() {
     var rows = D.practice.map(function (r) {
       var n = pProg(r.id), m = r.ex.length, done = n >= m;
@@ -729,7 +783,7 @@
     }).join('');
     show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
       '<div class="head"><div><h1 class="title">' + esc(t('practice.title')) + '</h1><p class="subtitle">' + esc(t('practice.sub')) + '</p></div></div>' +
-      '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
+      statsHtml() + '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
   }
   function pBubble(e, mine) {
     var tr = (!mine && lang === 'pl') ? '<span class="tr">' + esc(e.p) + '</span>' : '';
@@ -825,7 +879,12 @@
       var pr = findBy(D.practice, el.getAttribute('data-id'));
       var pi = +el.getAttribute('data-i'), pn = pr ? pProg(pr.id) : 0;
       if (pr && pn < pr.ex.length) {
-        if (pi === pr.ex[pn].a) { ui.pWrong = null; pSet(pr.id, pn + 1); } else { ui.pWrong = pi; }
+        if (pi === pr.ex[pn].a) {
+          ui.pWrong = null; pSet(pr.id, pn + 1);
+          var last = pn + 1 >= pr.ex.length;
+          Prog.award(last ? 7 : 2, last ? 3 : 1);
+          if (last) toast(tf('practice.reward', { xp: 7, n: 3 }));
+        } else { ui.pWrong = pi; }
         ui.keepScroll = false;
         route();
         var nb = document.querySelector('.popts .popt, .pdone .btn');
@@ -942,6 +1001,7 @@
       ui.user = u;
       if (event === 'PASSWORD_RECOVERY') ui.recovery = true;
       if (event === 'SIGNED_OUT') ui.recovery = false;
+      if (changed && u) setTimeout(function () { Prog.pull(); }, 0);
       if (!ui.authReady) return;
       // Wywołania po stronie Supabase wolno robić dopiero poza tą funkcją, dlatego setTimeout.
       if (event === 'PASSWORD_RECOVERY') setTimeout(function () { navigate('#/nowe-haslo'); }, 0);
@@ -951,6 +1011,7 @@
       var s = r && r.data && r.data.session;
       if (s && s.user && !ui.user) ui.user = { id: s.user.id, email: s.user.email || '' };
       start();
+      Prog.pull();
     }, start);
     setTimeout(start, 4000); // zapas: gdyby sprawdzanie sesji się zawiesiło, strona i tak się pokaże
   } else {
