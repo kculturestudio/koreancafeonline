@@ -799,7 +799,9 @@
   function pProg(id) { var p = load('practice', {}); return p[id] || 0; }
   function pSet(id, n) { var p = load('practice', {}); p[id] = n; save('practice', p); Prog.push(); }
   function viewPractice() {
-    var rows = D.practice.map(function (r) {
+    var bar = '<a class="row" href="#/cwiczenia/barista"><span class="badge-sq">' + esc(D.barista.badge) + '</span>' +
+      '<span class="row-text"><strong>' + esc(L(D.barista.name)) + '</strong><small>' + esc(O(D.barista.name)) + ' · ' + esc(L(D.barista.desc)) + '</small></span>' + ico('chevron', 20) + '</a>';
+    var rows = bar + D.practice.map(function (r) {
       var n = pProg(r.id), m = r.ex.length, done = n >= m;
       return '<a class="row" href="#/cwiczenia/' + r.id + '"><span class="badge-sq">' + esc(r.badge) + '</span>' +
         '<span class="row-text"><strong>' + esc(L(r.name)) + '</strong><small>' + esc(O(r.name)) + ' · ' + esc(L(r.desc)) + '</small>' +
@@ -844,6 +846,66 @@
       '<div class="messages" aria-live="polite">' + html + '</div>' + foot + nav('practice') + '</main>', L(r.name), { bottom: true });
   }
 
+  /* ---------- rozmowa z baristą: zamawiamy americano ---------- */
+  var HANGUL = /[\u3131-\u318E\uAC00-\uD7A3]/;
+  function barSteps() { return D.barista.steps; }
+  function barStart() {
+    var st = barSteps();
+    ui.bar = { log: [{ me: false, k: st[0].q, p: st[0].tr }], done: {}, cur: 0, finished: false };
+  }
+  function barSay(k, p) { ui.bar.log.push({ me: false, k: k, p: p }); }
+  function barReply(text) {
+    var b = ui.bar, st = barSteps(), cur = st[b.cur];
+    b.log.push({ me: true, k: text });
+    if (cur.kind === 2) { b.finished = true; barSay('또 오세요!', 'Zapraszamy ponownie!'); return; }
+    var hasHangul = HANGUL.test(text);
+    if (cur.kind !== 1 && !hasHangul) { barSay('한국어로 말해 주세요.', t('barista.nudge')); return; }
+    var ok = {};
+    if (cur.kind === 1) ok[b.cur] = true;
+    else {
+      // wskazane słowa kluczowe rozpoznajemy dla bieżącego i kolejnych pytań (można odpowiedzieć na kilka naraz)
+      for (var i = b.cur; i < st.length; i++) {
+        if (st[i].kind === 0 && st[i].keys && new RegExp(st[i].keys).test(text)) ok[i] = true;
+      }
+      if (!ok[b.cur] && cur.yn && /네|예|응|아니|괜찮|좋아요|필요/.test(text)) ok[b.cur] = true;
+    }
+    if (!ok[b.cur]) { barSay('죄송해요, 다시 한 번 말씀해 주시겠어요?', t('barista.sorry')); return; }
+    Object.keys(ok).forEach(function (k) { b.done[k] = true; });
+    var next = b.cur + 1;
+    while (next < st.length && b.done[next]) next++;
+    b.cur = next;
+    barSay('네, 알겠습니다! ' + st[next].q, 'Dobrze! ' + st[next].tr);
+  }
+  function barBubble(m) {
+    var tr = (!m.me && lang === 'pl' && m.p) ? '<span class="tr">' + esc(m.p) + '</span>' : '';
+    var say = m.me ? '' : '<button type="button" class="say" data-action="say" data-text="' + esc(m.k) + '" aria-label="' + esc(t('practice.listen')) + '">' + ico('sound', 18) + '</button>';
+    return '<div class="bubble ' + (m.me ? 'bubble-out' : 'bubble-in') + '"><span class="meta">' + esc(m.me ? t('room.you') : D.barista.barista) + '</span>' +
+      '<span class="txt" lang="ko">' + esc(m.k) + '</span>' + tr + say + '</div>';
+  }
+  function viewBarista() {
+    if (!ui.bar) barStart();
+    var b = ui.bar, st = barSteps(), cur = st[b.cur], B = D.barista;
+    var foot;
+    if (b.finished) {
+      foot = '<div class="content pdone"><h2 class="section-title">' + esc(t('barista.done')) + '</h2><p class="subtitle">' + esc(t('barista.doneSub')) + '</p>' +
+        '<button type="button" class="btn btn-primary" data-action="bar-again">' + esc(t('barista.again')) + '</button>' +
+        '<a class="btn btn-ghost" href="#/cwiczenia">' + esc(t('practice.rooms')) + '</a></div>';
+    } else {
+      foot = '<div class="bar-hint"><span class="label-caps">' + esc(t('barista.hint')) + '</span>' +
+        '<button type="button" class="popt" lang="ko" data-action="bar-hint" data-text="' + esc(cur.sample) + '"><span>' + esc(cur.sample) + '</span>' +
+        (lang === 'pl' ? '<small>' + esc(cur.sampleTr) + '</small>' : '') + '</button></div>' +
+        '<form class="composer" data-form="barista"><input class="composer-input" name="text" type="text" lang="ko" autocomplete="off" maxlength="200" placeholder="' + esc(t('barista.input')) + '" aria-label="' + esc(t('barista.input')) + '">' +
+        '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('barista.send')) + '">' + ico('send', 22) + '</button></form>';
+    }
+    show('<main class="screen" id="view" tabindex="-1">' +
+      '<div class="topbar"><a class="icon-btn" href="#/cwiczenia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(B.name)) + '</h1><span class="subtitle">' + esc(O(B.name)) + ' · ' + esc(B.badge) + '</span></div></div>' +
+      '<div class="messages" aria-live="polite">' + b.log.map(barBubble).join('') + '</div>' + foot + nav('practice') + '</main>', L(B.name), { bottom: true });
+    var inp = document.querySelector('.composer-input');
+    if (inp && ui.barFocus) { inp.focus({ preventScroll: true }); }
+    ui.barFocus = false;
+  }
+
   /* ---------- router ---------- */
   function route() {
     if (SB.on) Live.detach();
@@ -858,7 +920,7 @@
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
-      case 'cwiczenia': return seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
+      case 'cwiczenia': return seg[1] === 'barista' ? viewBarista() : seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
       case 'wydarzenia': return viewEvents(seg[1] === 'premium' ? 'premium' : 'all');
       case 'premium': return viewPremium();
       case 'profil': return viewProfile();
@@ -925,6 +987,11 @@
     } else if (a === 'starter') {
       var inp = document.querySelector('.composer-input');
       if (inp) { inp.value = el.getAttribute('data-text'); inp.focus(); }
+    } else if (a === 'bar-hint') {
+      var bi = document.querySelector('.composer-input');
+      if (bi) { bi.value = el.getAttribute('data-text'); bi.focus(); }
+    } else if (a === 'bar-again') {
+      ui.bar = null; viewBarista();
     } else if (a === 'ics') {
       downloadIcs(el.getAttribute('data-id'));
     } else if (a === 'portal') {
@@ -967,6 +1034,15 @@
     if (form.getAttribute('data-form') === 'auth') {
       e.preventDefault();
       if (SB.on) submitAuth(form);
+      return;
+    }
+    if (form.getAttribute('data-form') === 'barista') {
+      e.preventDefault();
+      var bt = form.elements.text.value.trim();
+      if (!bt || !ui.bar || ui.bar.finished) return;
+      barReply(bt);
+      ui.barFocus = true;
+      viewBarista();
       return;
     }
     if (form.getAttribute('data-form') !== 'msg') return;
