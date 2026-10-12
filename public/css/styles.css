@@ -280,3 +280,6 @@ select.field { appearance: none; -webkit-appearance: none; background: #fff var(
 .topic-card.daily > p:first-of-type { font-size: 17px; color: var(--ink); }
 .topic-card .starter { display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: var(--ink); }
 .topic-card .btn { align-self: flex-start; }
+.bar-hint { padding: 10px 20px 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); background: rgba(251, 247, 242, .97); }
+.bar-hint .popt { display: flex; flex-direction: column; gap: 2px; min-height: 48px; }
+.bar-hint .popt small { font-size: 12px; color: var(--muted); }
