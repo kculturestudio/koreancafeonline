@@ -489,6 +489,15 @@
       '<button type="button" class="btn btn-ghost" data-action="register">' + esc(t('auth.title.register')) + '</button></div>';
   }
 
+  function practiceCard(c, canType) {
+    var items = c.practice.map(function (x) {
+      var ans = x.starter.replace(/___/g, '…');
+      return '<li><span class="q-k" lang="ko">' + esc(x.k) + '</span><span class="q-pl">' + esc(x.pl) + '</span>' +
+        (canType ? '<span class="q-btns"><button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.k) + '">' + esc(t('chat.ask')) + '</button>' +
+        '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(ans) + '">' + esc(t('chat.answer')) + '</button></span>' : '') + '</li>';
+    }).join('');
+    return '<details class="qcard"><summary>' + esc(t('chat.qTitle')) + ' · ' + c.practice.length + '</summary><ol>' + items + '</ol></details>';
+  }
   /* ---------- widok: czat tekstowy ---------- */
   function viewChat(id) {
     var c = findBy(D.channels, id);
@@ -499,6 +508,7 @@
       '<div class="topbar"><a class="icon-btn" href="#/kawiarnia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(c.name)) + '</h1><span class="subtitle">' + esc(O(c.name)) + ' · ' + esc(L(c.level)) + '</span></div></div>' +
       '<div class="strip"><span>' + esc(L(c.rule)) + '</span><span class="tag">' + esc(t('chat.tr')) + '</span></div>' +
+      (c.practice ? practiceCard(c, !(SB.on && !ui.user)) : '') +
       (SB.on ? '<div class="strip">' + esc(t('chat.live')) + '</div>' : (CFG.demo ? '<div class="strip">' + esc(t('demo.chat')) + '</div>' : '')) +
       ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) +
       '<form class="composer" data-form="msg" data-key="' + key + '">' +
