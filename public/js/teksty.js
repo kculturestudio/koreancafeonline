@@ -104,7 +104,8 @@ window.KCO_I18N = {
 
   'chat.input': ['Napisz wiadomość…', '메시지를 입력하세요…'],
   'chat.tr': ['Tłumaczenie: włączone', '번역: 켜짐'],
-  'chat.qTitle': ['Pytania do ćwiczeń', '연습 질문'],
+  'chat.qLabel': ['Pytanie do rozmowy', '대화 질문'],
+  'chat.nextQ': ['Inne pytanie', '다른 질문'],
   'chat.ask': ['Zadaj', '질문하기'],
   'chat.answer': ['Odpowiedz', '답하기'],
   'chat.fix': ['Poprawka', '교정'],

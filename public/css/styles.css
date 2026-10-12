@@ -283,3 +283,13 @@ select.field { appearance: none; -webkit-appearance: none; background: #fff var(
 .bar-hint { padding: 10px 20px 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); background: rgba(251, 247, 242, .97); }
 .bar-hint .popt { display: flex; flex-direction: column; gap: 2px; min-height: 48px; }
 .bar-hint .popt small { font-size: 12px; color: var(--muted); }
+/* prompt pytania w czacie (kr-a1) */
+.qprompt { padding: 12px 20px 2px; display: flex; flex-direction: column; gap: 2px; border-top: 1px solid var(--line); background: rgba(251, 247, 242, .97); animation: qin .3s ease-out; }
+@keyframes qin { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .qprompt { animation: none; } }
+.qprompt .q-k { font-size: 18px; }
+.q-pl { font-size: 12.5px; color: var(--muted); }
+.q-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; padding-bottom: 8px; }
+.chip-btn { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--silver); background: transparent; font-size: 13px; font-weight: 500; }
+.chip-btn:hover { border-color: var(--ink); }
+.chip-main { background: var(--blush); border-color: var(--blush); }
