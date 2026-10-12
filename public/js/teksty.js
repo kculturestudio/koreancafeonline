@@ -79,6 +79,11 @@ window.KCO_I18N = {
   'when.tomorrow': ['Jutro', '내일'],
 
   'room.topicLabel': ['TEMAT TYGODNIA', '이번 주 주제'],
+  'room.dailyLabel': ['TEMAT DNIA', '오늘의 주제'],
+  'room.dailyOf': ['{n} z {m}', '{n}/{m}'],
+  'room.dailyNew': ['Nowy temat o północy (czas warszawski).', '자정(바르샤바 시간)에 새 주제가 나와요.'],
+  'room.starter': ['Zacznij od:', '이렇게 시작해 보세요:'],
+  'room.useStarter': ['Wstaw do wiadomości', '메시지에 넣기'],
   'room.moderator': ['Moderator', '진행자'],
   'room.free': ['Wolne', '빈 자리'],
   'room.you': ['Ty', '나'],
