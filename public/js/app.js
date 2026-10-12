@@ -495,7 +495,7 @@
     return '<div class="qprompt" id="qprompt" data-ch="' + c.id + '"><span class="label-caps">' + esc(t('chat.qLabel')) + ' · ' + ((i % n) + 1) + '/' + n + '</span>' +
       '<span class="q-k" lang="ko">' + esc(x.k) + '</span>' + (lang === 'pl' ? '<span class="q-pl">' + esc(x.pl) + '</span>' : '') +
       '<span class="q-btns"><button type="button" class="chip-btn chip-main" data-action="starter" data-text="' + esc(x.k) + '">' + esc(t('chat.ask')) + '</button>' +
-      '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.starter.replace(/___/g, '…')) + '">' + esc(t('chat.answer')) + '</button>' +
+      (x.starter ? '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.starter.replace(/___/g, '…')) + '">' + esc(t('chat.answer')) + '</button>' : '') +
       '<button type="button" class="chip-btn" data-action="next-q" data-ch="' + c.id + '">' + esc(t('chat.nextQ')) + '</button></span></div>';
   }
   function advancePrompt(chId) {
