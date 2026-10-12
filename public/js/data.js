@@ -69,8 +69,8 @@
       },
       {
         id: 'kr-adv', badge: 'KR', lang: 'KR', topic: 'language', premium: false,
-        levels: ['B2', 'C1'], level: { pl: 'B2–C1', ko: 'B2–C1' }, ages: ALL_AGES,
-        name: { pl: 'Koreański zaawansowany', ko: '한국어 고급' },
+        levels: ['B1', 'B2', 'C1', 'C2'], level: { pl: 'B1–C2', ko: 'B1–C2' }, ages: ALL_AGES,
+        name: { pl: 'Koreański na poziomie zaawansowanym', ko: '한국어 고급 수준' },
         desc: { pl: 'pytania do głębszych rozmów', ko: '깊이 있는 대화 질문' },
         rule: { pl: 'Pisz po koreańsku, native speakerzy poprawiają.', ko: '한국어로 써 보세요. 원어민이 고쳐 드려요.' },
         // 40 pytań do rozmów (prompt nad polem wiadomości): k = pytanie po koreańsku, pl = tłumaczenie. Bez pola starter, więc bez przycisku "Odpowiedz".
@@ -119,7 +119,7 @@
       },
       {
         id: 'pl-b1', badge: 'PL', lang: 'PL', topic: 'language', premium: false,
-        levels: ['B1', 'B2'], level: { pl: 'B1', ko: 'B1' }, ages: ALL_AGES,
+        levels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], level: { pl: 'A1–C2', ko: 'A1–C2' }, ages: ALL_AGES,
         name: { pl: 'Rozmowy po polsku', ko: '폴란드어 대화' },
         desc: { pl: 'dla Koreańczyków', ko: '한국분들을 위한 방' },
         rule: { pl: 'Pisz po polsku, native speakerzy poprawiają.', ko: '폴란드어로 써 보세요. 원어민이 고쳐 드려요.' },
@@ -190,6 +190,13 @@
         name: { pl: 'Praca i życie w Korei', ko: '한국 생활' },
         desc: { pl: 'pytania do osób z Korei', ko: '한국에 사는 분들께 질문' },
         rule: { pl: 'Pytaj o pracę, wizy, mieszkanie i codzienność. Odpowiadamy po polsku i po koreańsku.', ko: '일, 비자, 집, 일상에 대해 물어보세요. 폴란드어와 한국어로 답해요.' }
+      },
+      {
+        id: 'poland-life', badge: 'PL·KR', lang: 'MIX', topic: 'life', premium: false,
+        levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–B2', ko: 'B1–B2' }, ages: ['26-35', '36+'],
+        name: { pl: 'Praca i życie w Polsce', ko: '폴란드 생활' },
+        desc: { pl: 'pytania do osób z Polski', ko: '폴란드에 사는 분들께 질문' },
+        rule: { pl: 'Pytaj o pracę, wizy, mieszkanie i codzienność w Polsce. Odpowiadamy po polsku i po koreańsku.', ko: '폴란드에서의 일, 비자, 집, 일상에 대해 물어보세요. 폴란드어와 한국어로 답해요.' }
       },
       {
         id: 'dance', badge: 'PL·KR', lang: 'MIX', topic: 'dance', premium: true,

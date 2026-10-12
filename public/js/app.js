@@ -407,7 +407,7 @@
   function filtersHtml() {
     return '<div class="filters">' +
       selectChip('lang', t('f.lang'), [['all', t('f.all')], ['KR', t('f.kr')], ['PL', t('f.pl')]]) +
-      selectChip('level', t('f.level'), [['all', t('f.all')], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1'], ['B2', 'B2'], ['C1', 'C1']]) +
+      selectChip('level', t('f.level'), [['all', t('f.all')], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1'], ['B2', 'B2'], ['C1', 'C1'], ['C2', 'C2']]) +
       selectChip('topic', t('f.topic'), [['all', t('f.all')], ['language', t('f.topic.language')], ['culture', t('f.topic.culture')], ['life', t('f.topic.life')], ['dance', t('f.topic.dance')]]) +
       selectChip('age', t('f.age'), [['all', t('f.all')], ['18-25', '18–25'], ['26-35', '26–35'], ['36+', '36+']]) +
       '</div>';
