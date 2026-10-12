@@ -489,14 +489,22 @@
       '<button type="button" class="btn btn-ghost" data-action="register">' + esc(t('auth.title.register')) + '</button></div>';
   }
 
-  function practiceCard(c, canType) {
-    var items = c.practice.map(function (x) {
-      var ans = x.starter.replace(/___/g, '…');
-      return '<li><span class="q-k" lang="ko">' + esc(x.k) + '</span><span class="q-pl">' + esc(x.pl) + '</span>' +
-        (canType ? '<span class="q-btns"><button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.k) + '">' + esc(t('chat.ask')) + '</button>' +
-        '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(ans) + '">' + esc(t('chat.answer')) + '</button></span>' : '') + '</li>';
-    }).join('');
-    return '<details class="qcard"><summary>' + esc(t('chat.qTitle')) + ' · ' + c.practice.length + '</summary><ol>' + items + '</ol></details>';
+  /* Prompt pytania nad polem wiadomości (czat z polem practice): jedno pytanie naraz, po wysłaniu wiadomości pojawia się następne. */
+  function promptHtml(c) {
+    var n = c.practice.length, i = (ui.qi && ui.qi[c.id]) || 0, x = c.practice[i % n];
+    return '<div class="qprompt" id="qprompt" data-ch="' + c.id + '"><span class="label-caps">' + esc(t('chat.qLabel')) + ' · ' + ((i % n) + 1) + '/' + n + '</span>' +
+      '<span class="q-k" lang="ko">' + esc(x.k) + '</span>' + (lang === 'pl' ? '<span class="q-pl">' + esc(x.pl) + '</span>' : '') +
+      '<span class="q-btns"><button type="button" class="chip-btn chip-main" data-action="starter" data-text="' + esc(x.k) + '">' + esc(t('chat.ask')) + '</button>' +
+      '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.starter.replace(/___/g, '…')) + '">' + esc(t('chat.answer')) + '</button>' +
+      '<button type="button" class="chip-btn" data-action="next-q" data-ch="' + c.id + '">' + esc(t('chat.nextQ')) + '</button></span></div>';
+  }
+  function advancePrompt(chId) {
+    var c = findBy(D.channels, chId);
+    if (!c || !c.practice) return;
+    ui.qi = ui.qi || {};
+    ui.qi[chId] = ((ui.qi[chId] || 0) + 1) % c.practice.length;
+    var el = document.getElementById('qprompt');
+    if (el) { el.outerHTML = promptHtml(c); }
   }
   /* ---------- widok: czat tekstowy ---------- */
   function viewChat(id) {
@@ -508,9 +516,8 @@
       '<div class="topbar"><a class="icon-btn" href="#/kawiarnia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(L(c.name)) + '</h1><span class="subtitle">' + esc(O(c.name)) + ' · ' + esc(L(c.level)) + '</span></div></div>' +
       '<div class="strip"><span>' + esc(L(c.rule)) + '</span><span class="tag">' + esc(t('chat.tr')) + '</span></div>' +
-      (c.practice ? practiceCard(c, !(SB.on && !ui.user)) : '') +
       (SB.on ? '<div class="strip">' + esc(t('chat.live')) + '</div>' : (CFG.demo ? '<div class="strip">' + esc(t('demo.chat')) + '</div>' : '')) +
-      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) +
+      ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) + (c.practice ? promptHtml(c) : '') +
       '<form class="composer" data-form="msg" data-key="' + key + '">' +
       '<input class="composer-input" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(t('chat.input')) + '" aria-label="' + esc(t('chat.input')) + '">' +
       '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button></form>') + '</main>';
@@ -987,6 +994,8 @@
     } else if (a === 'starter') {
       var inp = document.querySelector('.composer-input');
       if (inp) { inp.value = el.getAttribute('data-text'); inp.focus(); }
+    } else if (a === 'next-q') {
+      advancePrompt(el.getAttribute('data-ch'));
     } else if (a === 'bar-hint') {
       var bi = document.querySelector('.composer-input');
       if (bi) { bi.value = el.getAttribute('data-text'); bi.focus(); }
@@ -1051,6 +1060,7 @@
     var text = input.value.trim();
     if (!text) return;
     var key = form.getAttribute('data-key');
+    var chId = key.indexOf('chat:') === 0 ? key.slice(5) : '';
     if (SB.on) {
       if (!ui.user) return;
       var sendBtn = form.querySelector('button[type="submit"]');
@@ -1058,6 +1068,7 @@
       Live.send(key, text).then(function (row) {
         input.value = '';
         Live.add(row, true);
+        advancePrompt(chId);
       }).catch(function (err) {
         toast(t(err && err.code === 'P0001' ? 'chat.sendFast' : 'chat.sendError'));
       }).then(function () {
@@ -1072,6 +1083,7 @@
     if (wasEmpty) box.innerHTML = '';
     box.insertAdjacentHTML('beforeend', msgHtml(msg));
     input.value = '';
+    advancePrompt(chId);
     window.scrollTo(0, document.body.scrollHeight);
   });
 
