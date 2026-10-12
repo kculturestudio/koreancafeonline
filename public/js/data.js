@@ -20,7 +20,22 @@
         levels: ['A1'], level: { pl: 'A1', ko: 'A1' }, ages: ALL_AGES,
         name: { pl: 'Koreański dla początkujących', ko: '한국어 초급' },
         desc: { pl: 'pisz po koreańsku', ko: '한국어로 써 보세요' },
-        rule: { pl: 'Pisz po koreańsku, native speakerzy poprawiają.', ko: '한국어로 써 보세요. 원어민이 고쳐 드려요.' }
+        rule: { pl: 'Pisz po koreańsku, native speakerzy poprawiają.', ko: '한국어로 써 보세요. 원어민이 고쳐 드려요.' },
+        // Pytania do ćwiczeń (karta nad wiadomościami): k = pytanie po koreańsku, pl = tłumaczenie, starter = początek odpowiedzi.
+        practice: [
+          { pl: 'Jak się nazywasz?', k: '이름이 뭐예요?', starter: '제 이름은 ___ 이에요/예요.' },
+          { pl: 'Ile masz lat?', k: '몇 살이에요?', starter: '저는 ___ 살이에요.' },
+          { pl: 'Dlaczego uczysz się koreańskiego?', k: '왜 한국어를 공부해요?', starter: '저는 ___ 좋아해서 한국어를 공부해요.' },
+          { pl: 'Jakie jest Twoje hobby?', k: '취미가 뭐예요?', starter: '제 취미는 ___ 이에요/예요.' },
+          { pl: 'Jaka dziś jest pogoda?', k: '오늘 날씨가 어때요?', starter: '오늘은 날씨가 ___ (좋아요, 추워요, 더워요).' },
+          { pl: 'Co robiłeś(-aś) w tym tygodniu?', k: '이번 주에 뭐 했어요?', starter: '이번 주에 ___ 했어요.' },
+          { pl: 'Co będziesz robić w przyszłym tygodniu?', k: '다음 주에 뭐 할 거예요?', starter: '다음 주에 ___ 할 거예요.' },
+          { pl: 'Jakie jest Twoje ulubione koreańskie jedzenie?', k: '제일 좋아하는 한국 음식이 뭐예요?', starter: '제일 좋아하는 한국 음식은 ___ 이에요/예요.' },
+          { pl: 'Czy byłeś(-aś) kiedyś w Korei?', k: '한국에 가 본 적 있어요?', starter: '네, 가 본 적 있어요. / 아니요, 아직 없어요.' },
+          { pl: 'Czy lubisz podróżować?', k: '여행을 좋아해요?', starter: '네, 여행을 좋아해요. / 아니요, 별로 안 좋아해요.' },
+          { pl: 'Z jakiego kraju jesteś?', k: '어느 나라 사람이에요?', starter: '저는 폴란드 사람이에요.' },
+          { pl: 'Jak długo uczysz się koreańskiego?', k: '한국어를 얼마나 공부했어요?', starter: '한국어를 ___ 공부했어요.' }
+        ]
       },
       {
         id: 'pl-b1', badge: 'PL', lang: 'PL', topic: 'language', premium: false,
