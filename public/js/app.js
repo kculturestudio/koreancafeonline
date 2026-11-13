@@ -392,7 +392,7 @@
       '<div class="head"><div class="brand"><div class="brand-mark"><img src="img/logo-96.png" alt="" width="46" height="46"></div><div><span class="brand-name">Korean Cafe Online</span><span class="brand-sub">' + esc(t('brand.sub')) + '</span></div></div>' + langSeg() + '</div>' +
       '<div class="hero">' + HERO.replace('alt=""', 'alt="' + esc(t('welcome.heroAlt')) + '"') + '</div>' +
       '<div class="welcome-copy"><span class="eyebrow">' + esc(t('welcome.eyebrow')) + '</span><h1>' + esc(t('welcome.h1')) + '</h1><p>' + esc(t('welcome.body')) + '</p></div>' +
-      '<div class="chips"><span class="chip">' + esc(t('welcome.c1')) + '</span><span class="chip">' + esc(t('welcome.c2')) + '</span><span class="chip">' + esc(t('welcome.c3')) + '</span></div>' +
+      '<ol class="steps"><li><b>1</b><span>' + esc(t('welcome.c1')) + '</span></li><li><b>2</b><span>' + esc(t('welcome.c2')) + '</span></li><li><b>3</b><span>' + esc(t('welcome.c3')) + '</span></li></ol>' +
       '<div class="welcome-actions">' +
       '<label class="check"><input type="checkbox" id="age18"' + (ok ? ' checked' : '') + '><span>' + esc(t('welcome.age')) + '</span></label>' +
       '<button type="button" class="btn btn-primary" id="enter" data-action="enter"' + (ok ? '' : ' disabled') + '>' + esc(t('welcome.cta')) + '</button>' +

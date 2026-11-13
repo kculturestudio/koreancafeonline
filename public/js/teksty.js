@@ -108,15 +108,15 @@ window.KCO_I18N = {
   'brand.sub': ['한국 카페 · 온라인', '한국 카페 · 온라인'],
 
   'welcome.eyebrow': ['커피 한 잔 하실래요?', '커피 한 잔 하실래요?'],
-  'welcome.h1': ['Wpadnij na kawę do Korei. Bez wychodzenia z domu.', '폴란드 친구들과 온라인 카페에서 수다 떨어요.'],
+  'welcome.h1': ['Mów po koreańsku na głos. Z ludźmi, nie z lektorem.', '한국어를 소리 내어 말해요. 사람들과 함께.'],
   'welcome.body': [
-    'Rozmowy przy wspólnych stolikach, czaty 24/7 i wydarzenia kulturalne na żywo. Po polsku i po koreańsku.',
-    '함께 앉아 이야기하고, 폴란드어와 한국어를 배우고, 문화 이벤트에도 참여해 보세요.'
+    'Małe stoliki rozmów, scenki z życia i codzienna fraza. Zacznij od pierwszego zdania.',
+    '작은 대화 테이블, 생활 장면 연습, 매일 한 문장. 첫 문장부터 시작해요.'
   ],
-  'welcome.c1': ['Pogaduszki', '수다방'],
-  'welcome.c2': ['Stoliki dnia', '오늘의 테이블'],
-  'welcome.c3': ['Język i kultura', '언어와 문화'],
-  'welcome.cta': ['Wejdź do kawiarni', '카페 입장하기'],
+  'welcome.c1': ['Wybierz poziom i temat', '수준과 주제를 고르세요'],
+  'welcome.c2': ['Dołącz do stolika albo ćwicz scenkę solo', '테이블에 앉거나 혼자 장면을 연습해요'],
+  'welcome.c3': ['Wróć jutro po nową frazę i serię dni', '내일 새 표현과 연속 기록을 위해 돌아오세요'],
+  'welcome.cta': ['Zacznij', '시작하기'],
   'welcome.age': ['Mam ukończone 18 lat', '만 18세 이상입니다'],
   'welcome.trial': ['7 dni za darmo, potem subskrypcja. Anulujesz, kiedy chcesz.', '7일 무료, 이후 구독. 언제든지 해지할 수 있어요.'],
   'welcome.heroAlt': ['Logo Korean Café online: litera K z kotkiem', '한국 카페 온라인 로고: 고양이가 있는 K'],
