@@ -106,6 +106,7 @@
   }
 
   var ICONS = {
+    me: '<path d="M4.5 10V4.8a.6.6 0 0 1 1-.4L9 6.8a9 9 0 0 1 6 0l3.5-2.4a.6.6 0 0 1 1 .4V10c.9 1.1 1.3 2.4 1.3 3.8 0 3.8-3.4 6-7.3 6s-7.3-2.2-7.3-6c0-1.4.4-2.7 1.3-3.8z"/><circle cx="9.3" cy="13" r=".7" fill="currentColor"/><circle cx="14.7" cy="13" r=".7" fill="currentColor"/><path d="M10.7 15.6q1.3 1.1 2.6 0"/>',
     filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
     bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
     cup: '<path d="M5 9h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/>',
@@ -351,7 +352,7 @@
       ['live', '#/kawiarnia/live', 'people', 'nav.rooms'],
       ['practice', '#/cwiczenia', 'pen', 'nav.practice'],
       ['events', '#/wydarzenia', 'calendar', 'nav.events'],
-      ['profile', '#/profil', 'user', 'nav.profile']
+      ['profile', '#/profil', 'me', 'nav.profile']
     ];
     return '<nav class="nav" aria-label="' + esc(t('nav.label')) + '">' + items.map(function (i) {
       return '<a href="' + i[1] + '"' + (active === i[0] ? ' aria-current="page"' : '') + '>' + ico(i[2]) + '<span>' + esc(t(i[3])) + '</span></a>';
@@ -825,22 +826,24 @@
     var level = load('level', '');
     var levels = [['', t('profile.levelNone')], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1'], ['B2', 'B2'], ['C1', 'C1'], ['C2', 'C2']];
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
-      '<div class="profile-head"><div class="ph-top"><span class="avatar avatar-you">' + esc((name || t('profile.guest')).charAt(0).toUpperCase()) + '</span>' +
-      '<div class="ph-text"><span class="ph-plan">' + esc(t('profile.plan')) + '</span><h1 class="title">' + esc(name || t('profile.title')) + '</h1></div>' + mascot('kotek', 'm-ph') + '</div>' +
-      '<div class="ph-xp"><div class="ph-xp-row"><b>' + esc(t('stats.level')) + ' ' + Prog.level() + '</b><span>' + (Prog.stats().xp % 100) + ' / 100 XP</span></div>' +
-      '<div class="ph-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (Prog.stats().xp % 100) + '"><i style="width:' + (Prog.stats().xp % 100) + '%"></i></div></div></div>' +
-      accountHtml() + statsHtml() +
-      '<a class="plan-card" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
-      '<span class="row-text"><strong>' + esc(t('profile.plan')) + '</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
-      '<div><p class="label-caps" style="padding-bottom:4px">' + esc(t('profile.settings')) + '</p>' +
-      '<div class="setting setting-col"><label for="name">' + esc(t('profile.name')) + '</label>' +
-      '<input class="field" id="name" data-pref="name" type="text" maxlength="30" autocomplete="nickname" placeholder="' + esc(t('profile.namePh')) + '" value="' + esc(name) + '"></div>' +
-      '<div class="setting"><span>' + esc(t('profile.lang')) + '</span>' + langSeg() + '</div>' +
-      '<div class="setting setting-col"><label for="level">' + esc(t('profile.level')) + '</label>' +
-      '<select class="field" id="level" data-pref="level">' + levels.map(function (o) { return '<option value="' + o[0] + '"' + (level === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>' +
-      '<div class="setting"><button type="button" class="link-btn" data-action="portal"><span>' + esc(t('profile.manage')) + '</span>' + ico('chevron', 20) + '</button></div>' +
-      '<div class="setting"><a class="link-btn" href="regulamin.html"><span>' + esc(t('legal.terms')) + '</span>' + ico('chevron', 20) + '</a></div>' +
-      '<div class="setting"><a class="link-btn" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 20) + '</a></div></div>' +
+      '<section class="ph" aria-label="' + esc(t('profile.title')) + '"><div class="ph-top"><span class="avatar avatar-you">' + (name ? esc(name.charAt(0).toUpperCase()) : ico('me', 30)) + '</span>' +
+      '<div class="ph-text"><span class="ph-plan">' + esc(t('profile.plan')) + '</span><h1 class="title">' + esc(name || t('profile.guest')) + '</h1></div>' + mascot('kotek', 'm-ph') + '</div>' +
+      '<div class="ph-xp"><div class="ph-xp-row"><b>' + esc(t('stats.level')) + ' ' + Prog.level() + (level ? ' · ' + esc(level) : '') + '</b><span>' + (Prog.stats().xp % 100) + ' / 100 XP</span></div>' +
+      '<div class="ph-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (Prog.stats().xp % 100) + '"><i style="width:' + (Prog.stats().xp % 100) + '%"></i></div></div>' +
+      '<div class="ph-stats" role="group" aria-label="' + esc(t('stats.label')) + '">' + [[Prog.stats().xp, t('stats.xp')], [Prog.stats().streak, t('stats.streak')], [Prog.stats().beans, t('stats.beans')]].map(function (x) {
+        return '<div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div>'; }).join('') + '</div></section>' +
+      '<a class="plan-card plan-gold" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
+      '<span class="row-text"><strong>Premium</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
+      accountHtml() +
+      '<div class="pset"><p class="label-caps">' + esc(t('profile.settings')) + '</p><div class="pset-card">' +
+      '<label class="pset-row" for="name"><span>' + esc(t('profile.name')) + '</span>' +
+      '<input class="pset-input" id="name" data-pref="name" type="text" maxlength="30" autocomplete="nickname" placeholder="' + esc(t('profile.namePh')) + '" value="' + esc(name) + '"></label>' +
+      '<div class="pset-row"><span>' + esc(t('profile.lang')) + '</span>' + langSeg() + '</div>' +
+      '<label class="pset-row" for="level"><span>' + esc(t('profile.level')) + '</span>' +
+      '<select class="pset-input" id="level" data-pref="level">' + levels.map(function (o) { return '<option value="' + o[0] + '"' + (level === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>' +
+      '<button type="button" class="pset-row pset-link" data-action="portal"><span>' + esc(t('profile.manage')) + '</span>' + ico('chevron', 18) + '</button>' +
+      '<a class="pset-row pset-link" href="regulamin.html"><span>' + esc(t('legal.terms')) + '</span>' + ico('chevron', 18) + '</a>' +
+      '<a class="pset-row pset-link" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 18) + '</a></div></div>' +
       '<p class="notice">' + esc(t(SB.on ? 'profile.noteRemote' : 'demo.account')) + '</p>' +
       '<div class="brand-stamp"><img class="logo-mini" src="img/logo-96.png" alt="" width="64" height="64"><span>Korean Café Online<small>K-Culture Studio · Fundacja Hanguk</small></span></div></div>' + nav('profile') + '</main>';
     show(html, t('profile.title'));
