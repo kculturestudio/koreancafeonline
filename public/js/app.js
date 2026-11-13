@@ -230,11 +230,11 @@
     var box = document.getElementById('messages');
     if (!box) return;
     Live.ids[row.id] = true;
-    var near = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight) < 160;
+    var near = app.scrollHeight - (app.scrollTop + app.clientHeight) < 160;
     var empty = box.querySelector('[data-empty]');
     if (empty) empty.parentNode.removeChild(empty);
     box.insertAdjacentHTML('beforeend', msgHtml(rowToMsg(row)));
-    if (force || near) window.scrollTo(0, document.body.scrollHeight);
+    if (force || near) app.scrollTop = app.scrollHeight;
   };
   Live.attach = function (key) {
     Live.detach();
@@ -260,7 +260,7 @@
         rows.forEach(function (row) { Live.add(row); });
         loaded = true;
         pending.forEach(function (row) { Live.add(row); });
-        window.scrollTo(0, document.body.scrollHeight);
+        app.scrollTop = app.scrollHeight;
       }, fail);
   };
   Live.send = function (key, text) {
@@ -376,7 +376,7 @@
     document.documentElement.lang = lang;
     document.title = title + ' · Korean Cafe Online';
     if (keep) return;
-    window.scrollTo(0, opts.bottom ? document.body.scrollHeight : 0);
+    app.scrollTop = opts.bottom ? app.scrollHeight : 0;
     var v = document.getElementById('view');
     if (v) v.focus({ preventScroll: true });
   }
@@ -1332,7 +1332,7 @@
       var hid = el.getAttribute('data-ch'), q = document.getElementById('qprompt');
       ui.hintOpen = ui.hintOpen || {};
       ui.hintOpen[hid] = !ui.hintOpen[hid];
-      if (q) { q.hidden = !ui.hintOpen[hid]; if (!q.hidden) { try { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); } catch (err) { /* stary przeglądarkowy scroll */ } } }
+      if (q) { q.hidden = !ui.hintOpen[hid]; if (!q.hidden) { try { app.scrollTo({ top: app.scrollHeight, behavior: 'smooth' }); } catch (err) { /* stary przeglądarkowy scroll */ } } }
       el.setAttribute('aria-expanded', String(ui.hintOpen[hid]));
     } else if (a === 'bar-hint') {
       var bi = document.querySelector('.composer-input');
@@ -1436,7 +1436,7 @@
     box.insertAdjacentHTML('beforeend', msgHtml(msg));
     input.value = '';
     advancePrompt(chId);
-    window.scrollTo(0, document.body.scrollHeight);
+    app.scrollTop = app.scrollHeight;
   });
 
   window.addEventListener('hashchange', function () {
