@@ -412,18 +412,21 @@
       selectChip('age', t('f.age'), [['all', t('f.all')], ['18-25', '18–25'], ['26-35', '26–35'], ['36+', '36+']]) +
       '</div>';
   }
+  /* Emotki przy pokojach i czatach (po id), domyślnie filiżanka. */
+  var EMOJI = { 'kr-a1': '🌱', 'kr-adv': '🌸', 'pl-b1': '🥟', drama: '🎬', 'korea-life': '🧳', 'poland-life': '🏡', dance: '💃', 'temat-dnia': '💬', fandomy: '💖', gotowanie: '🍳', historia: '📜', 'przeprowadzka-kr': '📦', 'przeprowadzka-pl': '📦', jedzenie: '🍜', start: '☕', 'kpop-taniec': '🎤' };
+  function emo(id) { return EMOJI[id] || '☕'; }
   function lockHtml() { return '<span class="lock" aria-label="' + esc(t('lobby.premium')) + '">' + ico('lock', 18) + '</span>'; }
   function chatRow(c) {
     var locked = c.premium && !isPremium();
     return '<a class="row" href="' + (locked ? '#/premium' : '#/czat/' + c.id) + '">' +
-      '<span class="badge-sq">' + esc(c.badge) + '</span>' +
-      '<span class="row-text"><strong>' + esc(L(c.name)) + '</strong><small>' + esc(O(c.name)) + ' · ' + esc(L(c.level)) + ' · ' + esc(L(c.desc)) + '</small></span>' +
+      '<span class="badge-sq" aria-hidden="true">' + emo(c.id) + '</span>' +
+      '<span class="row-text"><strong>' + esc(L(c.name)) + '</strong><small>' + esc(c.badge) + ' · ' + esc(O(c.name)) + ' · ' + esc(L(c.level)) + ' · ' + esc(L(c.desc)) + '</small></span>' +
       (locked ? lockHtml() : '') + '</a>';
   }
   function roomRowAlways(r) {
     var locked = r.premium && !isPremium();
     return '<a class="row" href="' + (locked ? '#/premium' : '#/room/' + r.id) + '">' +
-      '<span class="badge-sq">' + esc(r.badge) + '</span>' +
+      '<span class="badge-sq" aria-hidden="true">' + emo(r.id) + '</span>' +
       '<span class="row-text"><strong>' + esc(L(r.name)) + '</strong><small>' + esc(t('live.open247')) + ' · ' + esc(L(r.level)) + ' · ' + esc(tf('live.max', { n: r.seats })) + '</small></span>' +
       (locked ? lockHtml() : '') + '</a>';
   }
@@ -431,7 +434,7 @@
     var r = x.r, locked = r.premium && !isPremium();
     var when = x.slot.live ? '<span class="live-badge"><i></i>' + esc(t('live.now')) + '</span>' : '<span class="row-time">' + esc(whenText(x.slot.start, now)) + '</span>';
     return '<a class="row" href="' + (locked ? '#/premium' : '#/room/' + r.id) + '">' +
-      '<span class="row-text">' + when + '<strong>' + esc(L(r.name)) + '</strong><small>' + esc(O(r.name)) + ' · ' + esc(L(r.level)) + '</small></span>' +
+      '<span class="badge-sq" aria-hidden="true">' + emo(r.id) + '</span><span class="row-text">' + when + '<strong>' + esc(L(r.name)) + '</strong><small>' + esc(O(r.name)) + ' · ' + esc(L(r.level)) + '</small></span>' +
       (locked ? lockHtml() : '') + '</a>';
   }
   function viewLobby(tab) {

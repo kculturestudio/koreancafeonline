@@ -619,3 +619,55 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   .qprompt .q-k { font-size: 30px; }
   .price-card .price { font-size: 68px; }
 }
+
+
+/* ===================================================================
+   Warstwa cute: zaokrąglone, przyjazne kroje (Fredoka, Nunito, Jua dla
+   hangul) i emotki. Paleta bez zmian.
+   =================================================================== */
+:root {
+  --display: 'Fredoka', 'Jua', 'Nunito', system-ui, sans-serif;
+  --serif: 'Fredoka', 'Jua', 'Nunito', system-ui, sans-serif;
+  --sans: 'Nunito', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+body { font-size: 16px; }
+.title, .welcome h1, .paywall h1, .legal h1, .legal h2, .section-title, .card h2, .topbar-title, .topic-card strong,
+.topic-card.daily > p:first-of-type, .qprompt .q-k, .brand-name, .price, .stats b, .avatar, .row-text strong, .hero-title { font-weight: 500; letter-spacing: 0; }
+.title { font-size: 34px; line-height: 1.1; }
+.paywall h1, .welcome h1 { font-size: 34px; line-height: 1.12; }
+.section-title { font-size: 20px; }
+.topbar-title { font-size: 20px; font-weight: 500; }
+.row-text strong { font-size: 17px; font-weight: 500; line-height: 1.25; }
+.eyebrow, .label-caps, .live-badge, .nav a, .stats span { letter-spacing: .08em; font-weight: 700; }
+.nav a { font-size: 10px; }
+.btn, .chip-btn, .tab, .pill-link, .seg button { font-family: var(--display); font-weight: 500; letter-spacing: .02em; }
+.chip-select select, .field, .composer-input { font-family: var(--sans); }
+.topic-card strong { font-style: normal; font-size: 17px; color: rgba(255, 255, 255, .8); }
+.topic-card.daily > p:first-of-type { font-size: 26px; line-height: 1.2; }
+.qprompt .q-k { font-size: 22px; line-height: 1.25; }
+.price-card .price { font-size: 52px; font-weight: 500; }
+.stats b { font-size: 24px; }
+.avatar { font-size: 24px; }
+
+/* kółka z emotkami przy pokojach */
+.badge-sq { font-family: var(--sans); font-size: 24px; line-height: 1; letter-spacing: 0; background: linear-gradient(145deg, #fff, var(--blush-soft)); box-shadow: 0 0 0 4px rgba(247, 231, 234, .8); border: 1px solid rgba(230, 174, 187, .5); }
+.row:hover .badge-sq { transform: rotate(-6deg) scale(1.06); transition: transform .25s var(--ease); }
+.row-time { margin-bottom: 2px; }
+
+/* emotki w etykietach (CSS, bez zmian w tekstach) */
+.topic-card .label-caps::before { content: '🌸 '; letter-spacing: 0; }
+.qprompt .label-caps::before { content: '💭 '; letter-spacing: 0; }
+.tag-premium::before { content: '✨ '; letter-spacing: 0; }
+.price-card .price-note::before { content: '🎀 '; }
+.eyebrow::before { content: '✨'; width: auto; height: auto; background: none; font-size: 12px; }
+.live-badge::after { content: ' ☕'; letter-spacing: 0; }
+.pill-link::before { content: '👑'; font-size: 13px; }
+.pill-link svg { display: none; }
+.empty::before { content: '🫧 '; }
+.day-sep::before { content: '🌷 '; }
+.benefits li:nth-child(1)::after { content: '💬'; margin-left: auto; }
+.benefits li:nth-child(2)::after { content: '🎥'; margin-left: auto; }
+.benefits li:nth-child(3)::after { content: '🌏'; margin-left: auto; }
+.benefits li:nth-child(4)::after { content: '📚'; margin-left: auto; }
+.plan-card .plan-icon::after { content: none; }
+.toast::before { content: '💌 '; }
