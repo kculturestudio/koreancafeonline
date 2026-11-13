@@ -1013,3 +1013,55 @@ html, body { height: 100%; overflow: hidden; }
 .steps{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
 .steps li{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--ink)}
 .steps b{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:#F3E7CF;color:var(--ink);border:1px solid var(--gold)}
+
+/* ===== Canva look: róż #FFD9F4, liliowy #F0CDFF, krem #FBF6F3, granat #1F3FA8; font Jua (zaokrąglony, z hangulem) ===== */
+:root {
+  --ink: #1B2A6B; --text: #1B2A6B; --muted: #4A5489; --faint: #5B6499;
+  --blue: #1F3FA8; --pink: #FFD9F4; --lilac: #F0CDFF; --cream: #FBF6F3;
+  --bg: #FFE9F8; --bg-outer: #FFD9F4; --surface: #FBF6F3; --surface-2: #F0CDFF; --line: #E6BFEF;
+  --blush: #FFB3E6; --blush-deep: #1F3FA8; --blush-soft: #F0CDFF;
+  --gold: #1F3FA8; --gold-deep: #1F3FA8; --gold-soft: #F0CDFF;
+  --display: 'Jua', 'Outfit', 'Noto Sans KR', system-ui, sans-serif;
+}
+.title, .welcome h1, .paywall h1, .legal h1, .legal h2, .section-title, .card h2, .topbar-title, .topic-card strong, .brand-name, .hero-title { font-family: var(--display); font-weight: 400; letter-spacing: 0; color: var(--blue); }
+.welcome h1 { font-size: 36px; line-height: 1.1; }
+.btn-primary { background: var(--blue); color: #fff; border: 0; border-radius: 999px; box-shadow: none; }
+.btn-primary:hover { filter: none; background: #17328a; }
+.plan-card.plan-gold { background: var(--lilac); color: var(--ink); border: 2px solid var(--blue); box-shadow: none; }
+.plan-card.plan-gold .plan-icon { background: var(--blue); color: #fff; }
+.tag-premium { background: var(--blue) !important; color: #FFD9F4 !important; border-color: var(--blue) !important; }
+.tag-premium::before { content: ''; }
+.nav { background: var(--cream); border-top: 2px solid var(--blue); }
+.nav a[aria-current="page"]::before { background: var(--blue); }
+.nav a[aria-current="page"] { color: var(--blue); }
+.filter-n { background: var(--blue); color: #fff; }
+.ph .avatar-you { background: var(--lilac) !important; border: 2px solid var(--blue); box-shadow: none; }
+.steps b { background: var(--lilac); border: 2px solid var(--blue); color: var(--blue); font-family: var(--display); }
+.hero { background-color: var(--cream); border: 2px solid var(--blue); box-shadow: none; }
+.hero-logo { box-shadow: 0 0 0 8px var(--pink); }
+.eyebrow { color: var(--blue); }
+.card, .topic-card, .room-card { border-color: var(--line); }
+.pset-input:focus-visible { box-shadow: 0 2px 0 var(--blue); }
+/* sekcje strony tytułowej (jak w szablonie Canva) */
+.wsec { margin: 28px -22px 0; padding: 30px 22px; display: flex; flex-direction: column; gap: 14px; }
+.wsec h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1.15; color: var(--blue); }
+.wsec p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+.wsec-about { background: var(--pink); }
+.wsec-lilac { background: var(--lilac); }
+.wsec-cream { background: var(--cream); }
+.wsec-end { background: var(--lilac); align-items: flex-start; margin-bottom: -32px; }
+.wc-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.wc-3 { grid-template-columns: 1fr; }
+.wc { background: var(--cream); border: 2px solid var(--blue); border-radius: 18px; padding: 14px; }
+.wsec-cream .wc { background: #fff; }
+.wc h3 { font-family: var(--display); font-weight: 400; font-size: 18px; color: var(--blue); margin: 0 0 4px; }
+.wc p { font-size: 13px; }
+.app, .screen { background: var(--bg); }
+.hero { background: var(--cream); }
+.pill-link, .pill-link:hover { background: var(--lilac); color: var(--blue); border: 2px solid var(--blue); box-shadow: none; transform: none; }
+.row, .card, .room-card, .topic-card { background: var(--cream); border: 2px solid var(--line); box-shadow: none; }
+.seg, .seg-btn[aria-pressed="true"], .seg [aria-selected="true"] { box-shadow: none; }
+.seg [aria-selected="true"], .seg-btn[aria-pressed="true"], .seg .on { background: var(--blue); color: #fff; }
+.seg { background: var(--lilac); }
+.ph { background: var(--cream); border: 2px solid var(--blue); }
+.ph-plan, .ph-xp-row b { color: var(--blue); }
