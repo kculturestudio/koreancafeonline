@@ -106,6 +106,7 @@ window.KCO_I18N = {
   'chat.input': ['Napisz wiadomość…', '메시지를 입력하세요…'],
   'chat.tr': ['Tłumaczenie: włączone', '번역: 켜짐'],
   'chat.qLabel': ['Pytanie do rozmowy', '대화 질문'],
+  'chat.hint': ['Hint', '힌트'],
   'chat.nextQ': ['Inne pytanie', '다른 질문'],
   'chat.ask': ['Podrzuć temat', '주제 던지기'],
   'room.xpHint': ['Odpowiedz na pytanie dnia (min. 5 słów): +10 XP', '오늘의 질문에 답하면 +10 XP (5단어 이상)'],

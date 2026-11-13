@@ -106,6 +106,7 @@
   }
 
   var ICONS = {
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
     cup: '<path d="M5 9h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/>',
     people: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4.5 2 4.5 4.5"/>',
     calendar: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
@@ -506,17 +507,27 @@
     // Język docelowy czatu: pytanie pokazujemy w nim, a tłumaczenie tylko osobom z interfejsem w drugim języku.
     var target = c.lang === 'KR' ? 'ko' : 'pl';
     var main = target === 'pl' ? x.pl : x.k, other = target === 'pl' ? x.k : x.pl;
-    return '<div class="qprompt" id="qprompt" data-ch="' + c.id + '"><span class="label-caps">' + esc(t('chat.qLabel')) + ' · ' + ((i % n) + 1) + '/' + n + '</span>' +
+    var open = !!(ui.hintOpen && ui.hintOpen[c.id]);
+    return '<div class="qprompt" id="qprompt" data-ch="' + c.id + '"' + (open ? '' : ' hidden') + '><span class="label-caps">' + esc(t('chat.qLabel')) + ' · ' + ((i % n) + 1) + '/' + n + '</span>' +
       '<span class="q-k" lang="' + target + '">' + esc(main) + '</span>' + (lang !== target ? '<span class="q-pl">' + esc(other) + '</span>' : '') +
       '<span class="q-btns"><button type="button" class="chip-btn chip-main" data-action="starter" data-text="' + esc(main) + '">' + esc(t('chat.ask')) + '</button>' +
       (x.starter ? '<button type="button" class="chip-btn" data-action="starter" data-text="' + esc(x.starter.replace(/___/g, '…')) + '">' + esc(t('chat.answer')) + '</button>' : '') +
       '<button type="button" class="chip-btn" data-action="next-q" data-ch="' + c.id + '">' + esc(t('chat.nextQ')) + '</button></span></div>';
   }
-  function advancePrompt(chId) {
+  /* przycisk „Hint" w polu wiadomości: pytanie pokazuje się dopiero po kliknięciu, a po wysłaniu wiadomości znów się chowa */
+  function hintBtn(c) {
+    var open = !!(ui.hintOpen && ui.hintOpen[c.id]);
+    return '<button type="button" class="hint-btn" data-action="hint-toggle" data-ch="' + c.id + '" aria-expanded="' + open + '" aria-controls="qprompt">' + ico('bulb', 18) + '<span>' + esc(t('chat.hint')) + '</span></button>';
+  }
+  function advancePrompt(chId, keepOpen) {
     var c = findBy(D.channels, chId);
     if (!c || !c.practice) return;
     ui.qi = ui.qi || {};
     ui.qi[chId] = ((ui.qi[chId] || 0) + 1) % c.practice.length;
+    ui.hintOpen = ui.hintOpen || {};
+    if (!keepOpen) ui.hintOpen[chId] = false;
+    var hb = document.querySelector('.hint-btn');
+    if (hb) hb.setAttribute('aria-expanded', String(!!ui.hintOpen[chId]));
     var el = document.getElementById('qprompt');
     if (el) { el.outerHTML = promptHtml(c); }
   }
@@ -532,7 +543,7 @@
       '<div class="strip"><span>' + esc(L(c.rule)) + '</span><span class="tag">' + esc(t('chat.tr')) + '</span></div>' +
       (SB.on ? '<div class="strip">' + esc(t('chat.live')) + '</div>' : (CFG.demo ? '<div class="strip">' + esc(t('demo.chat')) + '</div>' : '')) +
       ((SB.on && !ui.user) ? gateHtml() : messagesBlock(key) + (c.practice ? promptHtml(c) : '') +
-      '<form class="composer" data-form="msg" data-key="' + key + '">' +
+      '<form class="composer" data-form="msg" data-key="' + key + '">' + (c.practice ? hintBtn(c) : '') +
       '<input class="composer-input" name="text" type="text" autocomplete="off" maxlength="500" placeholder="' + esc(t('chat.input')) + '" aria-label="' + esc(t('chat.input')) + '">' +
       '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button></form>') + '</main>';
     show(html, L(c.name), { bottom: true });
@@ -1023,7 +1034,13 @@
       var inp = document.querySelector('.composer-input');
       if (inp) { inp.value = el.getAttribute('data-text'); inp.focus(); }
     } else if (a === 'next-q') {
-      advancePrompt(el.getAttribute('data-ch'));
+      advancePrompt(el.getAttribute('data-ch'), true);
+    } else if (a === 'hint-toggle') {
+      var hid = el.getAttribute('data-ch'), q = document.getElementById('qprompt');
+      ui.hintOpen = ui.hintOpen || {};
+      ui.hintOpen[hid] = !ui.hintOpen[hid];
+      if (q) { q.hidden = !ui.hintOpen[hid]; if (!q.hidden) { try { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); } catch (err) { /* stary przeglądarkowy scroll */ } } }
+      el.setAttribute('aria-expanded', String(ui.hintOpen[hid]));
     } else if (a === 'bar-hint') {
       var bi = document.querySelector('.composer-input');
       if (bi) { bi.value = el.getAttribute('data-text'); bi.focus(); }

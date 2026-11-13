@@ -825,3 +825,12 @@ body { background: #FFF3CF; }
 .xp-line { align-self: flex-start; display: inline-flex; font-size: 12px; font-weight: 800; color: #5A3B3B; background: #FFE9A8; border-radius: 999px; padding: 3px 10px; }
 .xp-line.done { background: #D5EFE3; }
 .avatar-you { background: #FFE9A8 !important; color: #5A3B3B; }
+
+/* przycisk Hint: pytanie pokazuje się dopiero po kliknięciu */
+.qprompt[hidden] { display: none; }
+.hint-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #F3DFA0; background: #FFF1BF; color: #6B4A2B; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; transition: background .15s ease, transform .12s ease; }
+.hint-btn:hover { background: #FFE9A8; }
+.hint-btn[aria-expanded="true"] { background: #FFE27A; border-color: #EBC84A; }
+.hint-btn:active { transform: scale(.96); }
+.hint-btn svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 380px) { .hint-btn span { display: none; } .hint-btn { padding: 0 12px; } }
