@@ -826,7 +826,7 @@
     var level = load('level', '');
     var levels = [['', t('profile.levelNone')], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1'], ['B2', 'B2'], ['C1', 'C1'], ['C2', 'C2']];
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
-      '<section class="ph" aria-label="' + esc(t('profile.title')) + '"><div class="ph-top"><span class="avatar avatar-you">' + (name ? esc(name.charAt(0).toUpperCase()) : ico('me', 30)) + '<i class="av-emo" aria-hidden="true">🐱</i></span>' +
+      '<section class="ph" aria-label="' + esc(t('profile.title')) + '"><div class="ph-top"><span class="avatar avatar-you">' + glyph('cup', 34) + '</span>' +
       '<div class="ph-text"><span class="ph-plan">' + esc(t('profile.plan')) + '</span><h1 class="title">' + esc(name || t('profile.guest')) + '</h1></div>' + '</div>' +
       '<div class="ph-xp"><div class="ph-xp-row"><b>' + esc(t('stats.level')) + ' ' + Prog.level() + (level ? ' · ' + esc(level) : '') + '</b><span>' + (Prog.stats().xp % 100) + ' / 100 XP</span></div>' +
       '<div class="ph-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (Prog.stats().xp % 100) + '"><i style="width:' + (Prog.stats().xp % 100) + '%"></i></div></div>' +
