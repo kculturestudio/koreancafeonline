@@ -59,7 +59,7 @@ window.KCO_I18N = {
   'legal.post': ['.', '에 동의한 것으로 봅니다.'],
   'legal.privacyNom': ['Polityka prywatności', '개인정보 처리방침'],
 
-  'lobby.title': ['Kawiarnia', '카페'],
+  'lobby.title': ['Kawiarnia ☕', '카페 ☕'],
   'lobby.sub': ['wybierz, gdzie usiąść', '앉고 싶은 자리를 골라 보세요'],
   'tab.chats': ['Czaty 24/7', '채팅 24/7'],
   'tab.live': ['Na żywo', '라이브'],
