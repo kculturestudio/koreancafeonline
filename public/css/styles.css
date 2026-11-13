@@ -694,3 +694,78 @@ body { font-size: 16px; }
 @media (min-width: 900px) {
   .filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* ===================================================================
+   Warstwa Kakao: ciepła żółć, czekoladowy brąz, krem, kremowe bąbelki
+   czatu i własna maskotka (kubek). Nadpisuje paletę, bo wszystkie
+   kolory idą przez tokeny. Brak postaci ani logo osób trzecich.
+   =================================================================== */
+:root {
+  --ink: #3A1D1D;
+  --blush: #FEE500;
+  --blush-deep: #7A4B00;
+  --blush-soft: #FFF6BF;
+  --ivory: #FFFBEA;
+  --silver: #E6D9B8;
+  --silver-soft: #F6EFD6;
+  --bg-outer: #FFF1A6;
+  --line: #F1E6BC;
+  --muted: #6B5340;
+  --faint: #7A634E;
+  --hair: 1px solid rgba(58, 29, 29, .10);
+  --hair-blush: 1px solid rgba(122, 75, 0, .25);
+  --ink-grad: linear-gradient(155deg, #4A2626 0%, #3A1D1D 60%, #2B1414 100%);
+  --shadow: 0 2px 0 rgba(58, 29, 29, .08), 0 8px 20px rgba(122, 75, 0, .10);
+  --display: 'Nunito', 'Jua', 'Noto Sans KR', system-ui, sans-serif;
+}
+body { background: var(--bg-outer); }
+.app, .screen { background: var(--ivory); }
+
+/* żółte, pulchne przyciski z brązowym tekstem i „dolną krawędzią" */
+.btn-primary { background: #FEE500; color: #3A1D1D; border: 0; border-radius: 999px; font-weight: 800; box-shadow: 0 4px 0 #D9BE00; transition: transform .12s ease, box-shadow .12s ease; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 0 #D9BE00; }
+.btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #D9BE00; }
+.btn-primary:disabled { background: #F1E6BC; color: #8A7660; box-shadow: none; }
+.pill-link, .chip { background: #FFF6BF; color: #5C3A00; border: 1px solid #F5E27A; }
+.tag-premium { background: #3A1D1D; color: #FEE500; }
+.tag-premium::before { content: '👑 '; }
+.eyebrow, .row-time, .when, .live-badge, .seat-role, .price-note { color: #7A4B00; }
+.live-badge i { background: #FF6B7A; }
+
+/* nawigacja: biała z żółtym aktywnym stanem */
+.nav { background: #fff; border-top: 2px solid #3A1D1D; }
+.nav a[aria-current="page"] { color: #3A1D1D; }
+.nav a[aria-current="page"]::before { width: 36px; height: 4px; background: #FEE500; border-radius: 0 0 4px 4px; }
+
+/* karty i wiersze */
+.row, .card, .topic-card { border: 2px solid #3A1D1D; border-radius: 20px; box-shadow: 0 4px 0 #3A1D1D; background: #fff; }
+.row:hover { border-color: #3A1D1D; box-shadow: 0 6px 0 #3A1D1D; transform: translateY(-2px); }
+.topic-card { border-left-width: 2px; }
+.topic-card.daily, .price-card { background: var(--ink-grad); border-color: #3A1D1D; color: #FFF6BF; }
+.topic-card.daily .label-caps, .price-card .price-note { color: #FEE500; }
+.badge-sq { background: #FEE500 !important; border: 2px solid #3A1D1D !important; box-shadow: none !important; }
+.row:hover .badge-sq { transform: rotate(-8deg) scale(1.08); }
+
+/* bąbelki czatu jak w komunikatorze: moje żółte, cudze białe z brązową ramką */
+.bubble-out { background: #FEE500; color: #3A1D1D; border: 2px solid #3A1D1D; border-radius: 20px 20px 4px 20px; }
+.bubble-out .meta { color: #6B4A00; }
+.bubble-in, .bubble-fix { background: #fff; border: 2px solid #3A1D1D; border-radius: 20px 20px 20px 4px; border-left: 2px solid #3A1D1D; }
+.avatar-you { background: #FEE500 !important; }
+.composer, .composer-input { border-color: #3A1D1D; }
+.mic-btn[aria-pressed="true"] { background: #FEE500; border-color: #3A1D1D; }
+
+/* ekran powitalny: maskotka w miejsce logo */
+.hero-logo { background: #FFF3A8 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Ccircle cx=%22100%22 cy=%22100%22 r=%2296%22 fill=%22%23FFF3A8%22/%3E%3Cpath d=%22M78 30c-8 10 8 14 0 24M104 26c-8 10 8 14 0 24%22 fill=%22none%22 stroke=%22%233A1D1D%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M146 84h14a20 20 0 0 1 0 40h-16%22 fill=%22none%22 stroke=%22%233A1D1D%22 stroke-width=%227%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M36 74h116v46a46 46 0 0 1-46 46H82a46 46 0 0 1-46-46z%22 fill=%22%23FEE500%22 stroke=%22%233A1D1D%22 stroke-width=%227%22 stroke-linejoin=%22round%22/%3E%3Cellipse cx=%2268%22 cy=%22118%22 rx=%229%22 ry=%226%22 fill=%22%23FF9AA8%22/%3E%3Cellipse cx=%22122%22 cy=%22118%22 rx=%229%22 ry=%226%22 fill=%22%23FF9AA8%22/%3E%3Ccircle cx=%2276%22 cy=%22100%22 r=%225.5%22 fill=%22%233A1D1D%22/%3E%3Ccircle cx=%22114%22 cy=%22100%22 r=%225.5%22 fill=%22%233A1D1D%22/%3E%3Cpath d=%22M87 112q8 9 16 0%22 fill=%22none%22 stroke=%22%233A1D1D%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center/110% no-repeat; object-position: -9999px 0; border: 3px solid #3A1D1D; box-shadow: 0 0 0 8px #FEE500, 0 8px 0 8px #3A1D1D; width: 150px; height: 150px; animation: bob 3.2s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.welcome h1 { color: #3A1D1D; }
+.welcome h1::after { content: ' ☕'; }
+@media (prefers-reduced-motion: reduce) { .hero-logo { animation: none; } .btn-primary { transition: none; } }
+.composer { background: rgba(255, 251, 234, .97); border-top: 2px solid #3A1D1D; }
+:root {
+  --star-pink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' shape-rendering='crispEdges'%3E%3Cpath fill='%23FEE500' stroke='%233A1D1D' stroke-width='.4' d='M4 0h1v3h1v1h3v1H6v1H5v3H4V6H3V5H0V4h3V3h1z'/%3E%3C/svg%3E");
+  --star-grey: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' shape-rendering='crispEdges'%3E%3Cpath fill='%23E6D9B8' d='M4 0h1v3h1v1h3v1H6v1H5v3H4V6H3V5H0V4h3V3h1z'/%3E%3C/svg%3E");
+  --grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M24 0H0v24' fill='none' stroke='%233A1D1D' stroke-opacity='.05'/%3E%3C/svg%3E");
+}
+.qprompt { background: #FFF6BF; border-top: 2px solid #3A1D1D; }
+.hero { border: 2px solid #3A1D1D; box-shadow: 0 6px 0 #3A1D1D; }
+.btn-ghost, .btn-secondary { border: 2px solid #3A1D1D; border-radius: 999px; background: #fff; color: #3A1D1D; font-weight: 800; }
