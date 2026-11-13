@@ -680,7 +680,7 @@
       '<button type="button" class="tab" data-action="plan" data-plan="yearly" aria-pressed="' + yearly + '">' + esc(t('pay.yearly')) + ' · ' + esc(tf('pay.save', { n: money(save), cur: cur })) + '</button></div>' +
       '<div class="price-card"><div class="price-row"><span class="price">' + esc(priceStr) + '</span><span class="subtitle">' + esc(yearly ? t('pay.perYear') : t('pay.perMonth')) + '</span></div><span class="price-note">' + esc(note) + '</span></div>' +
       '<ul class="benefits">' + benefits + '</ul>' +
-      '<div class="paywall-actions"><button type="button" class="btn btn-primary" data-action="checkout">' + esc(tf('pay.cta', { n: CFG.trialDays })) + '</button>' +
+      '<div class="paywall-actions"><div class="logo-row"><img class="logo-mini" src="img/logo-96.png" alt="" width="64" height="64"></div><button type="button" class="btn btn-primary" data-action="checkout">' + esc(tf('pay.cta', { n: CFG.trialDays })) + '</button>' +
       '<p class="fine">' + esc(foot) + '</p>' +
       '<div class="links"><a href="regulamin.html">' + esc(t('legal.terms')) + '</a><a href="prywatnosc.html">' + esc(t('legal.privacyNom')) + '</a></div></div></main>';
     show(html, t('pay.h1'));
@@ -736,7 +736,7 @@
     var html = '<main class="screen" id="view" tabindex="-1">' +
       '<div class="topbar"><a class="icon-btn" href="' + back + '" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
       '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('auth.title.' + mode)) + '</h1></div></div>' +
-      '<div class="content"><p class="subtitle">' + esc(t('auth.lead.' + mode)) + '</p>' +
+      '<div class="content"><div class="logo-row"><img class="logo-mini" src="img/logo-96.png" alt="" width="64" height="64"></div><p class="subtitle logo-lead">' + esc(t('auth.lead.' + mode)) + '</p>' +
       '<form class="auth-form" data-form="auth" data-mode="' + mode + '" novalidate>' + fields +
       '<p id="authMsg" role="alert" hidden></p>' +
       '<button class="btn btn-primary" type="submit">' + esc(t('auth.submit.' + mode)) + '</button></form>' +
@@ -831,7 +831,8 @@
       '<div class="setting"><button type="button" class="link-btn" data-action="portal"><span>' + esc(t('profile.manage')) + '</span>' + ico('chevron', 20) + '</button></div>' +
       '<div class="setting"><a class="link-btn" href="regulamin.html"><span>' + esc(t('legal.terms')) + '</span>' + ico('chevron', 20) + '</a></div>' +
       '<div class="setting"><a class="link-btn" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 20) + '</a></div></div>' +
-      '<p class="notice">' + esc(t(SB.on ? 'profile.noteRemote' : 'demo.account')) + '</p></div>' + nav('profile') + '</main>';
+      '<p class="notice">' + esc(t(SB.on ? 'profile.noteRemote' : 'demo.account')) + '</p>' +
+      '<div class="brand-stamp"><img class="logo-mini" src="img/logo-96.png" alt="" width="64" height="64"><span>Korean Café Online<small>K-Culture Studio · Fundacja Hanguk</small></span></div></div>' + nav('profile') + '</main>';
     show(html, t('profile.title'));
   }
 
