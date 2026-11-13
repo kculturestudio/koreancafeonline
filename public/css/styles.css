@@ -1008,3 +1008,15 @@ body { background: #F8F1E3; }
 .pset-input { flex: 1; min-width: 0; max-width: 55%; border: 0; background: transparent; text-align: right; font: 600 15px/1.2 'Nunito', sans-serif; color: var(--muted); outline: none; padding: 8px 0; }
 .pset-input:focus-visible { color: var(--ink); box-shadow: 0 2px 0 #D6B473; }
 .pset-row .seg { flex: none; }
+
+/* karta profilu: przezroczyste, minimalistyczne tło (sama nitka, bez wypełnienia i cienia) */
+.ph { background: transparent; color: var(--ink); border: 1px solid rgba(184, 143, 78, .5); box-shadow: none; }
+.ph .title { color: var(--ink); }
+.ph-plan { color: #A8803F; }
+.ph-xp-row { color: var(--muted); }
+.ph-xp-row b { color: #A8803F; }
+.ph-bar { background: rgba(46, 29, 38, .08); }
+.ph-stats { border-top-color: rgba(46, 29, 38, .1); }
+.ph-stats div + div { border-left-color: rgba(46, 29, 38, .1); }
+.ph-stats b { color: var(--ink); }
+.ph-stats span { color: var(--muted); }
