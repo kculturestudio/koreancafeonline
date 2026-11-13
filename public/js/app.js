@@ -990,20 +990,108 @@
       '<div class="k-quicks">' + q('words', 'lek.mode.words') + q('listen', 'lek.mode.listen') + q('practice', 'lek.mode.practice') + '</div></section>' +
       '<a class="row" href="#/cwiczenia/sciezka"><span class="badge-sq" aria-hidden="true">🗺️</span><span class="row-text"><strong>' + esc(t('lek.path')) + '</strong><small>' + esc(t('lek.pathRow')) + '</small></span>' + ico('chevron', 20) + '</a>';
   }
+  /* ---------- Rozmowy z Kotkiem (wg promptu partnera rozmów v2, docs/prompt-partner-rozmow.md) ---------- */
+  var SCN = window.KC_ROZMOWY || [];
+  var PT_TARGET = 8;
+  var PT_REACT = [['좋아요!', 'Świetnie!'], ['그렇군요!', 'Rozumiem!'], ['아, 그렇군요.', 'Ach, rozumiem.'], ['재미있네요!', 'Ciekawe!'], ['잘했어요!', 'Dobrze Ci poszło!']];
+  var PT_PAST = { '만나요': '만났어요', '먹어요': '먹었어요', '봐요': '봤어요', '가요': '갔어요', '마셔요': '마셨어요', '와요': '왔어요', '사요': '샀어요', '읽어요': '읽었어요', '들어요': '들었어요', '쉬어요': '쉬었어요', '놀아요': '놀았어요', '보내요': '보냈어요', '일어나요': '일어났어요', '자요': '잤어요' };
+  var PT_TIME = /(어제|그저께|어젯밤|아까|지난\s?[가-힣]+)/;
+  function ptFinal(ch) { return (ch.charCodeAt(0) - 0xAC00) % 28 !== 0; }
+  /* delikatna korekta: jedna na wiadomość, krótkie wyjaśnienie po polsku */
+  function ptFix(text) {
+    var tm = text.match(PT_TIME), fixed = null, why = '', changed = false;
+    if (tm) {
+      var out = text.replace(/[가-힣]+요/g, function (w) {
+        if (/[았었했]어요$|였어요$|[았었했]습니다$/.test(w)) return w;
+        var r = PT_PAST[w] || (/[가-힣]해요$/.test(w) && w.length > 2 ? w.replace(/해요$/, '했어요') : null);
+        if (r && !changed) { changed = true; why = 'Mówisz o przeszłości (' + tm[1] + '), więc używamy czasu przeszłego: ' + w + ' → ' + r + '.'; return r; }
+        return w;
+      });
+      if (changed) fixed = out;
+    }
+    if (!fixed) {
+      var m1 = text.match(/([가-힣])이에요/);
+      if (m1 && !ptFinal(m1[1])) { fixed = text.replace(m1[0], m1[1] + '예요'); why = 'Po samogłosce (' + m1[1] + ') używamy 예요, a nie 이에요.'; }
+      var m2 = !fixed && text.match(/([가-힣])예요/);
+      if (m2 && ptFinal(m2[1])) { fixed = text.replace(m2[0], m2[1] + '이에요'); why = 'Po spółgłosce (' + m2[1] + ') używamy 이에요, a nie 예요.'; }
+    }
+    return fixed ? { from: text, k: fixed, why: why } : null;
+  }
+  function ptScn(id) { return findBy(SCN, id); }
+  function ptNew(id) {
+    var sc = ptScn(id); if (!sc) return null;
+    return { id: id, sc: sc, qi: 0, n: 0, fixes: [], lens: [], done: false, log: [{ who: 'ai', k: sc.q[0][0], pl: sc.q[0][1] }] };
+  }
+  function ptSend(text) {
+    var P = ui.pt, sc = P.sc; if (!P || P.done) return;
+    P.log.push({ who: 'me', k: text });
+    if (text.replace(/\s/g, '').length <= 4) { P.log.push({ who: 'ai', k: '조금 더 이야기해 주세요.', pl: 'Powiedz trochę więcej.' }); return; }
+    P.n++; P.lens.push(text.length);
+    Prog.award(2, 0);
+    var fx = ptFix(text);
+    if (fx) { P.fixes.push(fx); P.log.push({ who: 'fix', k: fx.k, why: fx.why }); }
+    var r = PT_REACT[(P.n - 1) % PT_REACT.length];
+    if (P.n >= PT_TARGET || P.qi + 1 >= sc.q.length) {
+      P.done = true; Prog.award(10, 3);
+      P.log.push({ who: 'ai', k: r[0] + ' 오늘 이야기 정말 즐거웠어요!', pl: r[1] + ' Dzisiejsza rozmowa była naprawdę miła!' });
+      P.log.push({ who: 'sum' });
+      return;
+    }
+    P.qi++;
+    var q = sc.q[P.qi];
+    P.log.push({ who: 'ai', k: r[0] + ' ' + q[0], pl: r[1] + ' ' + q[1] });
+  }
+  function ptHint() {
+    var P = ui.pt, q = P.sc.q[P.qi];
+    P.log.push({ who: 'hint', pl: q[1], ex: q[2], exPl: q[3] });
+  }
+  function ptAssess(P) {
+    var avg = P.lens.length ? P.lens.reduce(function (a, b) { return a + b; }, 0) / P.lens.length : 0;
+    var lvl = avg >= 16 && P.fixes.length <= 1 ? 'A2' : avg >= 9 ? 'A1+' : 'A1';
+    var txt = lvl === 'A2' ? 'Odpowiadasz pełnymi, dłuższymi zdaniami i prawie bez błędów. To solidne A2.'
+      : lvl === 'A1+' ? 'Budujesz poprawne, krótkie zdania. Spróbuj dodać „bo…” (-아/어서) albo drugie zdanie, a będzie A2.'
+      : 'Odpowiadasz krótko. To dobry start na poziomie A1; następnym razem dodaj jedno zdanie więcej.';
+    return { lvl: lvl, txt: txt, avg: Math.round(avg) };
+  }
+  function ptSumHtml(P) {
+    var a = ptAssess(P), fx = P.fixes.slice(0, 3);
+    return '<div class="pt-sum"><span class="label-caps">' + esc(t('pt.sum')) + '</span>' +
+      '<h3>' + esc(t('pt.sumExpr')) + '</h3><ul>' + P.sc.expr.map(function (e) { return '<li><b lang="ko">' + esc(e[0]) + '</b> <span>' + esc(e[1]) + '</span></li>'; }).join('') + '</ul>' +
+      '<h3>' + esc(t('pt.sumFix')) + '</h3>' + (fx.length ? '<ul>' + fx.map(function (f) { return '<li><s lang="ko">' + esc(f.from) + '</s> → <b lang="ko">' + esc(f.k) + '</b></li>'; }).join('') + '</ul>' : '<p>' + esc(t('pt.sumNoFix')) + '</p>') +
+      '<h3>' + esc(t('pt.sumLevel')) + ': <em>' + a.lvl + '</em></h3><p>' + esc(a.txt) + '</p></div>';
+  }
+  function ptMsgHtml(m) {
+    if (m.who === 'me') return '<div class="pt-row me"><div class="pt-me" lang="ko">' + esc(m.k) + '</div><small>' + esc(t('pt.you')) + '</small></div>';
+    if (m.who === 'fix') return '<div class="pt-fix"><span class="label-caps">' + esc(t('pt.fix')) + '</span><div class="pt-k" lang="ko">' + esc(m.k) + '</div><p>' + esc(t('pt.why')) + ': ' + esc(m.why) + '</p></div>';
+    if (m.who === 'hint') return '<div class="pt-hint"><span class="label-caps">' + esc(t('pt.hintLabel')) + '</span><p>' + esc(m.pl) + '</p><p>' + esc(t('pt.example')) + ': <b lang="ko">' + esc(m.ex) + '</b> <span>(' + esc(m.exPl) + ')</span></p></div>';
+    if (m.who === 'sum') return '';
+    return '<div class="pt-row ai"><div class="pt-k" lang="ko">' + esc(m.k) + '</div><small><span class="pt-by">' + esc(t('pt.cat')) + '</span> · ' + esc(m.pl) + '</small>' + '<button type="button" class="say" data-action="say" data-text="' + esc(m.k) + '" aria-label="' + esc(t('practice.listen')) + '">' + ico('sound', 18) + '</button></div>';
+  }
+  function viewPartner(id) {
+    if (!ui.pt || ui.pt.id !== id) ui.pt = ptNew(id);
+    var P = ui.pt; if (!P) return notFound('practice.notFound');
+    var sc = P.sc, log = P.log.map(ptMsgHtml).join('') + (P.done ? ptSumHtml(P) : '');
+    var foot = P.done
+      ? '<div class="content pdone"><button type="button" class="btn btn-primary" data-action="pt-again" data-id="' + id + '">' + esc(t('pt.again')) + '</button><a class="btn btn-ghost" href="#/cwiczenia">' + esc(t('pt.back')) + '</a></div>'
+      : '<form class="composer" data-form="partner"><button type="button" class="hint-btn" data-action="pt-hint">' + ico('bulb', 18) + '<span>' + esc(t('pt.hint')) + '</span></button>' +
+        '<input class="composer-input" name="text" type="text" lang="ko" autocomplete="off" maxlength="300" placeholder="' + esc(t('pt.input')) + '" aria-label="' + esc(t('pt.input')) + '">' +
+        '<button class="icon-btn icon-btn-accent" type="submit" aria-label="' + esc(t('chat.send')) + '">' + ico('send', 22) + '</button></form>';
+    show('<main class="screen" id="view" tabindex="-1">' +
+      '<div class="topbar"><a class="icon-btn" href="#/cwiczenia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('pt.scenario')) + ': ' + esc(L(sc.name)) + '</h1><span class="subtitle">' + esc(tf('pt.progress', { n: Math.min(P.n, PT_TARGET), m: PT_TARGET })) + '</span></div><span class="pt-lvl">' + esc(sc.level) + '</span></div>' +
+      '<div class="messages pt-log" aria-live="polite">' + log + '<p class="pt-note">' + mascot('kotek', 'm-kcat') + '<span>' + esc(t('pt.note')) + '</span></p></div>' + foot + nav('practice') + '</main>', L(sc.name), { bottom: true });
+  }
   function viewPractice() {
     ui.k = null;
-    var bar = '<a class="row" href="#/cwiczenia/barista"><span class="badge-sq">' + esc(D.barista.badge) + '</span>' +
-      '<span class="row-text"><strong>' + esc(L(D.barista.name)) + '</strong><small>' + esc(O(D.barista.name)) + ' · ' + esc(L(D.barista.desc)) + '</small></span>' + ico('chevron', 20) + '</a>';
-    var rows = bar + D.practice.map(function (r) {
-      var n = pProg(r.id), m = r.ex.length, done = n >= m;
-      return '<a class="row" href="#/cwiczenia/' + r.id + '"><span class="badge-sq">' + esc(r.badge) + '</span>' +
-        '<span class="row-text"><strong>' + esc(L(r.name)) + '</strong><small>' + esc(O(r.name)) + ' · ' + esc(L(r.desc)) + '</small>' +
-        '<span class="pbar" aria-hidden="true"><i style="width:' + Math.round(100 * Math.min(n, m) / m) + '%"></i></span></span>' +
-        (done ? '<span class="lock">' + ico('check', 20) + '</span>' : '<span class="row-time">' + esc(tf('practice.progress', { n: n, m: m })) + '</span>') + '</a>';
+    var rows = SCN.map(function (sc) {
+      return '<a class="row" href="#/cwiczenia/rozmowa/' + sc.id + '"><span class="badge-sq" aria-hidden="true">' + sc.emoji + '</span>' +
+        '<span class="row-text"><strong>' + esc(L(sc.name)) + '</strong><small>' + esc(O(sc.name)) + ' · ' + esc(L(sc.desc)) + '</small></span><span class="row-time">' + esc(sc.level) + '</span></a>';
     }).join('');
     show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
-      '<div class="head"><div><h1 class="title">' + esc(t('practice.title')) + '</h1><p class="subtitle">' + esc(t('practice.sub')) + '</p></div></div>' +
-      kFeature() + '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
+      '<div class="head"><div><h1 class="title">' + esc(t('pt.title')) + '</h1><p class="subtitle">' + esc(t('pt.sub')) + '</p></div>' + mascot('kotek', 'm-head') + '</div>' +
+      '<span class="label-caps pt-sec">' + esc(t('pt.talk')) + '</span><div class="list">' + rows + '</div>' +
+      '<span class="label-caps pt-sec">' + esc(t('pt.lessons')) + '</span>' + kFeature() +
+      '<p class="fine">' + esc(t('pt.demo')) + '</p></div>' + nav('practice') + '</main>', t('pt.title'));
   }
   function pBubble(e, mine) {
     var tr = (!mine && lang === 'pl') ? '<span class="tr">' + esc(e.p) + '</span>' : '';
@@ -1113,7 +1201,7 @@
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
-      case 'cwiczenia': return seg[1] === 'barista' ? viewBarista() : seg[1] === 'sciezka' ? kPath() : seg[1] === 'lekcja' ? viewLesson(seg[2], seg[3]) : seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
+      case 'cwiczenia': return seg[1] === 'rozmowa' ? viewPartner(seg[2]) : seg[1] === 'barista' ? viewBarista() : seg[1] === 'sciezka' ? kPath() : seg[1] === 'lekcja' ? viewLesson(seg[2], seg[3]) : seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
       case 'wydarzenia': return viewEvents(seg[1] === 'premium' ? 'premium' : 'all');
       case 'premium': return viewPremium();
       case 'profil': return viewProfile();
@@ -1172,6 +1260,10 @@
       }
     } else if (a === 'p-again') {
       ui.pWrong = null; pSet(el.getAttribute('data-id'), 0); route();
+    } else if (a === 'pt-hint') {
+      if (ui.pt && !ui.pt.done) { ptHint(); viewPartner(ui.pt.id); }
+    } else if (a === 'pt-again') {
+      ui.pt = ptNew(el.getAttribute('data-id')); viewPartner(ui.pt.id);
     } else if (a === 'k-tr') {
       if (ui.k) { ui.k.tr = !ui.k.tr; ui.keepScroll = true; kRender(); }
     } else if (a === 'k-next') {
@@ -1257,6 +1349,15 @@
     if (form.getAttribute('data-form') === 'auth') {
       e.preventDefault();
       if (SB.on) submitAuth(form);
+      return;
+    }
+    if (form.getAttribute('data-form') === 'partner') {
+      e.preventDefault();
+      var pt = form.elements.text.value.trim();
+      if (!pt || !ui.pt || ui.pt.done) return;
+      ptSend(pt);
+      viewPartner(ui.pt.id);
+      var pin = document.querySelector('.composer-input'); if (pin) pin.focus({ preventScroll: true });
       return;
     }
     if (form.getAttribute('data-form') === 'barista') {
