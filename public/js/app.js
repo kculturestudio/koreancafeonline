@@ -1486,3 +1486,15 @@
     route();
   }
 })();
+
+/* klawiatura na telefonie: pole pisania nad klawiatura */
+(function () {
+  var vv = window.visualViewport;
+  if (!vv) return;
+  function fit() {
+    var kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty('--kb', (-kb) + 'px');
+  }
+  vv.addEventListener('resize', fit);
+  vv.addEventListener('scroll', fit);
+})();
