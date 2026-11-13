@@ -544,6 +544,17 @@
     var v = ymd(now, r.tz || WARSAW), y = Math.floor(v / 10000), m = Math.floor(v / 100) % 100, d = v % 100;
     return Math.floor(Date.UTC(y, m - 1, d) / 86400000) % r.daily.length;
   }
+  /* XP za odpowiedź na pytanie dnia: raz dziennie na stolik, min. 5 słów (żeby nie zbierać punktów „tak/nie") */
+  function dailyDone(key) { return (load('dailyDone', {})[key] || '') === dayKey(); }
+  function awardDaily(key, text) {
+    if (key.indexOf('room:') !== 0 || dailyDone(key)) return;
+    var r = findBy(D.rooms, key.slice(5));
+    if (!r || !r.daily || text.split(/\s+/).length < 5) return;
+    var d = load('dailyDone', {}); d[key] = dayKey(); save('dailyDone', d);
+    Prog.award(10, 1);
+    toast(t('room.xpEarned'));
+    var xl = document.querySelector('.xp-line'); if (xl) { xl.classList.add('done'); xl.textContent = t('room.xpDone'); }
+  }
   function dailyCard(r, canType) {
     var i = dailyIndex(r, new Date()), x = r.daily[i];
     var starter = x.starter ? x.starter.replace(/___/g, '…') : '';
@@ -554,6 +565,7 @@
       '<p lang="' + qLang + '">' + esc(x.q) + '</p><p class="muted" lang="' + trLang + '">' + esc(x.tr) + '</p>' +
       (starter ? '<p class="starter"><span class="label-caps">' + esc(t('room.starter')) + '</span> <span lang="' + qLang + '">' + esc(starter) + '</span></p>' : '') +
       (canType && starter ? '<button type="button" class="btn btn-ghost btn-sm" data-action="starter" data-text="' + esc(starter) + '">' + esc(t('room.useStarter')) + '</button>' : '') +
+      '<small class="xp-line' + (dailyDone('room:' + r.id) ? ' done' : '') + '">' + esc(t(dailyDone('room:' + r.id) ? 'room.xpDone' : 'room.xpHint')) + '</small>' +
       '<small class="fine" style="text-align:left">' + esc(t(r.tz === SEOUL ? 'room.dailyNewKr' : 'room.dailyNew')) + '</small></div>';
   }
   /* ---------- widok: room na żywo ---------- */
@@ -1084,6 +1096,7 @@
       Live.send(key, text).then(function (row) {
         input.value = '';
         Live.add(row, true);
+        awardDaily(key, text);
         advancePrompt(chId);
       }).catch(function (err) {
         toast(t(err && err.code === 'P0001' ? 'chat.sendFast' : 'chat.sendError'));
@@ -1096,6 +1109,7 @@
     var box = document.getElementById('messages');
     var wasEmpty = Chat.history(key).length === 0;
     var msg = Chat.send(key, text);
+    awardDaily(key, text);
     if (wasEmpty) box.innerHTML = '';
     box.insertAdjacentHTML('beforeend', msgHtml(msg));
     input.value = '';

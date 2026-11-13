@@ -822,3 +822,6 @@ body { background: #FFF3CF; }
 .empty-state .mascot { width: 88px; height: 88px; animation: bob 3.4s ease-in-out infinite; }
 .head { align-items: center; }
 @media (prefers-reduced-motion: reduce) { .m-head, .m-hero, .empty-state .mascot { animation: none; } }
+.xp-line { align-self: flex-start; display: inline-flex; font-size: 12px; font-weight: 800; color: #5A3B3B; background: #FFE9A8; border-radius: 999px; padding: 3px 10px; }
+.xp-line.done { background: #D5EFE3; }
+.avatar-you { background: #FFE9A8 !important; color: #5A3B3B; }
