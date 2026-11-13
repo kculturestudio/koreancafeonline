@@ -244,7 +244,7 @@
         if (token !== Live.token) return;
         if (r.error) return fail();
         var rows = (r.data || []).slice().reverse();
-        box.innerHTML = '<p class="day-sep" data-empty>' + esc(t('chat.empty')) + '</p>';
+        box.innerHTML = '<div class="empty-state" data-empty>' + mascot('chmurka') + '<p class="day-sep">' + esc(t('chat.empty')) + '</p></div>';
         rows.forEach(function (row) { Live.add(row); });
         loaded = true;
         pending.forEach(function (row) { Live.add(row); });
@@ -413,6 +413,14 @@
       '</div>';
   }
   /* Emotki przy pokojach i czatach (po id), domyślnie filiżanka. */
+  /* maskotki: własne, proste postaci w pastelach (kubek, pierożek, mochi, chmurka) */
+  var MASCOTS = {
+    kubek: '<path d="M86 52h8a13 13 0 0 1 0 26h-9" fill="none" stroke="#5A3B3B" stroke-width="3.4" stroke-linecap="round"/><path d="M24 44h66v30a30 30 0 0 1-30 30h-6a30 30 0 0 1-30-30z" fill="#FFE9A8" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><path d="M48 32c-5 6 5 9 0 15M66 30c-5 6 5 9 0 15" fill="none" stroke="#C9A978" stroke-width="3" stroke-linecap="round"/><circle cx="46" cy="70" r="3.6" fill="#5A3B3B"/><circle cx="74" cy="70" r="3.6" fill="#5A3B3B"/><ellipse cx="38" cy="80" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><ellipse cx="82" cy="80" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><path d="M54 82q6 6.5 12 0" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round"/>',
+    mandu: '<path d="M14 76c0-30 20-46 46-46s46 16 46 46c0 14-12 22-46 22S14 90 14 76z" fill="#FFF4E0" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><path d="M38 34q6-8 12 0q6-8 12 0q6-8 12 0" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" transform="translate(-2 2)"/><circle cx="46" cy="70" r="3.6" fill="#5A3B3B"/><circle cx="74" cy="70" r="3.6" fill="#5A3B3B"/><ellipse cx="38" cy="80" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><ellipse cx="82" cy="80" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><path d="M54 82q6 6.5 12 0" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round"/>',
+    mochi: '<path d="M60 22c28 0 46 18 46 42 0 22-16 36-46 36S14 86 14 64c0-24 18-42 46-42z" fill="#FBD9DF" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><path d="M60 22c-6-8-2-14 6-14" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round"/><path d="M66 8c10-2 14 6 8 12-5 4-10 0-8-12z" fill="#CFEBDD" stroke="#5A3B3B" stroke-width="3" stroke-linejoin="round"/><circle cx="46" cy="62" r="3.6" fill="#5A3B3B"/><circle cx="74" cy="62" r="3.6" fill="#5A3B3B"/><ellipse cx="38" cy="72" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><ellipse cx="82" cy="72" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><path d="M54 74q6 6.5 12 0" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round"/>',
+    chmurka: '<path d="M34 92a22 22 0 0 1-2-44 28 28 0 0 1 54-6 24 24 0 0 1 4 50z" fill="#E7E0FA" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><path d="M44 96l-8 14 22-14" fill="#E7E0FA" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><circle cx="46" cy="66" r="3.6" fill="#5A3B3B"/><circle cx="74" cy="66" r="3.6" fill="#5A3B3B"/><ellipse cx="38" cy="76" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><ellipse cx="82" cy="76" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><path d="M54 78q6 6.5 12 0" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round"/>'
+  };
+  function mascot(name, cls) { return '<span class="mascot m-' + name + (cls ? ' ' + cls : '') + '" aria-hidden="true"><svg viewBox="0 0 120 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + (MASCOTS[name] || '') + '</svg></span>'; }
   var EMOJI = { 'kr-a1': '🌱', 'kr-adv': '🌸', 'pl-b1': '🥟', drama: '🎬', 'korea-life': '🧳', 'poland-life': '🏡', dance: '💃', 'temat-dnia': '💬', fandomy: '💖', gotowanie: '🍳', historia: '📜', 'przeprowadzka-kr': '📦', 'przeprowadzka-pl': '📦', jedzenie: '🍜', start: '☕', 'kpop-taniec': '🎤' };
   function emo(id) { return EMOJI[id] || '☕'; }
   function lockHtml() { return '<span class="lock" aria-label="' + esc(t('lobby.premium')) + '">' + ico('lock', 18) + '</span>'; }
@@ -442,7 +450,7 @@
     var body;
     if (tab === 'chats') {
       var chats = D.channels.filter(matches);
-      body = chats.length ? '<div class="list">' + chats.map(chatRow).join('') + '</div>' : '<p class="empty">' + esc(t('lobby.empty')) + '</p>';
+      body = chats.length ? '<div class="list">' + chats.map(chatRow).join('') + '</div>' : '<p class="empty">' + mascot('mochi') + esc(t('lobby.empty')) + '</p>';
     } else {
       var always = D.rooms.filter(function (r) { return r.always && matches(r); });
       var sched = D.rooms.filter(function (r) { return !r.always && matches(r); }).map(function (r) { return { r: r, slot: nextSlot(r, now) }; })
@@ -450,7 +458,7 @@
       body = '';
       if (always.length) body += '<h2 class="section-title">' + esc(t('live.always')) + '</h2><div class="list">' + always.map(roomRowAlways).join('') + '</div>';
       if (sched.length) body += '<h2 class="section-title">' + esc(t('live.scheduled')) + '</h2><div class="list">' + sched.map(function (x) { return roomRowScheduled(x, now); }).join('') + '</div>';
-      if (!always.length && !sched.length) body = '<p class="empty">' + esc(t('lobby.empty')) + '</p>';
+      if (!always.length && !sched.length) body = '<p class="empty">' + mascot('mochi') + esc(t('lobby.empty')) + '</p>';
       body += '<div class="dashed">' + ico('plus', 18) + esc(t('live.ownSoon')) + '</div>';
     }
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
@@ -476,7 +484,7 @@
   }
   function messagesHtml(key) {
     var list = Chat.history(key);
-    if (!list.length) return '<p class="day-sep">' + esc(t('chat.empty')) + '</p>';
+    if (!list.length) return '<div class="empty-state">' + mascot('chmurka') + '<p class="day-sep">' + esc(t('chat.empty')) + '</p></div>';
     return list.map(msgHtml).join('');
   }
   // Lista wiadomości: lokalna (demo) albo pusta ramka, którą po narysowaniu widoku wypełnia Live.attach.
@@ -600,10 +608,10 @@
           : '<button type="button" class="btn btn-primary btn-sm" data-action="ics" data-id="' + e.id + '">' + esc(t('ev.addCal')) + '</button>') + '</article>';
     }).join('');
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
-      '<div class="head"><h1 class="title">' + esc(t('ev.title')) + '</h1></div>' +
+      '<div class="head"><h1 class="title">' + esc(t('ev.title')) + '</h1>' + mascot('mandu', 'm-head') + '</div>' +
       '<div class="tabs"><a class="tab" href="#/wydarzenia"' + (filter === 'all' ? ' aria-current="page"' : '') + '>' + esc(t('ev.all')) + '</a>' +
       '<a class="tab" href="#/wydarzenia/premium"' + (filter === 'premium' ? ' aria-current="page"' : '') + '>' + esc(t('ev.premium')) + '</a></div>' +
-      (cards || '<p class="empty">' + esc(t('ev.empty')) + '</p>') + '</div>' + nav('events') + '</main>';
+      (cards || '<p class="empty">' + mascot('mochi') + esc(t('ev.empty')) + '</p>') + '</div>' + nav('events') + '</main>';
     show(html, t('ev.title'));
   }
   function downloadIcs(id) {
@@ -641,7 +649,7 @@
     var benefits = ['pay.b1', 'pay.b2', 'pay.b3', 'pay.b4'].map(function (k) { return '<li>' + ico('check', 22) + '<span>' + esc(t(k)) + '</span></li>'; }).join('');
     var html = '<main class="screen paywall" id="view" tabindex="-1">' +
       '<div class="paywall-top"><a class="icon-btn" href="#/kawiarnia" aria-label="' + esc(t('common.close')) + '">' + ico('close') + '</a></div>' +
-      '<div class="paywall-head"><span class="eyebrow">' + esc(t('pay.eyebrow')) + '</span><h1>' + esc(t('pay.h1')) + '</h1><p>' + esc(t('pay.lead')) + '</p></div>' +
+      '<div class="paywall-head">' + mascot('kubek', 'm-hero') + '<span class="eyebrow">' + esc(t('pay.eyebrow')) + '</span><h1>' + esc(t('pay.h1')) + '</h1><p>' + esc(t('pay.lead')) + '</p></div>' +
       (banner ? '<div style="margin-top:16px">' + banner + '</div>' : '') +
       '<div class="tabs" style="margin-top:22px">' +
       '<button type="button" class="tab" data-action="plan" data-plan="monthly" aria-pressed="' + !yearly + '">' + esc(t('pay.monthly')) + '</button>' +

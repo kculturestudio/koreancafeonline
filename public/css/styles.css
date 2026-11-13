@@ -769,3 +769,56 @@ body { background: var(--bg-outer); }
 .qprompt { background: #FFF6BF; border-top: 2px solid #3A1D1D; }
 .hero { border: 2px solid #3A1D1D; box-shadow: 0 6px 0 #3A1D1D; }
 .btn-ghost, .btn-secondary { border: 2px solid #3A1D1D; border-radius: 999px; background: #fff; color: #3A1D1D; font-weight: 800; }
+
+/* ===================================================================
+   Pastelowy premium (spójna wersja Kakao): miękkie pastele, cienkie
+   ciepłe linie, delikatne cienie i własne maskotki. Nadpisuje mocne
+   brązowe ramki z warstwy Kakao.
+   =================================================================== */
+:root {
+  --pastel-butter: #FFE9A8; --pastel-pink: #FBD9DF; --pastel-mint: #D5EFE3; --pastel-lav: #E7E0FA;
+  --ink: #5A3B3B; --line: #EEDFCB;
+  --ink-grad: linear-gradient(155deg, #6A4646 0%, #5A3B3B 60%, #4A2F2F 100%);
+  --shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 8px 24px rgba(122, 75, 0, .08);
+}
+body { background: #FFF3CF; }
+.app, .screen { background: #FFFAF0; }
+.row, .card, .topic-card { border: 1.5px solid #EEDFCB; border-radius: 22px; box-shadow: var(--shadow); }
+.row:hover { border-color: #E2C9A6; box-shadow: 0 12px 28px rgba(122, 75, 0, .12); transform: translateY(-2px); }
+.topic-card.daily, .price-card { border-color: transparent; color: #FFF3CF; box-shadow: 0 18px 36px -18px rgba(90, 59, 59, .55); }
+.topic-card.daily .label-caps, .price-card .price-note { color: #FFE9A8; }
+.btn-primary { background: #FFE27A; color: #5A3B3B; box-shadow: 0 3px 0 #EBC84A, 0 10px 18px -8px rgba(235, 200, 74, .7); }
+.btn-primary:hover { box-shadow: 0 4px 0 #EBC84A, 0 14px 22px -8px rgba(235, 200, 74, .8); }
+.btn-primary:active { box-shadow: 0 1px 0 #EBC84A; }
+.btn-ghost, .btn-secondary { border: 1.5px solid #E2C9A6; color: #5A3B3B; }
+.pill-link, .chip { background: #FFF1BF; border: 1px solid #F3DFA0; color: #6B4A2B; }
+.tag-premium { background: #5A3B3B; color: #FFE9A8; }
+.nav { border-top: 1px solid #EEDFCB; box-shadow: 0 -8px 24px rgba(122, 75, 0, .05); }
+.nav a[aria-current="page"]::before { background: #FFD84A; }
+.hero { border: 1.5px solid #EEDFCB; box-shadow: 0 18px 36px -22px rgba(122, 75, 0, .35); background-color: #fff; }
+.hero-logo { border: 2px solid #5A3B3B; box-shadow: 0 0 0 8px #FFE9A8, 0 0 0 9px #EEDFCB; }
+.bubble-out { background: #FFEFB8; border: 0; color: #5A3B3B; box-shadow: 0 4px 10px -6px rgba(122, 75, 0, .35); }
+.bubble-in, .bubble-fix { background: #fff; border: 1.5px solid #EEDFCB; border-left: 1.5px solid #EEDFCB; }
+.qprompt { background: linear-gradient(180deg, #FFF3CF, #FFFAF0); border-top: 1px solid #EEDFCB; }
+.composer { border-top: 1px solid #EEDFCB; }
+.composer-input { border: 1.5px solid #EEDFCB; }
+
+/* pastelowe kółka z emotkami, cztery kolory na zmianę */
+.badge-sq { border: 1.5px solid rgba(90, 59, 59, .18) !important; box-shadow: 0 3px 8px -4px rgba(122, 75, 0, .35) !important; background: var(--pastel-butter) !important; }
+.list > *:nth-child(4n+2) .badge-sq { background: var(--pastel-pink) !important; }
+.list > *:nth-child(4n+3) .badge-sq { background: var(--pastel-mint) !important; }
+.list > *:nth-child(4n) .badge-sq { background: var(--pastel-lav) !important; }
+
+/* maskotki */
+.mascot { display: inline-block; width: 96px; height: 96px; flex: none; filter: drop-shadow(0 8px 10px rgba(122, 75, 0, .14)); }
+.mascot svg { display: block; }
+.m-head { width: 64px; height: 64px; animation: bob 3.6s ease-in-out infinite; }
+.m-hero { width: 104px; height: 104px; margin: 0 auto 8px; display: block; animation: bob 3.2s ease-in-out infinite; }
+.paywall-head { text-align: left; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1.5px dashed #E2C9A6; background: #FFF8E6; }
+.empty::before { content: none; }
+.empty .mascot { width: 84px; height: 84px; }
+.empty-state { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 0 6px; }
+.empty-state .mascot { width: 88px; height: 88px; animation: bob 3.4s ease-in-out infinite; }
+.head { align-items: center; }
+@media (prefers-reduced-motion: reduce) { .m-head, .m-hero, .empty-state .mascot { animation: none; } }
