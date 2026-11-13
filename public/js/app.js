@@ -352,7 +352,7 @@
       ['live', '#/kawiarnia/live', 'people', 'nav.rooms'],
       ['practice', '#/cwiczenia', 'pen', 'nav.practice'],
       ['events', '#/wydarzenia', 'calendar', 'nav.events'],
-      ['profile', '#/profil', 'me', 'nav.profile']
+      ['profile', '#/profil', 'user', 'nav.profile']
     ];
     return '<nav class="nav" aria-label="' + esc(t('nav.label')) + '">' + items.map(function (i) {
       return '<a href="' + i[1] + '"' + (active === i[0] ? ' aria-current="page"' : '') + '>' + ico(i[2]) + '<span>' + esc(t(i[3])) + '</span></a>';
