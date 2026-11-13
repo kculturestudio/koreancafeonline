@@ -1019,3 +1019,10 @@ html, body { height: 100%; overflow: hidden; }
 .screen:has(.composer){padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .screen:has(.nav) .composer{bottom:calc(72px + env(safe-area-inset-bottom,0px));padding-bottom:10px}
 .screen:has(.nav):has(.composer){padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+
+/* homepage minimalny: logo + wejscie */
+.welcome-min{justify-content:center;gap:18px;min-height:100dvh}
+.welcome-min .welcome-lang{display:flex;justify-content:flex-end}
+.welcome-min .hero{margin:0}
+.welcome-tag{text-align:center;font-size:19px;font-weight:700;line-height:1.3;margin:0;color:var(--ink);text-wrap:balance}
+.welcome-min .welcome-actions{margin-top:0}
