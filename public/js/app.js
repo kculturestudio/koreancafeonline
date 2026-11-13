@@ -386,15 +386,6 @@
   }
 
   /* ---------- widok: powitanie ---------- */
-  function welcomeSections() {
-    function cards(keys, cls) {
-      return '<div class="wc-grid ' + cls + '">' + keys.map(function (k) { return '<div class="wc"><h3>' + esc(t('welcome.' + k)) + '</h3><p>' + esc(t('welcome.' + k + 'p')) + '</p></div>'; }).join('') + '</div>';
-    }
-    return '<section class="wsec wsec-about"><h2>' + esc(t('welcome.aboutH')) + '</h2><p>' + esc(t('welcome.aboutP')) + '</p></section>' +
-      '<section class="wsec wsec-lilac"><h2>' + esc(t('welcome.offerH')) + '</h2>' + cards(['o1', 'o2', 'o3', 'o4'], 'wc-4') + '</section>' +
-      '<section class="wsec wsec-cream"><h2>' + esc(t('welcome.whyH')) + '</h2>' + cards(['w1', 'w2', 'w3'], 'wc-3') + '</section>' +
-      '<section class="wsec wsec-end"><h2>' + esc(t('welcome.endH')) + '</h2><button type="button" class="btn btn-primary" data-action="welcome-top">' + esc(t('welcome.endCta')) + '</button></section>';
-  }
   function viewWelcome() {
     var ok = !!load('age18', false);
     var html = '<main class="screen welcome" id="view" tabindex="-1">' +
@@ -406,7 +397,7 @@
       '<label class="check"><input type="checkbox" id="age18"' + (ok ? ' checked' : '') + '><span>' + esc(t('welcome.age')) + '</span></label>' +
       '<button type="button" class="btn btn-primary" id="enter" data-action="enter"' + (ok ? '' : ' disabled') + '>' + esc(t('welcome.cta')) + '</button>' +
       legalLine() +
-      '<p class="fine">' + esc(t('welcome.trial')) + '</p></div>' + welcomeSections() + '</main>';
+      '<p class="fine">' + esc(t('welcome.trial')) + '</p></div></main>';
     show(html, 'Korean Cafe Online');
   }
 
@@ -1335,8 +1326,6 @@
       if (inp) { inp.value = el.getAttribute('data-text'); inp.focus(); }
     } else if (a === 'next-q') {
       advancePrompt(el.getAttribute('data-ch'), true);
-    } else if (a === 'welcome-top') {
-      try { app.scrollTo({ top: 0, behavior: 'smooth' }); } catch (err) { app.scrollTop = 0; }
     } else if (a === 'filters-toggle') {
       var fb = document.getElementById('filters'); if (fb) { fb.hidden = !fb.hidden; el.setAttribute('aria-expanded', String(!fb.hidden)); }
     } else if (a === 'hint-toggle') {
