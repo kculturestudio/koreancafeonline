@@ -955,3 +955,13 @@ body { background: #FFF3CF; }
 .brand-stamp .logo-mini { width: 40px; height: 40px; border-width: 1.5px; box-shadow: 0 0 0 3px #FFE9A8; }
 .brand-stamp span { display: flex; flex-direction: column; font-weight: 800; font-size: 14px; color: #5A3B3B; }
 .brand-stamp small { font-weight: 600; font-size: 11.5px; color: var(--muted); }
+
+.glyph { display: block; flex: none; }
+.badge-sq .glyph { width: 26px; height: 26px; }
+
+/* filtry zwijane: mniej szumu nad listą (Hick) */
+.filter-toggle { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #fff; border: 1.5px solid #EEDFCB; color: #5A3B3B; font: 800 14px/1 var(--font, 'Nunito', sans-serif); cursor: pointer; margin: 0 0 12px; }
+.filter-toggle[aria-expanded="true"] { border-color: #5A3B3B; }
+.filter-n { min-width: 20px; height: 20px; border-radius: 999px; background: #FFD84A; color: #5A3B3B; display: inline-grid; place-items: center; font-size: 12px; }
+.filters[hidden] { display: none; }
+.filters { margin-bottom: 14px; }

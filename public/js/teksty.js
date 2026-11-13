@@ -128,10 +128,11 @@ window.KCO_I18N = {
   'legal.post': ['.', '에 동의한 것으로 봅니다.'],
   'legal.privacyNom': ['Polityka prywatności', '개인정보 처리방침'],
 
-  'lobby.title': ['Kawiarnia ☕', '카페 ☕'],
+  'lobby.title': ['Kawiarnia', '카페'],
   'lobby.sub': ['pogaduszki bez presji albo stolik z pytaniem dnia', '편하게 수다 떨거나 오늘의 질문 테이블로'],
   'tab.chats': ['Pogaduszki', '수다방'],
   'tab.live': ['Stoliki dnia', '오늘의 테이블'],
+  'f.title': ['Filtry', '필터'],
   'f.lang': ['Język', '언어'],
   'f.level': ['Poziom', '레벨'],
   'f.topic': ['Temat', '주제'],

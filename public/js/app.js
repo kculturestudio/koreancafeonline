@@ -106,6 +106,7 @@
   }
 
   var ICONS = {
+    filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
     bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
     cup: '<path d="M5 9h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/>',
     people: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4.5 2 4.5 4.5"/>',
@@ -406,7 +407,10 @@
       }).join('') + '</select></label>';
   }
   function filtersHtml() {
-    return '<div class="filters">' +
+    var f = ui.filters, n = ['lang', 'level', 'topic', 'age'].filter(function (k) { return f[k] && f[k] !== 'all'; }).length;
+    return '<button type="button" class="filter-toggle" data-action="filters-toggle" aria-expanded="' + (n > 0) + '" aria-controls="filters">' + ico('filter', 18) +
+      '<span>' + esc(t('f.title')) + '</span>' + (n ? '<b class="filter-n">' + n + '</b>' : '') + '</button>' +
+      '<div class="filters" id="filters"' + (n ? '' : ' hidden') + '>' +
       selectChip('lang', t('f.lang'), [['all', t('f.all')], ['KR', t('f.kr')], ['PL', t('f.pl')]]) +
       selectChip('level', t('f.level'), [['all', t('f.all')], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1'], ['B2', 'B2'], ['C1', 'C1'], ['C2', 'C2']]) +
       selectChip('topic', t('f.topic'), [['all', t('f.all')], ['language', t('f.topic.language')], ['culture', t('f.topic.culture')], ['life', t('f.topic.life')], ['dance', t('f.topic.dance')]]) +
@@ -423,8 +427,12 @@
     chmurka: '<path d="M34 92a22 22 0 0 1-2-44 28 28 0 0 1 54-6 24 24 0 0 1 4 50z" fill="#E7E0FA" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><path d="M44 96l-8 14 22-14" fill="#E7E0FA" stroke="#5A3B3B" stroke-width="3.4" stroke-linejoin="round"/><circle cx="46" cy="66" r="3.6" fill="#5A3B3B"/><circle cx="74" cy="66" r="3.6" fill="#5A3B3B"/><ellipse cx="38" cy="76" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><ellipse cx="82" cy="76" rx="6.5" ry="4.2" fill="#F7B6C2" opacity=".85"/><path d="M54 78q6 6.5 12 0" fill="none" stroke="#5A3B3B" stroke-width="3.2" stroke-linecap="round"/>'
   };
   function mascot(name, cls) { return '<span class="mascot m-' + name + (cls ? ' ' + cls : '') + '" aria-hidden="true"><svg viewBox="0 0 120 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + (MASCOTS[name] || '') + '</svg></span>'; }
-  var EMOJI = { 'kr-a1': '🌱', 'kr-adv': '🌸', 'pl-b1': '🥟', drama: '🎬', 'korea-life': '🧳', 'poland-life': '🏡', dance: '💃', 'temat-dnia': '💬', fandomy: '💖', gotowanie: '🍳', historia: '📜', 'przeprowadzka-kr': '📦', 'przeprowadzka-pl': '📦', jedzenie: '🍜', start: '☕', 'kpop-taniec': '🎤' };
-  function emo(id) { return EMOJI[id] || '☕'; }
+  /* spójny zestaw ikon: kontur w kolorze marki + pastelowe wypełnienia (zamiast emoji systemowych) */
+  var GLYPH = {"sprout": "<path d=\"M16 27V15\" fill=\"none\"/><path d=\"M16 17C10 17 7 13 7 8c6 0 9 3 9 9z\" fill=\"#BFE8D2\"/><path d=\"M16 14c0-5 3-8 9-8 0 5-3 8-9 8z\" fill=\"#9FDDB8\"/>", "flower": "<g fill=\"#FFB8C8\"><circle cx=\"16\" cy=\"8.5\" r=\"5\"/><circle cx=\"23.5\" cy=\"14\" r=\"5\"/><circle cx=\"20.6\" cy=\"22.6\" r=\"5\"/><circle cx=\"11.4\" cy=\"22.6\" r=\"5\"/><circle cx=\"8.5\" cy=\"14\" r=\"5\"/></g><circle cx=\"16\" cy=\"16\" r=\"4.2\" fill=\"#FFE27A\"/>", "dumpling": "<path d=\"M4 20c0-8 6-12 12-12s12 4 12 12c0 3-3 5-12 5S4 23 4 20z\" fill=\"#FFF6D8\"/><path d=\"M10 12l1 4M16 10v5M22 12l-1 4\" fill=\"none\"/>", "clapper": "<rect x=\"5\" y=\"12\" width=\"22\" height=\"15\" rx=\"3\" fill=\"#D9CCF5\"/><path d=\"M5 12l2-6 20 3-1 3z\" fill=\"#FFF6D8\"/><path d=\"M10 7.5l-2 4.5M16 8.5l-2 4.5M22 9.5l-2 4\" fill=\"none\"/>", "suitcase": "<rect x=\"5\" y=\"10\" width=\"22\" height=\"16\" rx=\"4\" fill=\"#BFE0F5\"/><path d=\"M12 10V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3M5 17h22\" fill=\"none\"/>", "house": "<path d=\"M5 15L16 5l11 10\" fill=\"none\"/><path d=\"M8 13v13h16V13L16 6z\" fill=\"#FFD2A8\"/><rect x=\"13\" y=\"18\" width=\"6\" height=\"8\" rx=\"2\" fill=\"#FFF6D8\"/>", "note": "<path d=\"M12 22V7l13-3v15\" fill=\"none\"/><circle cx=\"9\" cy=\"22\" r=\"4\" fill=\"#FFB8C8\"/><circle cx=\"22\" cy=\"19\" r=\"4\" fill=\"#FFB8C8\"/>", "chat": "<path d=\"M6 8a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H15l-6 5v-5a3 3 0 0 1-3-3z\" fill=\"#FFE27A\"/><path d=\"M11 12h10M11 16h6\" fill=\"none\"/>", "heart": "<path d=\"M16 27C6 20 4 14 4 10.5A6.5 6.5 0 0 1 16 8a6.5 6.5 0 0 1 12 2.5C28 14 26 20 16 27z\" fill=\"#FFB8C8\"/>", "pot": "<path d=\"M5 14h22v6a7 7 0 0 1-7 7h-8a7 7 0 0 1-7-7z\" fill=\"#BFE8D2\"/><path d=\"M3 14h26M13 10c0-3 3-2 3-5M19 10c0-3 3-2 3-5\" fill=\"none\"/>", "scroll": "<path d=\"M8 5h15a3 3 0 0 1 3 3v17a3 3 0 0 0 3 3H11a3 3 0 0 1-3-3z\" fill=\"#FFF6D8\"/><path d=\"M8 5a3 3 0 0 0-3 3v2h3M13 12h9M13 17h9\" fill=\"none\"/>", "box": "<path d=\"M5 11l11-6 11 6v12l-11 6-11-6z\" fill=\"#FFD2A8\"/><path d=\"M5 11l11 6 11-6M16 17v12\" fill=\"none\"/>", "bowl": "<path d=\"M4 15h24a12 11 0 0 1-24 0z\" fill=\"#FFF6D8\"/><path d=\"M10 13c0-3 4-3 4-6M17 13c0-3 4-3 4-6\" fill=\"none\"/><path d=\"M9 20c3 2 11 2 14 0\" fill=\"none\"/>", "cup": "<path d=\"M6 12h17v8a7 7 0 0 1-7 7h-3a7 7 0 0 1-7-7z\" fill=\"#FFE27A\"/><path d=\"M23 14h2.5a3 3 0 0 1 0 6H22M11 8c0-2 2-2 2-4M16 8c0-2 2-2 2-4\" fill=\"none\"/>", "mic": "<rect x=\"11\" y=\"4\" width=\"10\" height=\"16\" rx=\"5\" fill=\"#D9CCF5\"/><path d=\"M7 15a9 9 0 0 0 18 0M16 24v4M12 28h8\" fill=\"none\"/>", "wave": "<circle cx=\"16\" cy=\"16\" r=\"11\" fill=\"#FFE27A\"/><circle cx=\"12\" cy=\"14\" r=\"1.2\" fill=\"#5A3B3B\"/><circle cx=\"20\" cy=\"14\" r=\"1.2\" fill=\"#5A3B3B\"/><path d=\"M11.5 19c3 3 6 3 9 0\" fill=\"none\"/>", "sun": "<circle cx=\"16\" cy=\"16\" r=\"6\" fill=\"#FFE27A\"/><path d=\"M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.5l2 2M22.5 22.5l2 2M7.5 24.5l2-2M22.5 9.5l2-2\" fill=\"none\"/>"};
+  function glyph(n, size) { size = size || 28; return '<svg class="glyph" viewBox="0 0 32 32" width="' + size + '" height="' + size + '" stroke=\"#5A3B3B\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden="true">' + (GLYPH[n] || GLYPH.cup) + '</svg>'; }
+  var EMOJI = { 'kr-a1': 'sprout', 'kr-adv': 'flower', 'pl-b1': 'dumpling', drama: 'clapper', 'korea-life': 'suitcase', 'poland-life': 'house', dance: 'note', 'temat-dnia': 'chat', fandomy: 'heart', gotowanie: 'pot', historia: 'scroll', 'przeprowadzka-kr': 'box', 'przeprowadzka-pl': 'box', jedzenie: 'bowl', start: 'cup', 'kpop-taniec': 'mic' };
+  var SC_GLYPH = { cafe: 'cup', drama: 'clapper', intro: 'wave', weekend: 'sun', resto: 'bowl' };
+  function emo(id) { return glyph(EMOJI[id] || 'cup'); }
   function lockHtml() { return '<span class="lock" aria-label="' + esc(t('lobby.premium')) + '">' + ico('lock', 18) + '</span>'; }
   function chatRow(c) {
     var locked = c.premium && !isPremium();
@@ -1085,7 +1093,7 @@
   function viewPractice() {
     ui.k = null;
     var rows = SCN.map(function (sc) {
-      return '<a class="row" href="#/cwiczenia/rozmowa/' + sc.id + '"><span class="badge-sq" aria-hidden="true">' + sc.emoji + '</span>' +
+      return '<a class="row" href="#/cwiczenia/rozmowa/' + sc.id + '"><span class="badge-sq" aria-hidden="true">' + glyph(SC_GLYPH[sc.id] || 'cup') + '</span>' +
         '<span class="row-text"><strong>' + esc(L(sc.name)) + '</strong><small>' + esc(O(sc.name)) + ' · ' + esc(L(sc.desc)) + '</small></span><span class="row-time">' + esc(sc.level) + '</span></a>';
     }).join('');
     show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
@@ -1297,6 +1305,8 @@
       if (inp) { inp.value = el.getAttribute('data-text'); inp.focus(); }
     } else if (a === 'next-q') {
       advancePrompt(el.getAttribute('data-ch'), true);
+    } else if (a === 'filters-toggle') {
+      var fb = document.getElementById('filters'); if (fb) { fb.hidden = !fb.hidden; el.setAttribute('aria-expanded', String(!fb.hidden)); }
     } else if (a === 'hint-toggle') {
       var hid = el.getAttribute('data-ch'), q = document.getElementById('qprompt');
       ui.hintOpen = ui.hintOpen || {};
