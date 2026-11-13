@@ -1002,3 +1002,9 @@ html, body { height: 100%; overflow: hidden; }
 /* format telefonu: aplikacja to zawsze jedna kolumna o szerokości telefonu, wyśrodkowana na większych ekranach */
 .app { width: 100%; max-width: 480px; }
 @media (min-width: 560px) { .app { box-shadow: 0 0 0 1px var(--line), 0 30px 80px -40px rgba(46, 29, 38, .35); } }
+
+/* menu dolne przypięte do ekranu (fixed), niezależnie od tego, który element przewija treść; treść ma zapas na dole */
+.nav { position: fixed; left: 50%; right: auto; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 480px; margin: 0; z-index: 30; }
+.screen:has(.nav) { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+.screen:has(.nav) .composer { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+.screen { flex: 1 0 auto; }
