@@ -1020,3 +1020,6 @@ body { background: #F8F1E3; }
 .ph-stats div + div { border-left-color: rgba(46, 29, 38, .1); }
 .ph-stats b { color: var(--ink); }
 .ph-stats span { color: var(--muted); }
+
+.ph .avatar-you { position: relative; overflow: visible; }
+.av-emo { position: absolute; right: -6px; bottom: -4px; width: 26px; height: 26px; border-radius: 999px; background: #fff; border: 1.5px solid rgba(184, 143, 78, .6); display: grid; place-items: center; font-style: normal; font-size: 15px; line-height: 1; }
