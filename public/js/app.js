@@ -845,7 +845,153 @@
   }
   function pProg(id) { var p = load('practice', {}); return p[id] || 0; }
   function pSet(id, n) { var p = load('practice', {}); p[id] = n; save('practice', p); Prog.push(); }
+
+  /* ---------- Lekcje kawiarniane (port z Korean Cafe Luxe): historia, słówka, gramatyka, ćwiczenia, scenki; kotek-barista ---------- */
+  var KL = window.KC_LEKCJE || null;
+  var K_ORDER = KL ? Object.keys(KL.LESSONS) : [];
+  var K_GOAL = 30;
+  function kStars(id) { return pProg('k:' + id); }
+  function kDayXp() { var d = load('kafeDay', { k: '', xp: 0 }); return d.k === dayKey() ? d.xp : 0; }
+  function kAddDayXp(n) { save('kafeDay', { k: dayKey(), xp: kDayXp() + n }); }
+  function kNext() { for (var i = 0; i < K_ORDER.length; i++) if (!kStars(K_ORDER[i])) return K_ORDER[i]; return K_ORDER[0]; }
+  function kShuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function kPrep(s) {
+    var c = {}; for (var k in s) c[k] = s[k];
+    if (c.opts) c.o = kShuffle(c.opts.map(function (t0, i) { return { t: t0, ok: i === c.a }; }));
+    if (c.bank) c.b = kShuffle(c.bank);
+    return c;
+  }
+  function kOpen(id, mode) {
+    if (!KL) return null;
+    var sid = KL.LESSONS[id] ? id : K_ORDER[0], ls = KL.LESSONS[sid];
+    var own = ls.steps.filter(function (x) { return x.t !== 'choice'; });
+    var all = own.filter(function (x) { return x.t === 'build'; }).concat(own.filter(function (x) { return x.t === 'scene'; }), KL.EXTRA[sid] || []).map(kPrep);
+    var learn = ls.words.map(function (w, i) { return { t: 'learn', w: w, n: i + 1 }; });
+    var steps = mode === 'words' || mode === 'listen' ? learn
+      : mode === 'practice' ? all
+      : [{ t: 'story', s: KL.STORY[sid] }].concat(learn, [{ t: 'grammar' }], all);
+    return { id: sid, mode: mode || '', ls: ls, steps: steps, i: 0, xp: 0, beans: 0, combo: 0, mistakes: 0, ans: [], sel: -1, fb: null, tr: false, res: null };
+  }
+  function kCat(mood) { return mascot('kotek', 'm-kcat' + (mood ? ' ' + mood : '')); }
+  function kTrBtn(shown, label) { return '<button type="button" class="chip-btn" data-action="k-tr">' + esc(t(shown ? 'lek.hideTr' : 'lek.showTr')) + '</button>'; }
+  function kSay(txt) { return '<button type="button" class="say" data-action="say" data-text="' + esc(String(txt).replace(/[“”]/g, '')) + '" aria-label="' + esc(t('lek.listen')) + '">' + ico('sound', 18) + '</button>'; }
+
+  function kStepBody(K, s) {
+    var ls = K.ls;
+    if (s.t === 'story') {
+      return '<span class="label-caps">' + esc(t('lek.story')) + ' · ' + esc(ls.lvl) + '</span><h2 class="k-h">' + esc(ls.title) + '</h2>' +
+        '<p class="k-story">' + s.s.kr + '</p><div class="k-act">' + kSay(s.s.kr) + kTrBtn(K.tr) + '</div>' +
+        (K.tr ? '<p class="k-tr">' + s.s.pl + '</p>' : '');
+    }
+    if (s.t === 'learn') {
+      return '<span class="label-caps">' + esc(tf('lek.newWord', { n: s.n, m: ls.words.length })) + '</span>' +
+        '<div class="k-wcard"><div class="k-hg" lang="ko">' + s.w.k + '</div><div class="k-rm">' + esc(s.w.r) + '</div><div class="k-pl">' + esc(s.w.p) + '</div>' + kSay(s.w.k) + '</div>';
+    }
+    if (s.t === 'grammar') {
+      var g = ls.grammar;
+      return '<span class="label-caps">' + esc(t('lek.grammar')) + '</span><h2 class="k-h">' + g.h + '</h2><p class="k-lead">' + g.lead + '</p>' +
+        '<div class="k-formula">' + g.formula.map(function (f) { return '<span class="' + (f.c ? 'k-' + f.c : 'k-op') + '">' + f.t + '</span>'; }).join('') + '</div>' +
+        g.ex.map(function (e) { return '<div class="k-ex"><span class="k-k" lang="ko">' + e[0] + '</span><span class="k-m">' + esc(e[1]) + '</span>' + kSay(e[0]) + '</div>'; }).join('') +
+        '<div class="k-note"><span class="label-caps">' + esc(t('lek.fromCafe')) + '</span><span>' + esc(ls.note) + '</span></div>';
+    }
+    if (s.t === 'scene' || s.t === 'choice') {
+      var head = s.t === 'scene' ? '<div class="k-scene"><div class="k-who">' + esc(s.who) + '</div><div class="k-line" lang="ko">' + s.line + '</div>' + kSay(s.line) + kTrBtn(K.tr) + (K.tr ? '<div class="k-tr">' + esc(s.tr) + '</div>' : '') + '</div>' : '';
+      var opts = s.o.map(function (o, i) {
+        var cls = 'k-opt';
+        if (K.fb) { if (o.ok) cls += ' right'; else if (i === K.sel) cls += ' wrong'; }
+        return '<button type="button" class="' + cls + '" data-action="k-pick" data-i="' + i + '"' + (K.fb ? ' disabled' : '') + '><span class="k-ix">' + 'ABCD'.charAt(i) + '</span><span lang="ko">' + esc(o.t) + '</span></button>';
+      }).join('');
+      return '<span class="label-caps">' + esc(t(s.t === 'scene' ? 'lek.scene' : 'lek.exercise')) + '</span>' + head + '<h2 class="k-h">' + esc(s.q) + '</h2>' + (s.big ? '<div class="k-big" lang="ko">' + s.big + '</div>' : '') + '<div class="k-opts">' + opts + '</div>';
+    }
+    if (s.t === 'build') {
+      var slots = K.ans.map(function (i) { return '<button type="button" class="k-blk on" data-action="k-unblk" data-i="' + i + '"' + (K.fb ? ' disabled' : '') + ' lang="ko">' + esc(s.b[i]) + '</button>'; }).join('');
+      var bank = s.b.map(function (w, i) { return '<button type="button" class="k-blk' + (K.ans.indexOf(i) >= 0 ? ' used' : '') + '" data-action="k-blk" data-i="' + i + '"' + (K.fb ? ' disabled' : '') + ' lang="ko">' + esc(w) + '</button>'; }).join('');
+      return '<span class="label-caps">' + esc(t('lek.build')) + '</span><h2 class="k-h">' + esc(s.q) + '</h2><div class="k-slots">' + slots + '</div><div class="k-bank">' + bank + '</div>';
+    }
+    return '';
+  }
+  function kFoot(K, s) {
+    if (K.fb) {
+      var ok = K.fb.ok;
+      return '<div class="k-foot ' + (ok ? 'ok' : 'bad') + '">' + kCat(ok ? 'happy' : 'oops') + '<div class="k-say"><strong>' + esc(ok ? tf('lek.good', { n: K.fb.gain }) : t('lek.almost')) + '</strong><p>' + (ok ? '' : esc(tf('lek.correct', { s: '' }))) + K.fb.msg + '</p></div>' +
+        '<button type="button" class="btn btn-primary" data-action="k-next">' + esc(t('lek.next')) + '</button></div>';
+    }
+    if (s.t === 'build') return '<div class="k-foot">' + kCat() + '<span class="k-say"></span><button type="button" class="btn btn-primary" data-action="k-check"' + (K.ans.length ? '' : ' disabled') + '>' + esc(t('lek.check')) + '</button></div>';
+    if (s.t === 'choice' || s.t === 'scene') return '<div class="k-foot">' + kCat() + '<span class="k-say">' + esc(t('lek.pick')) + '</span></div>';
+    var lbl = s.t === 'story' ? 'lek.lets' : s.t === 'grammar' ? 'lek.toEx' : 'lek.next';
+    return '<div class="k-foot">' + kCat() + '<span class="k-say"></span><button type="button" class="btn btn-primary" data-action="k-next">' + esc(t(lbl)) + '</button></div>';
+  }
+  function viewLesson(id, mode) {
+    if (!KL) return notFound('lek.noData');
+    var K = ui.k;
+    if (!K || K.id !== id || K.mode !== (mode || '') || K.res) K = ui.k = kOpen(id, mode);
+    kRender();
+  }
+  function kRender() {
+    var K = ui.k, back = '<a class="icon-btn" href="#/cwiczenia/sciezka" aria-label="' + esc(t('lek.close')) + '">' + ico('close') + '</a>';
+    if (K.res) {
+      var r = K.res, star = function (n) { return '<span class="k-star' + (n <= r.stars ? ' on' : '') + '">★</span>'; };
+      show('<main class="screen k-screen" id="view" tabindex="-1"><div class="k-top">' + back + '<span class="k-bar"><i style="width:100%"></i></span></div><div class="k-body k-res">' +
+        kCat('happy') + '<span class="label-caps">' + esc(t(K.mode ? 'lek.miniDone' : 'lek.done')) + '</span><div class="k-stars">' + [1, 2, 3].map(star).join('') + '</div>' +
+        '<h2 class="k-h">' + esc(t(r.perfect ? 'lek.perfect' : r.stars === 2 ? 'lek.good2' : 'lek.ok')) + '</h2>' +
+        '<div class="k-rstats"><div><b>+' + r.xp + '</b><span>XP</span></div><div><b>+' + r.beans + '</b><span>' + esc(t('stats.beans')) + '</span></div><div><b>' + r.acc + '%</b><span>' + esc(t('lek.acc')) + '</span></div></div>' +
+        '<div class="k-words">' + K.ls.words.map(function (w) { return '<span lang="ko">' + w.k + '</span>'; }).join('') + '</div>' +
+        (K.mode ? '' : '<p class="fine">' + esc(t('lek.newWords')) + '</p>') +
+        '<div class="k-res-act"><button type="button" class="btn btn-ghost" data-action="k-again">' + esc(t('lek.again')) + '</button><a class="btn btn-primary" href="#/cwiczenia/sciezka">' + esc(t('lek.toPath')) + '</a></div></div></main>', K.ls.title);
+      return;
+    }
+    var s = K.steps[K.i];
+    show('<main class="screen k-screen" id="view" tabindex="-1"><div class="k-top">' + back + '<span class="k-bar"><i style="width:' + Math.round(100 * K.i / K.steps.length) + '%"></i></span><span class="k-combo">' + (K.combo >= 2 ? 'x' + K.combo : '') + '</span></div>' +
+      '<div class="k-body">' + kStepBody(K, s) + '</div>' + kFoot(K, s) + '</main>', K.ls.title);
+  }
+  function kGrade(ok, msg) {
+    var K = ui.k, gain = 0;
+    if (ok) { K.combo++; gain = 5 + (K.combo >= 3 ? 2 : 0); K.xp += gain; K.beans += 1; } else { K.combo = 0; K.mistakes++; }
+    K.fb = { ok: ok, msg: msg, gain: gain };
+    kRender();
+  }
+  function kFinish() {
+    var K = ui.k, mini = !!K.mode;
+    K.xp += mini ? 3 : 5; K.beans += mini ? 2 : 5;
+    var perfect = K.mistakes === 0;
+    if (perfect) K.beans += 5;
+    var total = K.steps.filter(function (x) { return x.t === 'choice' || x.t === 'scene' || x.t === 'build'; }).length;
+    var stars = perfect ? 3 : K.mistakes <= 1 ? 2 : 1;
+    Prog.award(K.xp, K.beans);
+    kAddDayXp(K.xp);
+    if (!mini) pSet('k:' + K.id, Math.max(kStars(K.id), stars));
+    K.res = { xp: K.xp, beans: K.beans, perfect: perfect, stars: stars, acc: total ? Math.round(100 * (total - K.mistakes) / total) : 100 };
+    kRender();
+  }
+  function kPath() {
+    if (!KL) return notFound('lek.noData');
+    ui.k = null;
+    var nxt = kNext();
+    var lv = KL.LEVELS.map(function (f) {
+      var dn = f.units.filter(function (u) { return kStars(u.id); }).length;
+      return '<details class="k-lvl"' + (f.units.some(function (u) { return u.id === nxt; }) ? ' open' : '') + '><summary><span class="k-rn">' + f.n + '</span><span class="k-nm"><b>' + esc(f.role) + '</b><small>' + esc(f.sub) + '</small></span><span class="k-cefr">' + f.cefr + ' · ' + dn + '/' + f.units.length + '</span></summary><p class="k-lvl-story">' + esc(f.story) + '</p>' +
+        f.units.map(function (u) {
+          var st = kStars(u.id);
+          return '<a class="k-unit" href="#/cwiczenia/lekcja/' + u.id + '"><span class="k-ut"><b>' + esc(u.t) + '</b><small lang="ko">' + esc(u.g) + '</small></span><span class="k-go">' + (st ? '★'.repeat(st) : ico('chevron', 18)) + '</span></a>';
+        }).join('') + '</details>';
+    }).join('');
+    show('<main class="screen" id="view" tabindex="-1"><div class="content"><div class="topbar topbar-flat"><a class="icon-btn" href="#/cwiczenia" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('lek.path')) + '</h1><span class="subtitle">' + esc(t('lek.pathSub')) + '</span></div></div>' + lv + '</div>' + nav('practice') + '</main>', t('lek.path'));
+  }
+  function kFeature() {
+    if (!KL) return '';
+    var id = kNext(), ls = KL.LESSONS[id], xp = Math.min(kDayXp(), K_GOAL), pct = Math.round(100 * xp / K_GOAL), done = kDayXp() >= K_GOAL;
+    function q(mode, key) { return '<a class="k-quick" href="#/cwiczenia/lekcja/' + id + '/' + mode + '"><span>' + esc(t(key)) + '</span></a>'; }
+    return '<section class="k-feat">' + mascot('kotek', 'm-kfeat') + '<div class="k-feat-text"><span class="label-caps">' + esc(t('lek.cap')) + '</span>' +
+      '<p class="k-hello">' + esc(t('lek.hello')) + '</p><h2 class="k-h">' + esc(ls.title) + '</h2>' +
+      '<div class="k-chips"><span>' + esc(t('lek.words5')) + '</span><span lang="ko">' + esc(ls.gram) + '</span><span>' + esc(t('lek.min')) + '</span></div>' +
+      '<a class="btn btn-primary" href="#/cwiczenia/lekcja/' + id + '">' + esc(t(kStars(id) ? 'lek.replay' : 'lek.start')) + '</a>' +
+      '<div class="k-goal"><span>' + esc(t('lek.goal')) + ' · ' + xp + '/' + K_GOAL + ' XP</span><span class="k-gbar"><i style="width:' + pct + '%"></i></span><small>' + esc(t(done ? 'lek.goalOk' : 'lek.goalLeft')) + '</small></div></div>' +
+      '<div class="k-quicks">' + q('words', 'lek.mode.words') + q('listen', 'lek.mode.listen') + q('practice', 'lek.mode.practice') + '</div></section>' +
+      '<a class="row" href="#/cwiczenia/sciezka"><span class="badge-sq" aria-hidden="true">🗺️</span><span class="row-text"><strong>' + esc(t('lek.path')) + '</strong><small>' + esc(t('lek.pathRow')) + '</small></span>' + ico('chevron', 20) + '</a>';
+  }
   function viewPractice() {
+    ui.k = null;
     var bar = '<a class="row" href="#/cwiczenia/barista"><span class="badge-sq">' + esc(D.barista.badge) + '</span>' +
       '<span class="row-text"><strong>' + esc(L(D.barista.name)) + '</strong><small>' + esc(O(D.barista.name)) + ' · ' + esc(L(D.barista.desc)) + '</small></span>' + ico('chevron', 20) + '</a>';
     var rows = bar + D.practice.map(function (r) {
@@ -857,7 +1003,7 @@
     }).join('');
     show('<main class="screen" id="view" tabindex="-1"><div class="content">' +
       '<div class="head"><div><h1 class="title">' + esc(t('practice.title')) + '</h1><p class="subtitle">' + esc(t('practice.sub')) + '</p></div></div>' +
-      '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
+      kFeature() + '<div class="list">' + rows + '</div><p class="fine">' + esc(t('practice.demo')) + '</p></div>' + nav('practice') + '</main>', t('practice.title'));
   }
   function pBubble(e, mine) {
     var tr = (!mine && lang === 'pl') ? '<span class="tr">' + esc(e.p) + '</span>' : '';
@@ -967,7 +1113,7 @@
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
-      case 'cwiczenia': return seg[1] === 'barista' ? viewBarista() : seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
+      case 'cwiczenia': return seg[1] === 'barista' ? viewBarista() : seg[1] === 'sciezka' ? kPath() : seg[1] === 'lekcja' ? viewLesson(seg[2], seg[3]) : seg[1] ? viewPracticeRoom(seg[1]) : viewPractice();
       case 'wydarzenia': return viewEvents(seg[1] === 'premium' ? 'premium' : 'all');
       case 'premium': return viewPremium();
       case 'profil': return viewProfile();
@@ -1026,6 +1172,28 @@
       }
     } else if (a === 'p-again') {
       ui.pWrong = null; pSet(el.getAttribute('data-id'), 0); route();
+    } else if (a === 'k-tr') {
+      if (ui.k) { ui.k.tr = !ui.k.tr; ui.keepScroll = true; kRender(); }
+    } else if (a === 'k-next') {
+      var K = ui.k; if (!K) return;
+      K.i++; K.fb = null; K.ans = []; K.tr = false;
+      if (K.i >= K.steps.length) kFinish(); else kRender();
+    } else if (a === 'k-pick') {
+      var K1 = ui.k; if (!K1 || K1.fb) return;
+      var st1 = K1.steps[K1.i], oi = +el.getAttribute('data-i');
+      K1.sel = oi; kGrade(!!st1.o[oi].ok, st1.ok);
+    } else if (a === 'k-blk') {
+      var K2 = ui.k; if (!K2 || K2.fb) return;
+      var bi = +el.getAttribute('data-i'); if (K2.ans.indexOf(bi) < 0) { K2.ans.push(bi); ui.keepScroll = true; kRender(); }
+    } else if (a === 'k-unblk') {
+      var K3 = ui.k; if (!K3 || K3.fb) return;
+      var ub = +el.getAttribute('data-i'); K3.ans = K3.ans.filter(function (x) { return x !== ub; }); ui.keepScroll = true; kRender();
+    } else if (a === 'k-check') {
+      var K4 = ui.k; if (!K4 || K4.fb || !K4.ans.length) return;
+      var st4 = K4.steps[K4.i];
+      kGrade(K4.ans.map(function (x) { return st4.b[x]; }).join('|') === st4.a.join('|'), st4.ok);
+    } else if (a === 'k-again') {
+      if (ui.k) { var m0 = ui.k.mode, i0 = ui.k.id; ui.k = kOpen(i0, m0); kRender(); }
     } else if (a === 'say') {
       try {
         var u = new SpeechSynthesisUtterance(el.getAttribute('data-text')); u.lang = 'ko-KR'; u.rate = .9;
