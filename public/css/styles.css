@@ -810,7 +810,7 @@ body { background: #F8F1E3; }
 .list > *:nth-child(4n) .badge-sq { background: var(--pastel-lav) !important; }
 
 /* maskotki */
-.mascot { display: inline-block; width: 96px; height: 96px; flex: none; filter: drop-shadow(0 8px 10px rgba(122, 75, 0, .14)); }
+.mascot { display: inline-block; width: 96px; height: 96px; flex: none; }
 .mascot svg { display: block; }
 .m-head { width: 64px; height: 64px; animation: bob 3.6s ease-in-out infinite; }
 .m-hero { width: 104px; height: 104px; margin: 0 auto 8px; display: block; animation: bob 3.2s ease-in-out infinite; }
@@ -837,7 +837,7 @@ body { background: #F8F1E3; }
 
 /* podpowiedź jako mały dymek z kotkiem (Quicksand: zaokrąglony, z polskimi znakami; hangul z Noto Sans KR) */
 .qprompt { display: flex; align-items: flex-end; gap: 6px; padding: 10px 16px 6px; background: transparent; border-top: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
-.qprompt .m-cat { width: 58px; height: 58px; filter: drop-shadow(0 4px 6px rgba(122, 75, 0, .16)); animation: bob 3.4s ease-in-out infinite; margin-bottom: 2px; }
+.qprompt .m-cat { width: 58px; height: 58px; animation: bob 3.4s ease-in-out infinite; margin-bottom: 2px; }
 .q-bubble { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; background: #fff; border: 1.5px solid #E9DDCB; border-radius: 18px 18px 18px 6px; padding: 10px 12px 10px; box-shadow: 0 8px 18px -10px rgba(122, 75, 0, .3); font-family: 'Quicksand', 'Nunito', 'Noto Sans KR', system-ui, sans-serif; }
 .q-bubble::before { content: ''; position: absolute; left: -7px; bottom: 14px; width: 12px; height: 12px; background: #fff; border-left: 1.5px solid #E9DDCB; border-bottom: 1.5px solid #E9DDCB; transform: rotate(45deg); border-radius: 0 0 0 4px; }
 .q-bubble .label-caps { font-size: 10px; letter-spacing: .08em; color: #8A6A3B; }
