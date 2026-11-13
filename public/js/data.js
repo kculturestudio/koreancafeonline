@@ -386,9 +386,9 @@
        lang = język oryginału, tr = tłumaczenie na drugi język. */
     seeds: {
       'chat:kr-a1': [
-        { author: 'Hyunwoo', city: '서울', time: '20:41', lang: 'ko', text: '안녕하세요! 어디에 사세요?', tr: { pl: 'Cześć! Gdzie mieszkasz?' } },
-        { author: 'Basia', city: 'Kraków', time: '13:42', lang: 'ko', text: '크라쿠프에 살아요.', tr: { pl: 'Mieszkam w Krakowie.' } },
-        { author: 'Tomek', city: 'Warszawa', time: '13:44', lang: 'ko', text: '나는 커피 좋아해요.', tr: { pl: 'Lubię kawę.' } },
+        { author: 'Hyunwoo', city: '서울', interests: '드라마, 요리', time: '20:41', lang: 'ko', text: '안녕하세요! 어디에 사세요?', tr: { pl: 'Cześć! Gdzie mieszkasz?' } },
+        { author: 'Basia', city: 'Kraków', interests: 'K-pop, taniec', time: '13:42', lang: 'ko', text: '크라쿠프에 살아요.', tr: { pl: 'Mieszkam w Krakowie.' } },
+        { author: 'Tomek', city: 'Warszawa', interests: 'kawa, podróże', time: '13:44', lang: 'ko', text: '나는 커피 좋아해요.', tr: { pl: 'Lubię kawę.' } },
         { author: 'Hyunwoo', city: '서울', time: '20:45', lang: 'ko', text: '저는 커피를 좋아해요.', fix: { pl: 'Grzeczniej: 저는 zamiast 나는. Dopełnienie dostaje partykułę -를.', ko: '더 공손하게: 나는 대신 저는. 목적어에는 조사 -를/을 붙여요.' } },
         { author: 'Hyunwoo', city: '서울', time: '20:46', lang: 'ko', text: '모두 잘했어요!', tr: { pl: 'Wszyscy świetnie wam poszło!' } }
       ],

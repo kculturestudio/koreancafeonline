@@ -180,6 +180,14 @@
   }
 
   /* ---------- usługa czatu (dziś: tylko lokalnie; tu podłączysz prawdziwy backend) ---------- */
+  /* dane widoczne dla wszystkich w kawiarni: miasto i zainteresowania (imię jest osobno) */
+  function pubProfile() {
+    return { city: String(load('city', '') || '').trim().slice(0, 40), interests: String(load('interests', '') || '').trim().slice(0, 80) };
+  }
+  function interestsHtml(str) {
+    var a = String(str || '').split(/[,;]+/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4);
+    return a.length ? '<span class="who-int">' + a.map(esc).join(' · ') + '</span>' : '';
+  }
   var Chat = {
     history: function (key) {
       var seeds = (CFG.demo && D.seeds[key]) || [];
@@ -187,7 +195,8 @@
     },
     send: function (key, text) {
       var d = new Date();
-      var msg = { mine: true, text: text, time: pad(d.getHours()) + ':' + pad(d.getMinutes()) };
+      var pub = pubProfile();
+      var msg = { mine: true, text: text, city: pub.city, interests: pub.interests, time: pad(d.getHours()) + ':' + pad(d.getMinutes()) };
       var list = load('msgs.' + key, []);
       list.push(msg);
       save('msgs.' + key, list.slice(-100));
@@ -197,7 +206,7 @@
 
   /* ---------- czat na żywo (Supabase): historia z bazy + nowe wiadomości od razu ---------- */
   var Live = { token: 0, ids: {}, channel: null };
-  var MSG_COLS = 'id,user_id,author,text,created_at';
+  var MSG_COLS = 'id,user_id,author,city,interests,text,created_at';
 
   function msgTime(iso) {
     var d = new Date(iso);
@@ -208,7 +217,7 @@
     return (lang === 'ko' ? (d.getMonth() + 1) + '/' + d.getDate() : pad(d.getDate()) + '.' + pad(d.getMonth() + 1)) + ' ' + hm;
   }
   function rowToMsg(row) {
-    return { mine: !!(ui.user && row.user_id === ui.user.id), author: row.author, time: msgTime(row.created_at), text: row.text };
+    return { mine: !!(ui.user && row.user_id === ui.user.id), author: row.author, city: row.city || '', interests: row.interests || '', time: msgTime(row.created_at), text: row.text };
   }
   Live.detach = function () {
     Live.token++;
@@ -256,7 +265,8 @@
   };
   Live.send = function (key, text) {
     var author = (load('name', '') || t('profile.guest')).slice(0, 30);
-    return SB.client.from('messages').insert({ channel: key, author: author, text: text }).select(MSG_COLS).single()
+    var pub = pubProfile();
+    return SB.client.from('messages').insert({ channel: key, author: author, city: pub.city || null, interests: pub.interests || null, text: text }).select(MSG_COLS).single()
       .then(function (r) {
         if (r.error) throw r.error;
         return r.data;
@@ -486,12 +496,13 @@
   function msgHtml(m) {
     var author = m.author || (m.mine ? (load('name', '') || t('room.you')) : '');
     var meta = esc(author) + (m.city ? ' · ' + esc(m.city) : '') + (m.time ? ' ' + esc(m.time) : '');
+    var ints = interestsHtml(m.interests);
     if (m.fix) {
-      return '<div class="bubble bubble-fix"><span class="meta">' + esc(t('chat.fix')) + ' · ' + meta + '</span><span class="txt">' + esc(m.text) + '</span><span class="tr">' + esc(L(m.fix)) + '</span></div>';
+      return '<div class="bubble bubble-fix"><span class="meta">' + esc(t('chat.fix')) + ' · ' + meta + '</span>' + ints + '<span class="txt">' + esc(m.text) + '</span><span class="tr">' + esc(L(m.fix)) + '</span></div>';
     }
     var tr = '';
     if (!m.mine && m.lang && m.lang !== lang && m.tr && m.tr[lang]) tr = '<span class="tr">' + esc(m.tr[lang]) + '</span>';
-    return '<div class="bubble ' + (m.mine ? 'bubble-out' : 'bubble-in') + '"><span class="meta">' + meta + '</span><span class="txt">' + esc(m.text) + '</span>' + tr + '</div>';
+    return '<div class="bubble ' + (m.mine ? 'bubble-out' : 'bubble-in') + '"><span class="meta">' + meta + '</span>' + ints + '<span class="txt">' + esc(m.text) + '</span>' + tr + '</div>';
   }
   function messagesHtml(key) {
     var list = Chat.history(key);
@@ -605,7 +616,7 @@
       status = slot && slot.live ? '<span class="live-badge"><i></i>' + esc(t('live.now')) + '</span>' : '<span class="when">' + esc(slot ? whenText(slot.start, now) : '') + '</span>';
     }
     var name = load('name', '') || t('profile.guest');
-    var seats = '<div class="seat"><span class="avatar avatar-you">' + esc(name.charAt(0).toUpperCase()) + '</span><span class="seat-name">' + esc(name) + '</span><span class="seat-role">' + esc(t('room.you')) + '</span></div>' +
+    var seats = '<div class="seat"><span class="avatar avatar-you">' + esc(name.charAt(0).toUpperCase()) + '</span><span class="seat-name">' + esc(name) + '</span><span class="seat-role">' + esc(t('room.you')) + (pubProfile().city ? ' · ' + esc(pubProfile().city) : '') + '</span></div>' +
       '<div class="seat"><span class="avatar avatar-empty">' + ico('crown', 22) + '</span><span class="seat-empty">' + esc(t('room.moderator')) + '</span></div>';
     for (var i = 2; i < r.seats; i++) {
       seats += '<div class="seat"><span class="avatar avatar-empty">' + ico('plus', 22) + '</span><span class="seat-empty">' + esc(t('room.free')) + '</span></div>';
@@ -838,12 +849,17 @@
       '<div class="pset"><p class="label-caps">' + esc(t('profile.settings')) + '</p><div class="pset-card">' +
       '<label class="pset-row" for="name"><span>' + esc(t('profile.name')) + '</span>' +
       '<input class="pset-input" id="name" data-pref="name" type="text" maxlength="30" autocomplete="nickname" placeholder="' + esc(t('profile.namePh')) + '" value="' + esc(name) + '"></label>' +
+      '<label class="pset-row" for="city"><span>' + esc(t('profile.city')) + '</span>' +
+      '<input class="pset-input" id="city" data-pref="city" type="text" maxlength="40" autocomplete="address-level2" placeholder="' + esc(t('profile.cityPh')) + '" value="' + esc(load('city', '')) + '"></label>' +
+      '<label class="pset-row" for="interests"><span>' + esc(t('profile.interests')) + '</span>' +
+      '<input class="pset-input" id="interests" data-pref="interests" type="text" maxlength="80" placeholder="' + esc(t('profile.interestsPh')) + '" value="' + esc(load('interests', '')) + '"></label>' +
       '<div class="pset-row"><span>' + esc(t('profile.lang')) + '</span>' + langSeg() + '</div>' +
       '<label class="pset-row" for="level"><span>' + esc(t('profile.level')) + '</span>' +
       '<select class="pset-input" id="level" data-pref="level">' + levels.map(function (o) { return '<option value="' + o[0] + '"' + (level === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>' +
       '<button type="button" class="pset-row pset-link" data-action="portal"><span>' + esc(t('profile.manage')) + '</span>' + ico('chevron', 18) + '</button>' +
       '<a class="pset-row pset-link" href="regulamin.html"><span>' + esc(t('legal.terms')) + '</span>' + ico('chevron', 18) + '</a>' +
-      '<a class="pset-row pset-link" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 18) + '</a></div></div>' +
+      '<a class="pset-row pset-link" href="prywatnosc.html"><span>' + esc(t('legal.privacyNom')) + '</span>' + ico('chevron', 18) + '</a></div>' +
+      '<p class="pset-note">' + esc(t('profile.publicNote')) + '</p></div>' +
       '<p class="notice">' + esc(t(SB.on ? 'profile.noteRemote' : 'demo.account')) + '</p>' +
       '<div class="brand-stamp"><img class="logo-mini" src="img/logo-96.png" alt="" width="64" height="64"><span>Korean Café Online<small>K-Culture Studio · Fundacja Hanguk</small></span></div></div>' + nav('profile') + '</main>';
     show(html, t('profile.title'));
@@ -1357,7 +1373,10 @@
 
   document.addEventListener('input', function (e) {
     var el = e.target;
-    if (el.getAttribute && el.getAttribute('data-pref') === 'name') save('name', el.value.trim().slice(0, 30));
+    var pref = el.getAttribute && el.getAttribute('data-pref');
+    if (pref === 'name') save('name', el.value.trim().slice(0, 30));
+    else if (pref === 'city') save('city', el.value.trim().slice(0, 40));
+    else if (pref === 'interests') save('interests', el.value.trim().slice(0, 80));
   });
 
   document.addEventListener('submit', function (e) {
