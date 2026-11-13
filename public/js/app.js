@@ -825,8 +825,10 @@
     var level = load('level', '');
     var levels = [['', t('profile.levelNone')], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1'], ['B2', 'B2'], ['C1', 'C1'], ['C2', 'C2']];
     var html = '<main class="screen" id="view" tabindex="-1"><div class="content">' +
-      '<div class="profile-head"><span class="avatar avatar-you">' + esc((name || t('profile.guest')).charAt(0).toUpperCase()) + '</span>' +
-      '<div><h1 class="title">' + esc(name || t('profile.title')) + '</h1><p class="subtitle">' + esc(t('profile.plan')) + '</p></div></div>' +
+      '<div class="profile-head"><div class="ph-top"><span class="avatar avatar-you">' + esc((name || t('profile.guest')).charAt(0).toUpperCase()) + '</span>' +
+      '<div class="ph-text"><span class="ph-plan">' + esc(t('profile.plan')) + '</span><h1 class="title">' + esc(name || t('profile.title')) + '</h1></div>' + mascot('kotek', 'm-ph') + '</div>' +
+      '<div class="ph-xp"><div class="ph-xp-row"><b>' + esc(t('stats.level')) + ' ' + Prog.level() + '</b><span>' + (Prog.stats().xp % 100) + ' / 100 XP</span></div>' +
+      '<div class="ph-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (Prog.stats().xp % 100) + '"><i style="width:' + (Prog.stats().xp % 100) + '%"></i></div></div></div>' +
       accountHtml() + statsHtml() +
       '<a class="plan-card" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
       '<span class="row-text"><strong>' + esc(t('profile.plan')) + '</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
