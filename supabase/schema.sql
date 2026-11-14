@@ -65,3 +65,8 @@ begin
     alter publication supabase_realtime add table public.messages;
   end if;
 end $$;
+
+
+-- Miasto i zainteresowania: dobrowolne, widoczne dla wszystkich zalogowanych razem z wiadomością (jak imię).
+alter table public.messages add column if not exists city      text check (city is null or char_length(city) between 1 and 40);
+alter table public.messages add column if not exists interests text check (interests is null or char_length(interests) between 1 and 80);
