@@ -1223,10 +1223,9 @@
     renderedHash = hash;
     var seg = hash.slice(1).split('/').filter(Boolean);
     var name = seg[0] || '';
-    if (name !== '' && !load('age18', false)) { navigate('#/', true); return; }
+    if (name === '') { navigate('#/kawiarnia', true); return; }
     if (name !== '' && name !== 'nowe-haslo' && ui.recovery && ui.user) { navigate('#/nowe-haslo', true); return; }
     switch (name) {
-      case '': return viewWelcome();
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
       case 'czat': return viewChat(seg[1]);
       case 'room': return viewRoom(seg[1]);
