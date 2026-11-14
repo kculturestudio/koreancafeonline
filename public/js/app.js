@@ -1094,7 +1094,7 @@
     if (m.who === 'fix') return '<div class="pt-fix"><span class="label-caps">' + esc(t('pt.fix')) + '</span><div class="pt-k" lang="ko">' + esc(m.k) + '</div><p>' + esc(t('pt.why')) + ': ' + esc(m.why) + '</p></div>';
     if (m.who === 'hint') return '<div class="pt-hint"><span class="label-caps">' + esc(t('pt.hintLabel')) + '</span><p>' + esc(m.pl) + '</p><p>' + esc(t('pt.example')) + ': <b lang="ko">' + esc(m.ex) + '</b> <span>(' + esc(m.exPl) + ')</span></p></div>';
     if (m.who === 'sum') return '';
-    return '<div class="pt-row ai"><div class="pt-k" lang="ko">' + esc(m.k) + '</div><small><span class="pt-by">' + esc(t('pt.cat')) + '</span> · ' + esc(m.pl) + '</small>' + '<button type="button" class="say" data-action="say" data-text="' + esc(m.k) + '" aria-label="' + esc(t('practice.listen')) + '">' + ico('sound', 18) + '</button></div>';
+    return '<div class="pt-row ai"><div class="pt-k" lang="ko">' + esc(m.k) + '</div><small>' + esc(m.pl) + '</small>' + '<button type="button" class="say" data-action="say" data-text="' + esc(m.k) + '" aria-label="' + esc(t('practice.listen')) + '">' + ico('sound', 18) + '</button></div>';
   }
   function viewPartner(id) {
     if (!ui.pt || ui.pt.id !== id) ui.pt = ptNew(id);
