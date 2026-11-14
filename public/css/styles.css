@@ -1061,8 +1061,8 @@ html, body { height: 100%; overflow: hidden; }
   --pastel-butter: #FFF6E6; --pastel-pink: #FBCFE8; --pastel-mint: #E9F8B0; --pastel-lav: #E9D5FF;
   --a: #8B5CF6; --b: #FB923C; --hair: 1px solid rgba(31, 26, 46, .09); --hair-blush: 1px solid rgba(139, 92, 246, .25);
   --ring: 0 0 0 4px rgba(139, 92, 246, .22); --glow: 0 10px 24px -10px rgba(139, 92, 246, .6);
-  --display: 'Space Grotesk', 'Noto Sans KR', system-ui, sans-serif; --serif: var(--display);
-  --sans: 'Space Grotesk', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Be Vietnam Pro', 'Noto Sans KR', system-ui, sans-serif; --serif: var(--display);
+  --sans: 'Be Vietnam Pro', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --ink-grad: linear-gradient(155deg, #3A2F5C 0%, #1F1A2E 70%);
 }
 body, .app, .screen { font-family: var(--sans); }
