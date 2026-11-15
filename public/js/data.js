@@ -384,6 +384,16 @@
         format: { pl: 'room tematyczny, 90 min', ko: '주제별 대화방, 90분' }
       },
       {
+        id: 'kpop-dance-workshop', time: '15:00', dow: [6], dur: 90, premium: true,
+        name: { pl: 'K-pop dance workshop: nauka choreografii', ko: '케이팝 댄스 워크숍: 안무 배우기' },
+        format: { pl: 'warsztat na żywo, 90 min', ko: '라이브 워크숍, 90분' }
+      },
+      {
+        id: 'workout-jungkook', time: '19:00', dow: [1], dur: 45, premium: true,
+        name: { pl: 'Trening inspirowany workoutem Jungkooka', ko: '정국 운동 루틴에서 영감받은 트레이닝' },
+        format: { pl: 'trening na żywo, 45 min', ko: '라이브 트레이닝, 45분' }
+      },
+      {
         id: 'gotowanie-live', time: '17:00', dow: [6], dur: 90, premium: true,
         name: { pl: 'Gotujemy razem: tteokbokki', ko: '함께 요리해요: 떡볶이' },
         format: { pl: 'stolik Gotowanie, 90 min', ko: '요리 테이블, 90분' }
