@@ -206,13 +206,6 @@
         name: { pl: 'Praca i życie w Polsce', ko: '폴란드 생활' },
         desc: { pl: 'pytania do osób z Polski', ko: '폴란드에 사는 분들께 질문' },
         rule: { pl: 'Pytaj o pracę, wizy, mieszkanie i codzienność w Polsce. Odpowiadamy po polsku i po koreańsku.', ko: '폴란드에서의 일, 비자, 집, 일상에 대해 물어보세요. 폴란드어와 한국어로 답해요.' }
-      },
-      {
-        id: 'dance', badge: 'PL·KR', lang: 'MIX', topic: 'dance', premium: true,
-        levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'Taniec i muzyka', ko: '춤과 음악' },
-        desc: { pl: 'dla stałych bywalców', ko: '단골 전용' },
-        rule: { pl: 'Dzielimy się choreografiami, piosenkami i wskazówkami.', ko: '안무, 노래, 팁을 함께 나눠요.' }
       }
     ],
 
