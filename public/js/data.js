@@ -225,7 +225,7 @@
       {
         id: 'drama-stolik', always: true, premium: false, seats: 6, badge: 'ROOM',
         lang: 'MIX', topic: 'culture', levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'Stolik · K-drama i K-pop', ko: '테이블 · 드라마 · 케이팝' },
+        name: { pl: 'K-drama tygodnia', ko: '이번 주 드라마' },
         // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
         daily: [
           { title: { pl: 'Serial na czasie', ko: '요즘 드라마' }, q: 'Który serial ostatnio Cię naprawdę wciągnął?', tr: '최근에 어떤 드라마에 푹 빠졌어요?' },
