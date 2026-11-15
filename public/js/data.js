@@ -117,7 +117,7 @@
       },
       {
         id: 'pl-b1', badge: 'PL', lang: 'PL', topic: 'language', premium: false,
-        levels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], level: { pl: 'A1–C2', ko: 'A1–C2' }, ages: ALL_AGES,
+        levels: ['A2'], level: { pl: 'A2', ko: 'A2' }, ages: ALL_AGES,
         name: { pl: 'Rozmowy po polsku', ko: '폴란드어 대화' },
         desc: { pl: 'dla Koreańczyków', ko: '한국분들을 위한 방' },
         rule: { pl: 'Pisz po polsku, native speakerzy poprawiają.', ko: '폴란드어로 써 보세요. 원어민이 고쳐 드려요.' },
@@ -176,24 +176,6 @@
         ]
       },
       {
-        id: 'drama', badge: 'PL·KR', lang: 'MIX', topic: 'culture', premium: false,
-        levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
-        name: { pl: 'K-drama i K-pop', ko: '드라마 · 케이팝' },
-        desc: { pl: 'tłumaczenia w czacie', ko: '채팅 번역 지원' },
-        rule: { pl: 'Piszcie w dowolnym języku, tłumaczenie pojawia się pod wiadomością.', ko: '어느 언어로든 써 보세요. 번역이 메시지 아래에 표시돼요.' },
-        // Prompty nad polem wiadomości (seriale i K-pop): pl = pytanie po polsku, k = tłumaczenie po koreańsku.
-        practice: [
-          { pl: 'Który serial ostatnio Cię naprawdę wciągnął?', k: '최근에 어떤 드라마에 푹 빠졌어요?' },
-          { pl: 'Które zakończenie serialu Cię zaskoczyło?', k: '결말이 가장 놀라웠던 드라마가 뭐예요?' },
-          { pl: 'Jaki jest Twój ulubiony duet na ekranie?', k: '제일 좋아하는 드라마 커플이 누구예요?' },
-          { pl: 'Jaką piosenkę z serialu możesz słuchać w kółko?', k: '드라마 OST 중에서 계속 듣는 노래가 있어요?' },
-          { pl: 'Czy po serialu zacząłeś(-aś) uczyć się koreańskiego?', k: '드라마를 보고 한국어를 공부하기 시작했어요?' },
-          { pl: 'Który serial poleciłbyś(-abyś) komuś na start?', k: '처음 보는 사람에게 어떤 드라마를 추천하고 싶어요?' },
-          { pl: 'Jaką scenę z serialu pamiętasz najlepiej?', k: '가장 기억에 남는 드라마 장면이 뭐예요?' },
-          { pl: 'Wolisz oglądać na bieżąco czy po całym sezonie?', k: '방영 중에 봐요, 아니면 한꺼번에 몰아 봐요?' }
-        ]
-      },
-      {
         id: 'korea-life', badge: 'PL·KR', lang: 'MIX', topic: 'life', premium: false,
         levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–B2', ko: 'B1–B2' }, ages: ['26-35', '36+'],
         name: { pl: 'Praca i życie w Korei', ko: '한국 생활' },
@@ -238,6 +220,22 @@
           { title: {pl: 'Nauka polskiego', ko: '폴란드어 공부'}, q: 'Ile czasu dziennie uczysz się polskiego?', tr: '하루에 폴란드어를 얼마나 공부해요?' },
           { title: {pl: 'Ranek czy wieczór', ko: '아침 또는 저녁'}, q: 'Wolisz poranki czy wieczory?', tr: '아침이 좋아요, 저녁이 좋아요?' },
           { title: {pl: 'Kawa czy herbata', ko: '커피 또는 차'}, q: 'Wolisz kawę czy herbatę?', tr: '커피가 좋아요, 차가 좋아요?' }
+        ]
+      },
+      {
+        id: 'drama-stolik', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'culture', levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · K-drama i K-pop', ko: '테이블 · 드라마 · 케이팝' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Serial na czasie', ko: '요즘 드라마' }, q: 'Który serial ostatnio Cię naprawdę wciągnął?', tr: '최근에 어떤 드라마에 푹 빠졌어요?' },
+          { title: { pl: 'Zakończenia', ko: '결말' }, q: 'Które zakończenie serialu Cię zaskoczyło?', tr: '결말이 가장 놀라웠던 드라마가 뭐예요?' },
+          { title: { pl: 'Ulubiony duet', ko: '최애 커플' }, q: 'Jaki jest Twój ulubiony duet na ekranie?', tr: '제일 좋아하는 드라마 커플이 누구예요?' },
+          { title: { pl: 'Piosenki z seriali', ko: '드라마 OST' }, q: 'Jaką piosenkę z serialu możesz słuchać w kółko?', tr: '드라마 OST 중에서 계속 듣는 노래가 있어요?' },
+          { title: { pl: 'Od serialu do nauki', ko: '드라마로 시작한 공부' }, q: 'Czy po serialu zacząłeś(-aś) uczyć się koreańskiego?', tr: '드라마를 보고 한국어를 공부하기 시작했어요?' },
+          { title: { pl: 'Polecajki', ko: '추천' }, q: 'Który serial poleciłbyś(-abyś) komuś na start?', tr: '처음 보는 사람에게 어떤 드라마를 추천하고 싶어요?' },
+          { title: { pl: 'Najlepsza scena', ko: '명장면' }, q: 'Jaką scenę z serialu pamiętasz najlepiej?', tr: '가장 기억에 남는 드라마 장면이 뭐예요?' },
+          { title: { pl: 'Tempo oglądania', ko: '시청 습관' }, q: 'Wolisz oglądać na bieżąco czy po całym sezonie?', tr: '방영 중에 봐요, 아니면 한꺼번에 몰아 봐요?' }
         ]
       },
       {
