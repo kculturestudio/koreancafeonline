@@ -239,6 +239,38 @@
         ]
       },
       {
+        id: 'wakacje-kr', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Wakacje w Korei', ko: '테이블 · 한국 여행' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Kiedy jechać', ko: '가는 시기' }, q: 'Kiedy najlepiej jechać do Korei i dlaczego?', tr: '한국에 가기 가장 좋은 때가 언제예요? 왜요?' },
+          { title: { pl: 'Seul', ko: '서울' }, q: 'Co koniecznie trzeba zobaczyć w Seulu?', tr: '서울에서 꼭 가 봐야 할 곳이 어디예요?' },
+          { title: { pl: 'Poza Seulem', ko: '서울 밖' }, q: 'Które miasto poza Seulem polecasz?', tr: '서울 말고 어느 도시를 추천해요?' },
+          { title: { pl: 'Jedzenie', ko: '음식' }, q: 'Co trzeba zjeść w Korei?', tr: '한국에서 꼭 먹어 봐야 할 음식이 뭐예요?' },
+          { title: { pl: 'Transport', ko: '교통' }, q: 'Jak najlepiej poruszać się po Korei?', tr: '한국에서 어떻게 다니는 게 제일 편해요?' },
+          { title: { pl: 'Nocleg', ko: '숙소' }, q: 'Gdzie spać: hotel, hanok czy guesthouse?', tr: '호텔, 한옥, 게스트하우스 중 어디가 좋아요?' },
+          { title: { pl: 'Budżet', ko: '예산' }, q: 'Ile kosztuje tydzień wakacji w Korei?', tr: '한국 여행 일주일에 얼마나 들어요?' },
+          { title: { pl: 'Przydatne zdania', ko: '유용한 표현' }, q: 'Jakie zdania warto znać na wyjazd?', tr: '여행 갈 때 알아 두면 좋은 표현이 뭐예요?' }
+        ]
+      },
+      {
+        id: 'wakacje-eu', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ALL_LEVELS, level: { pl: 'wszystkie poziomy', ko: '모든 레벨' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Wakacje w Polsce i Europie', ko: '테이블 · 폴란드·유럽 여행' },
+        // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
+        daily: [
+          { title: { pl: 'Kiedy jechać', ko: '가는 시기' }, q: 'Kiedy najlepiej jechać na wakacje do Polski lub Europy?', tr: '폴란드나 유럽에 가기 가장 좋은 때가 언제예요?' },
+          { title: { pl: 'Polska', ko: '폴란드' }, q: 'Co koniecznie trzeba zobaczyć w Polsce?', tr: '폴란드에서 꼭 가 봐야 할 곳이 어디예요?' },
+          { title: { pl: 'Europa', ko: '유럽' }, q: 'Które miasto w Europie polecasz?', tr: '유럽에서 어느 도시를 추천해요?' },
+          { title: { pl: 'Jedzenie', ko: '음식' }, q: 'Co trzeba zjeść w Polsce i w Europie?', tr: '폴란드와 유럽에서 꼭 먹어 봐야 할 음식이 뭐예요?' },
+          { title: { pl: 'Transport', ko: '교통' }, q: 'Jak najlepiej podróżować po Europie?', tr: '유럽에서 어떻게 다니는 게 제일 편해요?' },
+          { title: { pl: 'Nocleg', ko: '숙소' }, q: 'Gdzie spać: hotel, apartament czy hostel?', tr: '호텔, 아파트, 호스텔 중 어디가 좋아요?' },
+          { title: { pl: 'Budżet', ko: '예산' }, q: 'Ile kosztuje tydzień wakacji w Polsce lub Europie?', tr: '폴란드나 유럽 여행 일주일에 얼마나 들어요?' },
+          { title: { pl: 'Przydatne zdania', ko: '유용한 표현' }, q: 'Jakie zdania warto znać na wyjazd?', tr: '여행 갈 때 알아 두면 좋은 표현이 뭐예요?' }
+        ]
+      },
+      {
         id: 'fandomy', always: true, premium: false, seats: 6, badge: 'ROOM',
         lang: 'MIX', topic: 'culture', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
         name: { pl: 'Stolik · Fandomy', ko: '테이블 · 팬덤' },
