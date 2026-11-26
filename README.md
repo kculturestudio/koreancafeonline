@@ -12,6 +12,10 @@ public/                      strona (to Netlify publikuje)
   js/config.js               ustawienia (ceny do wyświetlania, usługi, tryb demo)
   js/data.js                 czaty, roomy, wydarzenia, przykładowe wiadomości
   js/teksty.js               wszystkie teksty interfejsu PL/KR
+  js/teksty-en.js            tłumaczenia angielskie (klucz = tekst polski)
+  js/struktura.js            stoliki, kluby i ścieżka: Lada → Stolik → Sezon → Live
+  js/kotek-przewodnik.js     kotek-przewodnik (podpowiedzi w aplikacji)
+  js/kotek-teksty.js         teksty kotka-przewodnika PL/KO/EN
   regulamin.html, prywatnosc.html   SZKIELETY do uzupełnienia
 netlify/functions/           płatności Stripe (checkout + webhook)
 supabase/schema.sql          baza wiadomości czatu (wklejasz raz w Supabase)
@@ -73,6 +77,8 @@ Kod jest już w repozytorium. Do uruchomienia potrzebujesz tylko darmowego proje
 4. W `public/js/config.js` wpisz je w pole `supabase.url` i `supabase.anonKey`, a `demo` ustaw na `false`. Zapisz, wypchnij na GitHuba. Netlify wdroży się sam.
 5. *Authentication → URL Configuration*: jako **Site URL** wpisz adres strony (np. `https://koreancafeonline.netlify.app`) i dodaj go też do **Redirect URLs**. Bez tego linki z e-maili (potwierdzenie konta, reset hasła) nie wrócą na stronę.
 6. *Authentication → Sign In / Providers → Email*: zostaw włączone logowanie e-mailem. Opcja *Confirm email* włączona = nowa osoba musi kliknąć link z maila, zanim wejdzie (polecane na start publiczny).
+
+**Aktualizacja (stoliki i kluby na żywo):** czaty w stolikach i klubach zapisują się w kanałach `table:...`. Jeśli baza była założona wcześniej, wklej jeszcze raz cały plik `supabase/schema.sql` w *SQL Editor* i kliknij *Run* (bezpieczne, nic się nie dubluje). Bez tego wiadomości w stolikach nie zapiszą się w bazie.
 
 Jak to działa: logowanie e-mailem i hasłem, reset hasła przez e-mail, historia czatu zapisana w bazie, nowe wiadomości pojawiają się u wszystkich od razu. Rozmowy są wspólne (każdy zalogowany widzi wiadomości w danym czacie).
 

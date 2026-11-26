@@ -4,7 +4,7 @@
 
 create table if not exists public.messages (
   id         bigint generated always as identity primary key,
-  channel    text        not null check (channel ~ '^(chat|room):[a-z0-9_-]{1,40}$'),
+  channel    text        not null check (channel ~ '^(chat|room|table):[a-z0-9_-]{1,40}$'),
   user_id    uuid        not null default auth.uid() references auth.users (id) on delete cascade,
   author     text        not null check (char_length(author) between 1 and 30),
   text       text        not null check (char_length(text) between 1 and 500),
@@ -70,3 +70,8 @@ end $$;
 -- Miasto i zainteresowania: dobrowolne, widoczne dla wszystkich zalogowanych razem z wiadomością (jak imię).
 alter table public.messages add column if not exists city      text check (city is null or char_length(city) between 1 and 40);
 alter table public.messages add column if not exists interests text check (interests is null or char_length(interests) between 1 and 80);
+
+-- Stoliki (czaty "table:..."): rozszerzenie dozwolonych nazw kanałów dla baz założonych wcześniej.
+-- Bez tego wiadomości w stolikach i klubach nie zapiszą się w bazie.
+alter table public.messages drop constraint if exists messages_channel_check;
+alter table public.messages add constraint messages_channel_check check (channel ~ '^(chat|room|table):[a-z0-9_-]{1,40}$');
