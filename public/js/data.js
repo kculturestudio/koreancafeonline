@@ -19,8 +19,8 @@
         id: 'kr-a1', badge: 'KR', lang: 'KR', topic: 'language', premium: false,
         levels: ['A1', 'A2'], level: { pl: 'A1–A2', ko: 'A1–A2' }, ages: ALL_AGES,
         name: { pl: 'Koreański dla początkujących', ko: '한국어 초급' },
-        desc: { pl: 'pisz po koreańsku', ko: '한국어로 써 보세요' },
-        rule: { pl: 'Pisz po koreańsku, native speakerzy poprawiają.', ko: '한국어로 써 보세요. 원어민이 고쳐 드려요.' },
+        desc: { pl: 'pisz po koreańsku, Koreańczycy poprawiają', ko: '한국어로 써 보세요, 한국인이 고쳐 줘요' },
+        rule: { pl: 'Pisz po koreańsku, Koreańczycy poprawiają.', ko: '한국어로 써 보세요. 한국인이 고쳐 드려요.' },
         // Pytania do ćwiczeń (karta nad wiadomościami): k = pytanie po koreańsku, pl = tłumaczenie, starter = początek odpowiedzi.
         practice: [
           { pl: 'Jak się nazywasz?', k: '이름이 뭐예요?' },
@@ -305,7 +305,7 @@
       {
         id: 'historia', always: true, premium: false, seats: 6, badge: 'ROOM',
         lang: 'MIX', topic: 'culture', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
-        name: { pl: 'Stolik · Historia', ko: '테이블 · 역사' },
+        name: { pl: 'Stolik · History & Politics', ko: '테이블 · 역사와 정치' },
         // Temat dnia (zmienia się o północy): q = pytanie po polsku, tr = tłumaczenie po koreańsku (do sprawdzenia przez native speakera). Max 6 osób.
         daily: [
           { title: { pl: 'Polska i Korea', ko: '폴란드와 한국' }, q: 'Jakie podobieństwa widzisz w historii Polski i Korei?', tr: '폴란드와 한국의 역사에서 비슷한 점이 뭐라고 생각해요?' },
@@ -315,7 +315,69 @@
           { title: { pl: 'Miejsce w Korei', ko: '한국의 명소' }, q: 'Jakie historyczne miejsce warto zobaczyć w Korei?', tr: '한국에서 꼭 가 봐야 할 역사적인 장소가 어디예요?' },
           { title: { pl: 'Historia rodziny', ko: '가족의 역사' }, q: 'Czy historia Twojej rodziny jest związana z jakimś wydarzeniem?', tr: '가족의 역사가 어떤 사건과 관련이 있어요?' },
           { title: { pl: 'Seriale historyczne', ko: '사극' }, q: 'Który historyczny serial lub film najlepiej oddaje epokę?', tr: '시대를 가장 잘 보여 주는 사극이나 영화가 뭐예요?' },
-          { title: { pl: 'Lekcje historii', ko: '역사의 교훈' }, q: 'Czego historia uczy Cię na co dzień?', tr: '역사에서 배운 것 중에 일상에 도움이 되는 게 뭐예요?' }
+          { title: { pl: 'Lekcje historii', ko: '역사의 교훈' }, q: 'Czego historia uczy Cię na co dzień?', tr: '역사에서 배운 것 중에 일상에 도움이 되는 게 뭐예요?' },
+          { title: { pl: 'Polityka bez kłótni', ko: '싸우지 않는 정치 이야기' }, q: 'Jak rozmawiać o polityce, żeby nie kłócić się z bliskimi?', tr: '가까운 사람과 싸우지 않고 정치 이야기를 하려면 어떻게 해야 해요?' },
+          { title: { pl: 'Wybory', ko: '선거' }, q: 'Czym różni się głosowanie w Polsce i w Korei?', tr: '폴란드와 한국의 투표 방식은 어떻게 달라요?' }
+        ]
+      },
+      {
+        id: 'aktualnosci', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'culture', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Current Affairs', ko: '테이블 · 시사' },
+        daily: [
+          { title: { pl: 'Nagłówek dnia', ko: '오늘의 헤드라인' }, q: 'Wklej nagłówek z dzisiejszych wiadomości i napisz, co o nim sądzisz.', tr: '오늘 뉴스 제목을 하나 붙여 넣고 생각을 써 보세요.' },
+          { title: { pl: 'Wiadomości na co dzień', ko: '뉴스 습관' }, q: 'Wiadomości czytasz codziennie czy rzadko? Dlaczego?', tr: '뉴스를 매일 봐요, 가끔 봐요? 왜요?' },
+          { title: { pl: 'Wiadomość tygodnia', ko: '이번 주 뉴스' }, q: 'Streść w trzech zdaniach jedną wiadomość z tego tygodnia.', tr: '이번 주 뉴스 하나를 세 문장으로 요약해 보세요.' },
+          { title: { pl: 'Źródła wiadomości', ko: '뉴스 출처' }, q: 'Zapytaj stolik, skąd czerpią wiadomości.', tr: '뉴스를 어디서 보는지 테이블에 물어보세요.' },
+          { title: { pl: 'Wiadomość w 15 sekund', ko: '15초 뉴스' }, q: 'Nagraj 15 sekund: opowiedz o wiadomości tygodnia.', tr: '15초 녹음: 이번 주 뉴스를 이야기해 보세요.' }
+        ]
+      },
+      {
+        id: 'zycie-praca-pl', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ['A2', 'B1', 'B2', 'C1'], level: { pl: 'A2–C1', ko: 'A2–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Życie i praca w Polsce', ko: '테이블 · 폴란드 생활과 일' },
+        daily: [
+          { title: { pl: 'Pokaż', ko: '보여 주기' }, q: 'Pokaż polskie jedzenie, które trzeba spróbować.', tr: '꼭 먹어 봐야 할 폴란드 음식을 보여 주세요.' },
+          { title: { pl: 'Wybierz', ko: '고르기' }, q: 'Praca zdalna czy w biurze? Dlaczego?', tr: '재택근무와 사무실 근무 중에 뭐가 좋아요? 왜요?' },
+          { title: { pl: 'Misja', ko: '미션' }, q: 'Zapisz po polsku jedno zdanie, które przyda się w sklepie.', tr: '가게에서 쓸 수 있는 폴란드어 문장을 하나 써 보세요.' },
+          { title: { pl: 'Zapytaj stolik', ko: '테이블에 질문' }, q: 'Zapytaj stolik o najlepszą radę w pracy.', tr: '직장에서 들은 제일 좋은 조언을 테이블에 물어보세요.' },
+          { title: { pl: 'Nagranie', ko: '녹음' }, q: 'Nagraj 15 sekund: opowiedz o polskim święcie.', tr: '15초 녹음: 폴란드 명절에 대해 이야기해 보세요.' }
+        ]
+      },
+      {
+        id: 'zycie-praca-kr', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ['A2', 'B1', 'B2', 'C1'], level: { pl: 'A2–C1', ko: 'A2–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Życie i praca w Korei', ko: '테이블 · 한국 생활과 일' },
+        daily: [
+          { title: { pl: 'Pokaż', ko: '보여 주기' }, q: 'Pokaż rzecz, która zaskoczyła Cię w Korei.', tr: '한국에서 놀랐던 것을 보여 주세요.' },
+          { title: { pl: 'Wybierz', ko: '고르기' }, q: 'Hoesik, czyli kolacja z zespołem: lubisz czy nie?', tr: '회식 어때요? 좋아해요, 별로예요?' },
+          { title: { pl: 'Misja', ko: '미션' }, q: 'Zapisz po koreańsku jedną frazę przydatną w kawiarni.', tr: '카페에서 쓸 수 있는 표현을 하나 써 보세요.' },
+          { title: { pl: 'Zapytaj stolik', ko: '테이블에 질문' }, q: 'Zapytaj stolik o różnice w pracy w Polsce i Korei.', tr: '폴란드와 한국의 직장 문화 차이를 테이블에 물어보세요.' },
+          { title: { pl: 'Nagranie', ko: '녹음' }, q: 'Nagraj 15 sekund: jak wygląda Twój dzień w Korei (lub jak chciał(a)byś go spędzić).', tr: '15초 녹음: 한국에서의 하루를 이야기해 보세요.' }
+        ]
+      },
+      {
+        id: 'studia-pl', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Studia w Polsce', ko: '테이블 · 폴란드 유학' },
+        daily: [
+          { title: { pl: 'Pokaż', ko: '보여 주기' }, q: 'Pokaż swój kierunek lub uczelnię i napisz, dlaczego ją wybrałeś(-aś).', tr: '전공이나 대학교를 보여 주고 선택한 이유를 써 보세요.' },
+          { title: { pl: 'Wybierz', ko: '고르기' }, q: 'Akademik czy wynajęte mieszkanie? Dlaczego?', tr: '기숙사와 자취 중에 어느 쪽이 좋아요? 왜요?' },
+          { title: { pl: 'Misja', ko: '미션' }, q: 'Napisz trzy zdania o swoim planie zajęć.', tr: '수업 일정을 세 문장으로 써 보세요.' },
+          { title: { pl: 'Zapytaj stolik', ko: '테이블에 질문' }, q: 'Zapytaj stolik o radę dla nowych studentów.', tr: '신입생을 위한 조언을 테이블에 물어보세요.' },
+          { title: { pl: 'Nagranie', ko: '녹음' }, q: 'Nagraj 15 sekund: opowiedz, jak wygląda dzień studenta.', tr: '15초 녹음: 대학생의 하루를 이야기해 보세요.' }
+        ]
+      },
+      {
+        id: 'studia-kr', always: true, premium: false, seats: 6, badge: 'ROOM',
+        lang: 'MIX', topic: 'life', levels: ['B1', 'B2', 'C1'], level: { pl: 'B1–C1', ko: 'B1–C1' }, ages: ALL_AGES,
+        name: { pl: 'Stolik · Studia w Korei', ko: '테이블 · 한국 유학' },
+        daily: [
+          { title: { pl: 'Pokaż', ko: '보여 주기' }, q: 'Pokaż uczelnię w Korei, na której chciał(a)byś studiować.', tr: '한국에서 다니고 싶은 대학교를 보여 주세요.' },
+          { title: { pl: 'Wybierz', ko: '고르기' }, q: 'Wymiana czy pełne studia? Dlaczego?', tr: '교환학생과 정규 과정 중에 뭐가 좋아요? 왜요?' },
+          { title: { pl: 'Misja', ko: '미션' }, q: 'Zapisz po koreańsku trzy słowa przydatne na zajęciach.', tr: '수업에서 쓸 수 있는 단어를 세 개 써 보세요.' },
+          { title: { pl: 'Zapytaj stolik', ko: '테이블에 질문' }, q: 'Zapytaj stolik, jak wygląda stypendium GKS.', tr: '장학금(GKS)이 어떤지 테이블에 물어보세요.' },
+          { title: { pl: 'Nagranie', ko: '녹음' }, q: 'Nagraj 15 sekund: dlaczego chcesz studiować w Korei?', tr: '15초 녹음: 한국에서 공부하고 싶은 이유를 말해 보세요.' }
         ]
       },
       {
@@ -412,6 +474,21 @@
         id: 'debata', time: '20:00', dow: [3], dur: 90, premium: true,
         name: { pl: 'Debata moderowana: system i społeczeństwo', ko: '진행자가 있는 토론: 제도와 사회' },
         format: { pl: 'moderowana, z regulaminem, 90 min', ko: '진행자 있음, 규칙 적용, 90분' }
+      },
+      {
+        id: 'polski-poczatkujacy', time: '18:00', dow: [2], dur: 60, premium: true,
+        name: { pl: 'Polski dla początkujących (dla Koreańczyków)', ko: '폴란드어 초급 (한국인을 위한)' },
+        format: { pl: 'nauczyciel na żywo, 60 min', ko: '라이브 선생님, 60분' }
+      },
+      {
+        id: 'polski-sredni', time: '18:00', dow: [3], dur: 60, premium: true,
+        name: { pl: 'Polski dla średnio zaawansowanych (dla Koreańczyków)', ko: '폴란드어 중급 (한국인을 위한)' },
+        format: { pl: 'nauczyciel na żywo, 60 min', ko: '라이브 선생님, 60분' }
+      },
+      {
+        id: 'polski-zaawansowani', time: '18:00', dow: [4], dur: 60, premium: true,
+        name: { pl: 'Polski dla zaawansowanych (dla Koreańczyków)', ko: '폴란드어 고급 (한국인을 위한)' },
+        format: { pl: 'nauczyciel na żywo, 60 min', ko: '라이브 선생님, 60분' }
       }
     ],
 
@@ -492,3 +569,4 @@
     ]
   };
 })();
+
