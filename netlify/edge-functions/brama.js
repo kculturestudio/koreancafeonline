@@ -99,14 +99,14 @@ function page(error) {
 export default async function brama(request, context) {
   if (env('GATE_OFF') === 'true') return context.next();
   const url = new URL(request.url);
-  const password = env('GATE_PASSWORD') || '';
+  const password = String(env('GATE_PASSWORD') || '').trim(); // spacje na końcu (np. po wklejeniu) nie liczą się
 
   if (url.pathname === LOGIN_PATH && request.method === 'POST') {
     if (!password) return page('Brama nie ma jeszcze ustawionego hasła (GATE_PASSWORD w Netlify).');
     let given = '';
-    try { const form = await request.formData(); given = String(form.get('password') || ''); } catch (e) { given = ''; }
+    try { const form = await request.formData(); given = String(form.get('password') || '').trim(); } catch (e) { given = ''; }
     const [a, b] = await Promise.all([tokenFor(given), tokenFor(password)]);
-    if (!same(a, b)) return page('Nieprawidłowe hasło.');
+    if (!same(a, b)) return page('Nieprawidłowe hasło. Sprawdź wielkość liter.');
     return new Response(null, {
       status: 303,
       headers: {
