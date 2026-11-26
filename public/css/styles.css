@@ -1455,3 +1455,10 @@ html,body{height:auto;margin:0}
 .soon-opt input { width: 18px; height: 18px; accent-color: var(--ink); }
 .soon-err { color: #b3261e; }
 .soon-tag { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); background: var(--blush-soft); border-radius: 999px; padding: 5px 10px; }
+/* Profil: Twoja Lada */
+.lada-sum { display: grid; gap: 8px; margin: 10px 0 6px; }
+.lada-sum div { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.lada-sum div:last-child { border-bottom: 0; }
+.lada-sum dt { color: var(--muted); font-size: 13.5px; flex: 0 1 45%; }
+.lada-sum dd { margin: 0; font-weight: 600; text-align: right; flex: 1 1 55%; }
+.auth-title { text-align: center; margin: 6px 0 0; }

@@ -163,7 +163,7 @@
   }
   function hasSeason() { var tb = load('tables', {}); return D.tables.some(function (x) { return x.kind === 'season' && tb[x.id] && tb[x.id].joined; }); }
   function isBeta() { return !!load('beta', false); }
-  function isPremium() { if (CFG.lite) return isBeta(); return !!CFG.devForcePremium || !!load('demoPremium', false) || hasSeason(); }
+  function isPremium() { if (isBeta()) return true; if (CFG.lite) return false; return !!CFG.devForcePremium || !!load('demoPremium', false) || hasSeason(); }
   function toast(msg) {
     toastEl.textContent = msg;
     toastEl.hidden = false;
@@ -447,7 +447,7 @@
       this.push();
     },
     level: function () { return 1 + Math.floor(this.stats().xp / 100); },
-    snapshot: function () { return { stats: this.stats(), practice: load('practice', {}) }; },
+    snapshot: function () { return { stats: this.stats(), practice: load('practice', {}), lada: load('lada', null) }; },
     // Łączy dane z konta z lokalnymi: wyższe XP wygrywa, a w ćwiczeniach liczy się dalszy postęp.
     merge: function (remote) {
       if (!remote || typeof remote !== 'object') return;
@@ -457,11 +457,16 @@
       var lp = load('practice', {}), rp = remote.practice || {};
       Object.keys(rp).forEach(function (k) { if ((rp[k] || 0) > (lp[k] || 0)) lp[k] = rp[k]; });
       save('practice', lp);
+      // Lada: wygrywa nowsza wersja (pole at), a zapisana na koncie zastępuje pustą lokalną.
+      var ll = load('lada', null), rl = remote.lada;
+      if (rl && typeof rl === 'object' && rl.done && (!ll || !ll.done || (rl.at || 0) > (ll.at || 0))) {
+        save('lada', rl); if (rl.level) save('level', rl.level); ui.lada = null;
+      }
     },
     pull: function () {
-      if (!SB.on || !ui.user) return;
+      if (!SB.on || !ui.user) return Promise.resolve();
       var self = this;
-      SB.client.from('progress').select('data').eq('user_id', ui.user.id).maybeSingle().then(function (r) {
+      return SB.client.from('progress').select('data').eq('user_id', ui.user.id).maybeSingle().then(function (r) {
         if (r && r.data && r.data.data) self.merge(r.data.data);
         self.push(true);
         if (/^#\/(cwiczenia|profil)/.test(currentHash())) { ui.keepScroll = true; route(); }
@@ -583,7 +588,7 @@
   var CLUB_GLYPH = { fandoms: 'heart', 'book-club': 'book', 'kdrama-club': 'clapper', 'kpop-dance': 'mic', 'cooking-club': 'pot', 'polish-for-koreans': 'chat' };
   function clubEmo(x) { return (x.kind === 'club' && CLUB_GLYPH[x.hobbyId]) ? '<span class="badge-sq club-emo" aria-hidden="true">' + glyph(CLUB_GLYPH[x.hobbyId], 22) + '</span>' : ''; }
   function gateHref(id) { var gx = tableOf(id); return (CFG.lite && !(gx && gx.live)) ? '#/wkrotce/' + id : '#/premium'; }
-  function isSoonT(x) { return !!CFG.lite && ((x.kind === 'club' && !x.live && !isPremium()) || !!x.soon); }
+  function isSoonT(x) { return !!CFG.lite && !isBeta() && ((x.kind === 'club' && !x.live && !isPremium()) || !!x.soon); }
   function kindTag(x) { return x.mentor ? t('tb.tag.mentor') : t('tb.tag.' + x.kind); }
   function lockHtml(x) { if (CFG.lite && !(x && x.live)) return '<span class="soon-tag">' + esc(t('soon.tag')) + '</span>'; return '<span class="lock" aria-label="' + esc(t('lobby.premium')) + '">' + ico('lock', 18) + '</span>'; }
   function chatRow(c) {
@@ -958,7 +963,7 @@
   }
   function viewAuth(mode) {
     if (!SB.on) { navigate('#/profil', true); return; }
-    if (mode !== 'newpass' && ui.user) { navigate('#/profil', true); return; }
+    if (mode !== 'newpass' && ui.user) { navigate(homeHash(), true); return; }
     if (mode === 'newpass' && !ui.user) { navigate('#/logowanie', true); return; }
     var fields = '';
     if (mode === 'register') fields += authField('a-name', 'name', 'profile.name', 'text', 'nickname', ' maxlength="30" placeholder="' + esc(t('profile.namePh')) + '"');
@@ -976,11 +981,11 @@
     } else if (mode === 'reset') {
       links = '<a href="#/logowanie">' + esc(t('auth.backToLogin')) + '</a>';
     }
-    var back = mode === 'newpass' ? '#/kawiarnia' : '#/profil';
+    var back = mode === 'newpass' ? '#/kawiarnia' : (mode === 'login' ? '' : '#/logowanie');
     var html = '<main class="screen" id="view" tabindex="-1">' +
-      '<div class="topbar"><a class="icon-btn" href="' + back + '" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
-      '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('auth.title.' + mode)) + '</h1></div></div>' +
-      '<div class="content"><div class="logo-row"><img class="logo-mini" src="img/logo-160.png" alt="" width="64" height="64"></div><p class="subtitle logo-lead">' + esc(t('auth.lead.' + mode)) + '</p>' +
+      (back ? '<div class="topbar"><a class="icon-btn" href="' + back + '" aria-label="' + esc(t('common.back')) + '">' + ico('back') + '</a>' +
+      '<div class="topbar-text"><h1 class="topbar-title">' + esc(t('auth.title.' + mode)) + '</h1></div></div>' : '') +
+      '<div class="content">' + (back ? '' : '<div class="head welcome-lang">' + langSeg() + '</div>') + '<div class="logo-row"><img class="logo-mini" src="img/logo-160.png" alt="" width="64" height="64"></div>' + (back ? '' : '<h1 class="title auth-title">' + esc(t('auth.title.' + mode)) + '</h1>') + '<p class="subtitle logo-lead">' + esc(t('auth.lead.' + mode)) + '</p>' +
       '<form class="auth-form" data-form="auth" data-mode="' + mode + '" novalidate>' + fields +
       '<p id="authMsg" role="alert" hidden></p>' +
       '<button class="btn btn-primary" type="submit">' + esc(t('auth.submit.' + mode)) + '</button></form>' +
@@ -1003,9 +1008,9 @@
     function finish(user) {
       var meta = user && user.user_metadata;
       if (!load('name', '') && meta && meta.name) save('name', String(meta.name).slice(0, 30));
-      var to = ui.returnTo || '#/kawiarnia';
+      var to = ui.returnTo;
       ui.returnTo = null;
-      navigate(to);
+      Prog.pull().then(null, function () {}).then(function () { navigate(to || homeHash()); });
     }
     if (mode !== 'newpass' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say(t('auth.err.email'));
     if (mode === 'register' && (name.length < 2 || name.length > 30)) return say(t('auth.err.name'));
@@ -1098,6 +1103,26 @@
       '<button type="button" class="chip-btn" data-action="freeze"' + (froze || fz.n < 1 ? ' disabled' : '') + '>' + esc(t('wr.freeze')) + ' · ' + esc(fz.n > 0 ? tf('wr.freezeLeft', { n: fz.n }) : t('wr.none')) + '</button></div></div>';
   }
   function journeyOpen() { return !(ladaDone() && joinedTables().length > 0 && myMsgCount() >= 5 && Object.keys(load('rsvp', {})).length > 0 && joinedTables().some(function (x) { return x.kind === 'season'; })); }
+  /* Profil → Twoja Lada: odpowiedzi z Lady (zapisane na koncie), z przyciskiem do zmiany */
+  function ladaCardHtml() {
+    var l = load('lada', null);
+    if (!l || !l.done) return '<section class="panel lada-card"><div class="panel-head"><h2>' + esc(t('lada.card')) + '</h2></div>' +
+      '<p class="subtitle">' + esc(t('lada.cardEmpty')) + '</p><a class="btn btn-primary btn-sm" href="#/lada">' + esc(t('lada.cardStart')) + '</a></section>';
+    var hob = (l.hobbies || []).map(function (id) { var h = null; HOBBIES.forEach(function (x) { if (x[0] === id) h = x; }); return h ? (lang === 'ko' ? h[2] : T(h[1])) : ''; }).filter(Boolean);
+    var slotK = { am: 'lada.slot.am', pm: 'lada.slot.pm', eve: 'lada.slot.eve' };
+    var sl = (l.slots || []).map(function (x) { return slotK[x] ? t(slotK[x]) : ''; }).filter(Boolean);
+    var none = t('lada.none');
+    var rows = [
+      [t('lada.q1'), l.dir ? t('lada.dir.' + l.dir) : none],
+      [t('lada.q2'), l.level || none],
+      [t('lada.q3'), hob.length ? hob.join(', ') : none],
+      [t('lada.q4'), sl.length ? sl.join(', ') : none]
+    ];
+    return '<section class="panel lada-card"><div class="panel-head"><h2>' + esc(t('lada.card')) + '</h2>' +
+      '<a class="chip-btn" href="#/lada/edycja">' + esc(t('lada.change')) + '</a></div><dl class="lada-sum">' +
+      rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>' +
+      '<p class="fine left">' + esc(t(SB.on && ui.user ? 'lada.cardSynced' : 'lada.cardLocal')) + '</p></section>';
+  }
   function viewProfile() {
     var name = load('name', '');
     var level = load('level', '');
@@ -1110,7 +1135,7 @@
       '<div class="ph-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (Prog.stats().xp % 100) + '"><i style="width:' + (Prog.stats().xp % 100) + '%"></i></div></div>' +
       '<div class="ph-stats" role="group" aria-label="' + esc(t('stats.label')) + '">' + [[Prog.stats().xp, t('stats.xp')], [Prog.stats().streak, t('stats.streak')], [Prog.stats().beans, t('stats.beans')]].map(function (x) {
         return '<div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div>'; }).join('') + '</div></section>' +
-      journeyHtml() + infoHtml() + weeklyHtml() + '<a class="plan-card plan-gold" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
+      ladaCardHtml() + journeyHtml() + infoHtml() + weeklyHtml() + '<a class="plan-card plan-gold" href="#/premium"><span class="plan-icon">' + ico('crown', 22) + '</span>' +
       '<span class="row-text"><strong>Premium</strong><small>' + esc(t('profile.planCta')) + '</small></span>' + ico('chevron', 20) + '</a>' +
       accountHtml() +
       '<div class="pset"><p class="label-caps">' + esc(t('profile.settings')) + '</p><div class="pset-card">' +
@@ -1565,7 +1590,10 @@
   function optBtn(action, val, label, on) {
     return '<button type="button" class="opt" data-action="' + action + '" data-v="' + esc(val) + '" aria-pressed="' + (!!on) + '">' + esc(label) + '</button>';
   }
+  function homeHash() { return ladaDone() ? '#/kawiarnia' : '#/lada'; }
   function viewLada() {
+    var edit = currentHash() === '#/lada/edycja';
+    ui.ladaEdit = edit;
     var S0 = ladaState();
     var dir = optBtn('lada-dir', 'ko', t('lada.dir.ko'), S0.dir === 'ko') + optBtn('lada-dir', 'pl', t('lada.dir.pl'), S0.dir === 'pl');
     var lv = ['A1', 'A2', 'B1', 'B2', 'C1'].map(function (x) { return optBtn('lada-lvl', x, x, S0.level === x); }).join('');
@@ -1578,9 +1606,9 @@
       '<section class="panel"><h2>2. ' + esc(t('lada.q2')) + '</h2><div class="opt-grid">' + lv + '</div></section>' +
       '<section class="panel"><h2>3. ' + esc(t('lada.q3')) + '</h2><div class="opt-grid">' + hb + '</div></section>' +
       '<section class="panel"><h2>4. ' + esc(t('lada.q4')) + '</h2><div class="opt-grid">' + sl + '</div><p class="fine left">' + esc(t('lada.slotNote')) + '</p></section>' +
-      '<button type="button" class="btn btn-primary" data-action="lada-done"' + (ready ? '' : ' aria-disabled="true"') + '>' + esc(t('lada.done')) + '</button>' +
+      '<button type="button" class="btn btn-primary" data-action="lada-done"' + (ready ? '' : ' aria-disabled="true"') + '>' + esc(t(edit ? 'lada.save' : 'lada.done')) + '</button>' +
       (ready ? '' : '<p class="fine">' + esc(t('lada.need')) + '</p>') +
-      '<a class="btn btn-ghost btn-sm" href="#/kawiarnia">' + esc(t('lada.skip')) + '</a></div>' + nav('chats') + '</main>';
+      (edit ? '<a class="btn btn-ghost btn-sm" href="#/profil">' + esc(t('lada.cancel')) + '</a>' : '<a class="btn btn-ghost btn-sm" href="#/kawiarnia">' + esc(t('lada.skip')) + '</a>') + '</div>' + nav(edit ? 'profile' : 'chats') + '</main>';
     show(html, t('lada.title'));
   }
 
@@ -1897,7 +1925,9 @@
     mgRoute(hash);
     var seg = hash.slice(1).split('/').filter(Boolean);
     var name = seg[0] || '';
-    if (name === '') { navigate('#/kawiarnia', true); return; }
+    // Logowanie obowiązkowe: bez konta widać tylko ekrany logowania, rejestracji i resetu hasła.
+    if (SB.on && !ui.user && name !== 'logowanie' && name !== 'nowe-haslo') { navigate('#/logowanie', true); return; }
+    if (name === '') { navigate(homeHash(), true); return; }
     if (name !== '' && name !== 'nowe-haslo' && ui.recovery && ui.user) { navigate('#/nowe-haslo', true); return; }
     switch (name) {
       case 'kawiarnia': return viewLobby(seg[1] === 'live' ? 'live' : 'chats');
@@ -1918,7 +1948,7 @@
       case 'profil': return viewProfile();
       case 'logowanie': return viewAuth(seg[1] === 'rejestracja' ? 'register' : (seg[1] === 'reset' ? 'reset' : 'login'));
       case 'nowe-haslo': return viewAuth('newpass');
-      default: navigate('#/kawiarnia', true);
+      default: navigate(homeHash(), true);
     }
   }
 
@@ -2170,7 +2200,8 @@
     } else if (a === 'lada-done') {
       var ld = ladaState();
       if (!ld.dir || !ld.level) { toast(t('lada.need')); return; }
-      ld.done = true; save('lada', ld); save('level', ld.level);
+      ld.done = true; ld.at = Date.now(); save('lada', ld); save('level', ld.level); Prog.push(true);
+      if (ui.ladaEdit) { ui.lada = null; toast(t('lada.saved')); navigate('#/profil'); return; }
       var tbs = load('tables', {}), best = null;
       D.tables.forEach(function (x) {
         if (x.kind !== 'trial' || x.members.length >= x.seats) return;
@@ -2279,6 +2310,8 @@
       if (again) again.focus();
     } else if (el.getAttribute && el.getAttribute('data-pref') === 'level') {
       save('level', el.value);
+      var pl = load('lada', null);
+      if (pl && pl.done && el.value && /^(A1|A2|B1|B2|C1)$/.test(el.value)) { pl.level = el.value; pl.at = Date.now(); save('lada', pl); ui.lada = null; Prog.push(true); }
     }
   });
 

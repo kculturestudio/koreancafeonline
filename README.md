@@ -67,6 +67,19 @@ Samą stronę (bez płatności) możesz otworzyć też prostym serwerem: `npx se
 6. Przetestuj kartą testową `4242 4242 4242 4242`. Dopiero po kroku 2 przejdź na klucze produkcyjne.
 7. Podatki: sprawdź z księgową VAT dla usług cyfrowych (Stripe Tax może pomóc) i fakturowanie.
 
+## Brama „Coming soon” i obowiązkowe logowanie
+
+Dopóki strona jest w testach, każdy, kto wejdzie na adres strony, widzi tylko ekran **Coming soon** z polem na hasło. Hasło sprawdza serwer Netlify (plik `netlify/edge-functions/brama.js`), więc nie ma go w kodzie strony i nie da się go obejść w przeglądarce. Bez hasła serwer nie wydaje nawet plików aplikacji.
+
+1. Netlify → *Site configuration → Environment variables* → dodaj `GATE_PASSWORD` z hasłem dla testerów (najlepiej długim, np. 3–4 losowe słowa).
+2. Zrób nowe wdrożenie (*Deploys → Trigger deploy*), żeby hasło zaczęło działać.
+3. Po wpisaniu hasła przeglądarka pamięta je 30 dni. Zmiana hasła w Netlify wylogowuje z bramy wszystkich.
+4. Start publiczny: ustaw `GATE_OFF=true` (albo usuń plik `brama.js`) i zrób nowe wdrożenie.
+
+Bez ustawionego `GATE_PASSWORD` brama zostaje zamknięta dla wszystkich (bezpieczniej niż otwarta).
+
+Za bramą trzeba się zalogować (Supabase), żeby zobaczyć cokolwiek. Pierwsze logowanie prowadzi na Ladę, a odpowiedzi z Lady zapisują się na koncie i można je zmienić w Profilu (sekcja „Twoja Lada”). W Profilu jest też przełącznik **Tryb testowy**, który odblokowuje wszystkie opcje Premium na tym urządzeniu.
+
 ## Krok 2a: konta i prawdziwy czat (Supabase)
 
 Kod jest już w repozytorium. Do uruchomienia potrzebujesz tylko darmowego projektu w Supabase. Dopóki nie wpiszesz jego danych w `config.js`, strona działa jak dotąd, w trybie demo.
