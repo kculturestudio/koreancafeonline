@@ -314,6 +314,7 @@ window.KCO_I18N = {
   'profile.login': ['Zaloguj się lub załóż konto', '로그인 또는 회원가입'],
   'profile.logout': ['Wyloguj się', '로그아웃'],
   'profile.loggedOut': ['Wylogowano.', '로그아웃했어요.'],
+  'profile.logoutGate': ['Wyloguj (powrót do bramy testera)', '로그아웃 (테스터 입구로 돌아가기)'],
   'profile.noteRemote': [
     'Imię i poziom języka zapisują się w tej przeglądarce. Wiadomości z czatów są zapisane na Twoim koncie i widzą je inni uczestnicy.',
     '이름과 언어 레벨은 이 브라우저에 저장돼요. 채팅 메시지는 계정에 저장되며 다른 참가자에게도 보여요.'

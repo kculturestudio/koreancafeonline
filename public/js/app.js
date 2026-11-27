@@ -1151,6 +1151,7 @@
       ('<button type="button" class="pset-row pset-link" data-action="mg-tips-toggle" aria-pressed="' + (load('mgTips', true) !== false) + '"><span>' + esc(t('mg.set.tips')) + '</span><b>' + (load('mgTips', true) !== false ? 'ON' : 'OFF') + '</b></button>') +
       ('<button type="button" class="pset-row pset-link" data-action="mg-dock-toggle" aria-pressed="' + MG.isPersistent() + '"><span>' + esc(t('mg.set.dock')) + '</span><b>' + (MG.isPersistent() ? 'ON' : 'OFF') + '</b></button>') +
       ('<button type="button" class="pset-row pset-link" data-action="beta-toggle" aria-pressed="' + isBeta() + '"><span>' + esc(t('profile.beta')) + '</span><b>' + (isBeta() ? 'ON' : 'OFF') + '</b></button>' ) +
+      '<button type="button" class="pset-row pset-link pset-danger" data-action="logout"><span>' + esc(t('profile.logoutGate')) + '</span>' + ico('chevron', 18) + '</button>' +
       '<button type="button" class="pset-row pset-link" data-action="reset-demo"><span>' + esc(t('profile.reset')) + '</span>' + ico('chevron', 18) + '</button>' +
       '<button type="button" class="pset-row pset-link" data-action="portal"><span>' + esc(t('profile.manage')) + '</span>' + ico('chevron', 18) + '</button>' +
       '<a class="pset-row pset-link" href="regulamin.html"><span>' + esc(t('legal.terms')) + '</span>' + ico('chevron', 18) + '</a>' +
@@ -2289,8 +2290,11 @@
     } else if ((a === 'login' || a === 'register') && SB.on) {
       ui.returnTo = currentHash();
       navigate(a === 'login' ? '#/logowanie' : '#/logowanie/rejestracja');
-    } else if (a === 'logout' && SB.on) {
-      Auth.logout().then(function () { toast(t('profile.loggedOut')); });
+    } else if (a === 'logout') {
+      // Wylogowanie z konta i z bramy testera: po nim wraca ekran „Coming soon” z hasłem.
+      el.disabled = true;
+      var leave = function () { window.location.replace('/__brama/wyloguj'); };
+      if (SB.on && ui.user) Auth.logout().then(leave, leave); else leave();
     }
   });
 

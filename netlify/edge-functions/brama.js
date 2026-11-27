@@ -7,6 +7,7 @@
 const COOKIE = 'kco_brama';
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 dni
 const LOGIN_PATH = '/__brama';
+const LOGOUT_PATH = '/__brama/wyloguj';
 const PUBLIC_FILES = new Set(['/img/logo-160.png', '/favicon.svg', '/robots.txt']);
 
 function env(name) {
@@ -97,8 +98,19 @@ function page(error) {
 }
 
 export default async function brama(request, context) {
-  if (env('GATE_OFF') === 'true') return context.next();
   const url = new URL(request.url);
+  // Wylogowanie z bramy: kasuje ciasteczko i wraca na ekran Coming soon (przycisk „Wyloguj” w Profilu).
+  if (url.pathname === LOGOUT_PATH) {
+    return new Response(null, {
+      status: 303,
+      headers: {
+        location: '/',
+        'cache-control': 'no-store',
+        'set-cookie': COOKIE + '=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax'
+      }
+    });
+  }
+  if (env('GATE_OFF') === 'true') return context.next();
   const password = String(env('GATE_PASSWORD') || '').trim(); // spacje na końcu (np. po wklejeniu) nie liczą się
 
   if (url.pathname === LOGIN_PATH && request.method === 'POST') {

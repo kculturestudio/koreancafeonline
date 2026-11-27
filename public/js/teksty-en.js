@@ -14,3 +14,4 @@ Object.assign(window.KCO_EN, {
   "Zapisane w tej przeglądarce.": "Saved in this browser."
 });
 window.KCO_EN["Zaloguj się, żeby wejść do kawiarni. Nie masz konta? Załóż je w minutę."] = "Log in to enter the café. No account? Create one in a minute.";
+window.KCO_EN["Wyloguj (powrót do bramy testera)"] = "Log out (back to the tester gate)";
