@@ -314,6 +314,7 @@ window.KCO_I18N = {
   'profile.login': ['Zaloguj się lub załóż konto', '로그인 또는 회원가입'],
   'profile.logout': ['Wyloguj się', '로그아웃'],
   'profile.loggedOut': ['Wylogowano.', '로그아웃했어요.'],
+  'profile.logoutGate': ['Wyloguj (powrót do bramy testera)', '로그아웃 (테스터 입구로 돌아가기)'],
   'profile.noteRemote': [
     'Imię i poziom języka zapisują się w tej przeglądarce. Wiadomości z czatów są zapisane na Twoim koncie i widzą je inni uczestnicy.',
     '이름과 언어 레벨은 이 브라우저에 저장돼요. 채팅 메시지는 계정에 저장되며 다른 참가자에게도 보여요.'
@@ -323,7 +324,7 @@ window.KCO_I18N = {
   'auth.title.register': ['Załóż konto', '회원가입'],
   'auth.title.reset': ['Reset hasła', '비밀번호 재설정'],
   'auth.title.newpass': ['Nowe hasło', '새 비밀번호'],
-  'auth.lead.login': ['Wejdź na swoje konto, żeby pisać na czatach.', '계정에 로그인해서 채팅에 참여해 보세요.'],
+  'auth.lead.login': ['Zaloguj się, żeby wejść do kawiarni. Nie masz konta? Załóż je w minutę.', '카페에 들어가려면 로그인해 주세요. 계정이 없다면 1분 만에 만들 수 있어요.'],
   'auth.lead.register': [
     'Konto jest potrzebne, żeby pisać na czatach. Dzięki niemu Twoje wiadomości są zapisane.',
     '채팅에 참여하려면 계정이 필요해요. 보낸 메시지는 계정에 저장돼요.'
